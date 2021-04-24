@@ -133,19 +133,21 @@ lazy val site = project.in(file("site"))
 lazy val commonSettings = Seq(
   testFrameworks += new TestFramework("munit.Framework"),
   libraryDependencies ++= {
-    if (isDotty.value) Seq.empty
+
+
+    if (isDotty(scalaVersion.value)) Seq.empty
     else Seq(
       compilerPlugin("org.typelevel" % "kind-projector" % kindProjectorV cross CrossVersion.full),
       compilerPlugin("com.olegpy" %% "better-monadic-for" % betterMonadicForV),
     )
   },
   scalacOptions ++= {
-    if (isDotty.value) Seq("-source:3.0-migration")
+    if (isDotty(scalaVersion.value)) Seq("-source:3.0-migration")
     else Seq()
   },
   Compile / doc / sources := {
     val old = (Compile / doc / sources).value
-    if (isDotty.value)
+    if (isDotty(scalaVersion.value))
       Seq()
     else
       old
@@ -184,3 +186,7 @@ inThisBuild(List(
       "-doc-source-url", "https://github.com/ChristopherDavenport/shellfish/blob/v" + version.value + "€{FILE_PATH}.scala"
   )
 ))
+
+def isDotty(string: String): Boolean = {
+  VersionNumber(string)._1.exists(_ == 3L)
+}
