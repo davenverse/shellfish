@@ -67,6 +67,8 @@ trait Shell[F[_]]{
 
 object Shell {
 
+  val io: Shell[IO] = new ShellImpl[IO]
+
   def apply[F[_]](implicit ev: Shell[F]): ev.type = ev
 
   def lastModified[F[_]: Sync](path: Path): F[Instant] = Sync[F].delay{

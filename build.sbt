@@ -84,6 +84,7 @@ lazy val examples = project.in(file("examples"))
   .disablePlugins(MimaPlugin)
   .enablePlugins(NoPublishPlugin)
   .settings(commonSettings)
+  .dependsOn(core)
   .settings(
     name := "shelfish-examples"
   )
