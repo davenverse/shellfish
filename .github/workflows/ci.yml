@@ -125,4 +125,5 @@ jobs:
       - uses: christopherdavenport/create-ghpages-ifnotexists@v1
 
       - name: Publish microsite
+        if: matrix.scala == '2.13.5'
         run: sbt ++${{ matrix.scala }} site/publishMicrosite

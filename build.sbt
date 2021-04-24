@@ -54,7 +54,8 @@ ThisBuild / githubWorkflowPublish := Seq(
   WorkflowStep.Use("christopherdavenport", "create-ghpages-ifnotexists", "v1"),
   WorkflowStep.Sbt(
     List("site/publishMicrosite"),
-    name = Some("Publish microsite")
+    name = Some("Publish microsite"),
+    cond = Some(Scala213Cond)
   )
 )
 
