@@ -16,6 +16,8 @@ object SubProcess {
 
   def apply[F[_]](implicit ev: SubProcess[F]): ev.type = ev
 
+  val io: SubProcess[IO] = new SubProcessImpl[IO]
+
   implicit def forAsync[F[_]: Async]: SubProcess[F] = new SubProcessImpl[F]
 
   private class SubProcessImpl[F[_]: Async] extends SubProcess[F]{
