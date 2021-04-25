@@ -5,6 +5,7 @@ val Scala213 = "2.13.5"
 ThisBuild / crossScalaVersions := Seq(Scala213, "3.0.0-RC2")
 ThisBuild / scalaVersion := crossScalaVersions.value.last
 
+
 ThisBuild / githubWorkflowArtifactUpload := false
 
 val Scala213Cond = s"matrix.scala == '$Scala213'"
@@ -34,6 +35,7 @@ ThisBuild / githubWorkflowBuild := Seq(
     cond = Some(Scala213Cond)))
 
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
+ThisBuild / githubWorkflowJavaVersions := Seq("adopt@1.11")
 
 // currently only publishing tags
 ThisBuild / githubWorkflowPublishTargetBranches :=
