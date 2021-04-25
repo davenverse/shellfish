@@ -34,6 +34,8 @@ trait SubProcess[F[_]]{
 
   def shellStrictWithErr(command: String, arguments: List[String] = List.empty, stdIn: Option[Stream[F, String]] = None): F[(ExitCode, String, String)]
 
+  // Lower Level Control
+  def run(command: String, arguments: List[String] = List.empty): Resource[F, SubProcess.RunningProcess[F]]
 }
 object SubProcess {
 
@@ -135,6 +137,20 @@ object SubProcess {
           ).tupled
         )
       } yield out
+
+    def run(command: String, arguments: List[String] = List.empty): Resource[F, RunningProcess[F]] = 
+      Resource.eval(shell.pwd).flatMap{where => 
+        pr.run(where, command :: arguments)
+      }
+  }
+
+  trait RunningProcess[F[_]] {
+    def setInput(input: fs2.Stream[F, Byte]): F[Unit]
+    def output: fs2.Stream[F, Byte]
+    def outputUtf8: fs2.Stream[F, String]
+    def errorOutput: fs2.Stream[F, Byte]
+    def errorOutputUtf8: fs2.Stream[F, String]
+    def exitCode: F[ExitCode]
   }
 
   // Shoutout to Jakub Kozłowski for his awesome code here.
@@ -145,28 +161,18 @@ object SubProcess {
     // the effect with the exit code returns when the process completes.
     // Closing the resource will automatically interrupt the input stream, if it was specified.
     // Behavior on setting multiple inputs is undefined. Probably results in interleaving, idk.
-    def run(wd: String, program: List[String]): Resource[F, ProcessRunner.Running[F]]
+    def run(wd: String, program: List[String]): Resource[F, RunningProcess[F]]
   }
 
   private object ProcessRunner {
     def apply[F[_]](implicit F: ProcessRunner[F]): ProcessRunner[F] = F
 
-    trait Running[F[_]] {
-      def setInput(input: fs2.Stream[F, Byte]): F[Unit]
-      def output: fs2.Stream[F, Byte]
-      // def outputUtf8: fs2.Stream[F, String]
-      def errorOutput: fs2.Stream[F, Byte]
-      // def errorOutputUtf8: fs2.Stream[F, String]
-      def exitCode: F[ExitCode]
-    }
-
-    // This is a relatively barebones implementation, for the real deal go use something like vigoo/prox
     implicit def instance[F[_]: Async]: ProcessRunner[F] = new ProcessRunner[F] {
       import scala.jdk.CollectionConverters._
 
       val readBufferSize = 4096
 
-      def run(wd: String, program: List[String]): Resource[F, Running[F]] =
+      def run(wd: String, program: List[String]): Resource[F, RunningProcess[F]] =
         Resource
           .make(Sync[F].blocking(new java.lang.ProcessBuilder(program.asJava).directory(new java.io.File(wd)).start()))(p => Sync[F].blocking(p.destroy()))
           .flatMap { process =>
@@ -174,7 +180,7 @@ object SubProcess {
             Supervisor[F].map { supervisor =>
               val done = Async[F].fromCompletableFuture(Sync[F].delay(process.onExit()))
 
-              new Running[F] {
+              new RunningProcess[F] {
                 def setInput(input: fs2.Stream[F, Byte]): F[Unit] =
                   supervisor
                     .supervise(
@@ -189,12 +195,16 @@ object SubProcess {
                   .io
                   .readInputStream[F](Sync[F].blocking(process.getInputStream()), chunkSize = readBufferSize)
 
+                val outputUtf8 = output.through(fs2.text.utf8Decode)
+
                 val errorOutput: fs2.Stream[F, Byte] = fs2
                   .io
                   .readInputStream[F](Sync[F].blocking(process.getErrorStream()), chunkSize = readBufferSize)
                   // Avoids broken pipe - we cut off when the program ends.
                   // Users can decide what to do with the error logs using the exitCode value
                   .interruptWhen(done.void.attempt)
+
+                val errorOutputUtf8 = errorOutput.through(fs2.text.utf8Decode)
 
                 val exitCode: F[ExitCode] = done.flatMap(p => Sync[F].blocking(p.exitValue())).map(ExitCode(_))
               }
