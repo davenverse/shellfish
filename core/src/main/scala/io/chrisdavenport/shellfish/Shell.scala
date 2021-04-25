@@ -87,7 +87,7 @@ object Shell {
 
     private def getResolved(path: String) : F[Path] = for {
       current <- pwd
-    } yield if (path.startsWith("/")) Paths.get(path) else Paths.get(current).resolve(path)
+    } yield if (path.startsWith("/") || path.startsWith("~")) Paths.get(path) else Paths.get(current).resolve(path)
 
     // print stdout
     def echo[A](string: A)(implicit show: Show[A] = Show.fromToString): F[Unit] = console.println(string)
