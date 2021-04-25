@@ -10,58 +10,133 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes
 import java.time._
 
+/**
+ * Shell Exposes a Set Of Utilities for building applications that
+ * mirrors what you would have in a traditional shell environment.
+ **/
 trait Shell[F[_]]{
-  // print stdout
+  /**
+   * Print to stdout
+   **/
   def echo[A](string: A)(implicit show: Show[A] = Show.fromToString): F[Unit]
-  // print stderr
+  /**
+   * Print to stderr
+   **/
   def err[A](err: A)(implicit show: Show[A] = Show.fromToString): F[Unit]
 
+  /**
+   * Read in the entire content of a text file.
+   **/
   def readTextFile(path: String): F[String]
+  /**
+   * Replace the entire content of a text file with the provided Text.
+   **/
   def writeTextFile(path: String, content: String): F[Unit]
 
+  /**
+   * Retrieve all environment variables
+   **/
   def env: F[Map[String, String]]
-  // What Env Variable You Want
+  /**
+   * Look up an environment variable
+   **/
   def needEnv(variable: String): F[Option[String]]
 
+  /**
+   * Get the home directory
+   **/
   def home: F[String]
 
-  // Get the path pointed to by a symlink
+  /**
+   * Get the path pointed to by a symlink
+   **/
   def readLink(path: String): F[String]
+  /**
+   * Canonicalize a path
+   **/
   def realPath(path: String): F[String]
 
+  /**
+   * Get the current directory
+   **/
   def pwd: F[String]
+  /**
+   * Change the current directory
+   **/
   def cd(string: String): F[Unit]
+  /**
+   * Check if a path exists
+   **/
   def exists(path: String): F[Boolean]
 
+  /**
+   * Copy a between locations
+   */
   def cp(start: String, end: String): F[Unit]
 
-  // fs2 createDirectory
+  /**
+   * Create a directory
+   * 
+   * Fails if the directory is present
+   */
   def mkdir(path: String): F[Unit]
-  // mkdir -p
+
+  /**
+   * Create a directory tree (equivalent to mkdir -p)
+   *
+   * Does not fail if the directory is present
+   */
   def mktree(path: String): F[Unit]
 
+  /**
+   * Remove a file
+   **/
   def rm(path: String): F[Unit]
+  /**
+   * Remove a directory
+   **/
   def rmDir(path: String): F[Unit]
 
+  /**
+   * Create a symlink from one path to another
+   */
   def symlink(createAt: String, linkTo: String): F[Unit]
+  /**
+   * Returns true if the given path is not a symbolic link
+   */
   def isNotSymLink(path: String): F[Boolean]
 
+  /**
+   * Check if a file exists
+   **/
   def testFile(path: String): F[Boolean]
+  /**
+   * Check if a directory exists
+   **/
   def testDir(path: String): F[Boolean]
+  /**
+   * Check is a path exists
+   **/
   def testPath(path: String): F[Boolean]
 
 
+  /** Get the current time */
   def date: F[Instant]
-  // lastModified
+  /** Get the time a file was last modified */
   def dateFile(path: String): F[Instant]
-
+  /** 
+   * Touch a file, updating the access and modification times to the current time
+   * 
+   * Creates an empty file if it does not exist
+   **/
   def touch(path: String): F[Unit]
 
+  /** Get the system's host name */
   def hostname: F[String]
 
-  // Show the full path of an executable file
+  /** Show the full path of an executable file */
   def which(path: String): F[Option[String]]
-  // Show all matching executables in PATH, not just the first
+  /** Show all matching executables in PATH, not just the first */
   def whichAll(path: String): Stream[F, String]
 }
 
