@@ -192,7 +192,11 @@ object Shell {
       )
     } yield ()
 
-    def hostname: F[String] = Sync[F].delay(java.net.InetAddress.getLocalHost().getHostName())
+    def hostname: F[String] = 
+      testFile("/etc/hostname").ifM(
+        readTextFile("/etc/hostname"),
+        Sync[F].delay(java.net.InetAddress.getLocalHost().getHostName())
+      )
 
     // // Show the full path of an executable file
     def which(path: String): F[Option[String]] = 
