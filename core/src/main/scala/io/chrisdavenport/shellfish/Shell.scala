@@ -1,5 +1,6 @@
 package io.chrisdavenport.shellfish
 
+import cats._
 import cats.syntax.all._
 import cats.effect._
 import fs2._
@@ -11,9 +12,9 @@ import java.time._
 
 trait Shell[F[_]]{
   // print stdout
-  def echo(string: String): F[Unit]
+  def echo[A](string: A)(implicit show: Show[A] = Show.fromToString): F[Unit]
   // print stderr
-  def err(err: String): F[Unit]
+  def err[A](err: A)(implicit show: Show[A] = Show.fromToString): F[Unit]
 
   def readTextFile(path: String): F[String]
   def writeTextFile(path: String, content: String): F[Unit]
@@ -31,7 +32,6 @@ trait Shell[F[_]]{
   def pwd: F[String]
   def cd(string: String): F[Unit]
   def exists(path: String): F[Boolean]
-  // System.setProperty("user.dir", "/foo/bar");
 
   def cp(start: String, end: String): F[Unit]
 
@@ -57,27 +57,31 @@ trait Shell[F[_]]{
 
   def touch(path: String): F[Unit]
 
-  // def hostname: F[String]
+  def hostname: F[String]
 
-  // // Show the full path of an executable file
-  // def which(path: String): F[Option[String]]
-  // // Show all matching executables in PATH, not just the first
-  // def whichAll(path: String): Stream[F, String]
+  // Show the full path of an executable file
+  def which(path: String): F[Option[String]]
+  // Show all matching executables in PATH, not just the first
+  def whichAll(path: String): Stream[F, String]
 }
 
 object Shell {
 
-  val io: Shell[IO] = new ShellImpl[IO]
+  val io: Shell[IO] = global[IO]
 
   def apply[F[_]](implicit ev: Shell[F]): ev.type = ev
 
-  def lastModified[F[_]: Sync](path: Path): F[Instant] = Sync[F].delay{
-    Files.getLastModifiedTime(path).toInstant
-  }
+  def create[F[_]: Async]: F[Shell[F]] = for {
+    wd <- Sync[F].delay(System.getProperty("user.dir"))
+    ref <- Concurrent[F].ref(wd)
+  } yield new ShellImpl(ref.get, s => ref.set(s))
 
-  implicit def forAsync[F[_]: Async]: Shell[F] = new ShellImpl[F]()
+  def global[F[_]: Async]: Shell[F] = new ShellImpl[F](
+    Sync[F].delay(System.getProperty("user.dir")),
+    s => Sync[F].delay(System.setProperty("user.dir", s))
+  )
 
-  private class ShellImpl[F[_]: Async]() extends Shell[F]{
+  private class ShellImpl[F[_]: Async](val pwd: F[String], setWd: String => F[Unit]) extends Shell[F]{
     val console = cats.effect.std.Console.make[F]
     val files = fs2.io.file.Files[F]
 
@@ -86,9 +90,9 @@ object Shell {
     } yield if (path.startsWith("/")) Paths.get(path) else Paths.get(current).resolve(path)
 
     // print stdout
-    def echo(string: String): F[Unit] = console.println(string)
+    def echo[A](string: A)(implicit show: Show[A] = Show.fromToString): F[Unit] = console.println(string)
     // print stderr
-    def err(err: String): F[Unit] = console.error(err)
+    def err[A](err: A)(implicit show: Show[A] = Show.fromToString): F[Unit] = console.error(err)
 
     def readTextFile(path: String): F[String] = 
       getResolved(path).flatMap(p => 
@@ -125,12 +129,10 @@ object Shell {
       }
     )
 
-    def pwd: F[String] = Sync[F].delay(System.getProperty("user.dir"))
-
     def cd(path: String): F[Unit] = for {
       newPath <- getResolved(path)
       out <- files.isDirectory(newPath).ifM(
-        Sync[F].delay(System.setProperty("user.dir", newPath.toString)).void,
+        setWd(newPath.toString),
         new RuntimeException(s"cd: no such file or directory $path").raiseError
       )
     } yield out
@@ -190,12 +192,38 @@ object Shell {
       )
     } yield ()
 
-    // def hostname: F[String] = ???
+    def hostname: F[String] = Sync[F].delay(java.net.InetAddress.getLocalHost().getHostName())
 
     // // Show the full path of an executable file
-    // def which(path: String): F[Option[String]] = ???
+    def which(path: String): F[Option[String]] = 
+      needEnv("PATH").flatMap(a => 
+        a.fold(new Throwable("No PATH env variable").raiseError[F, List[String]])(s => 
+          s.split(":").toList.pure[F]
+        )
+      ).flatMap(list => 
+        Stream.emits(list)
+          .map(Paths.get(_))
+          .flatMap(p => 
+            files.walk(p, 1)
+          ).takeThrough(f => !(f.getFileName.toString == path && Files.isExecutable(f)))
+          .compile
+          .last
+          .map(_.flatMap(s => if (s.getFileName.toString == path) s.toString.some else None))
+      )
     // // Show all matching executables in PATH, not just the first
-    // def whichAll(path: String): Stream[F, String] = ???
+    def whichAll(path: String): Stream[F, String] = 
+      Stream.eval(needEnv("PATH").flatMap(a => 
+        a.fold(new Throwable("No PATH env variable").raiseError[F, List[String]])(s => 
+          s.split(":").toList.pure[F]
+        )
+      )).flatMap(list => 
+        Stream.emits(list)
+          .map(Paths.get(_))
+          .flatMap(p => 
+            files.walk(p, 1)
+          ).filter(f => f.getFileName.toString == path && Files.isExecutable(f))
+          .map(_.toString)
+      )
 
   }
 
