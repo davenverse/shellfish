@@ -138,6 +138,8 @@ trait Shell[F[_]]{
   def which(path: String): F[Option[String]]
   /** Show all matching executables in PATH, not just the first */
   def whichAll(path: String): Stream[F, String]
+
+  def ls(path: String): Stream[F, String]
 }
 
 object Shell {
@@ -302,6 +304,11 @@ object Shell {
             files.walk(p, 1)
           ).filter(f => f.getFileName.toString == path && Files.isExecutable(f))
           .map(_.toString)
+      )
+
+    def ls(path: String): Stream[F, String] = 
+      Stream.eval(getResolved(path)).flatMap(p => 
+        files.walk(p, 1).map(_.toString)
       )
 
   }

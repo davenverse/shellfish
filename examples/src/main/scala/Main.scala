@@ -20,7 +20,8 @@ object Main extends IOApp {
       // _ <- p.shellStrict("pwd").flatTap(s => echo(s.toString))
       // got <- p.shellStrict("find", List("-wholename", "*.scala"))
       // got <- which("java")
-      got <- hostname
+      // got <- hostname
+      got <- ls("").compile.toList
       _ <- echo(got.toString)
       // _ <- p.shellStrict("which", "java":: Nil).flatMap(a => echo(a.toString))
     } yield ExitCode.Success
