@@ -154,7 +154,7 @@ object SubProcess {
   }
 
   // Shoutout to Jakub Kozłowski for his awesome code here.
-  private trait ProcessRunner[F[_]] {
+  trait ProcessRunner[F[_]] {
     // Runs a program and returns a handle to it.
     // The handle allows you to start writing to the standard input of the process using setInput
     // and see its output, as well as the standard error, in the other methods of the handle.
@@ -164,7 +164,7 @@ object SubProcess {
     def run(wd: String, program: List[String]): Resource[F, RunningProcess[F]]
   }
 
-  private object ProcessRunner {
+  object ProcessRunner {
     def apply[F[_]](implicit F: ProcessRunner[F]): ProcessRunner[F] = F
 
     implicit def instance[F[_]: Async]: ProcessRunner[F] = new ProcessRunner[F] {
