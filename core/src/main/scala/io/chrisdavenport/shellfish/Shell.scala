@@ -139,6 +139,7 @@ trait Shell[F[_]]{
   /** Show all matching executables in PATH, not just the first */
   def whichAll(path: String): Stream[F, String]
 
+  def ls: Stream[F, String]
   def ls(path: String): Stream[F, String]
 }
 
@@ -208,8 +209,9 @@ object Shell {
 
     def cd(path: String): F[Unit] = for {
       newPath <- getResolved(path)
-      out <- files.isDirectory(newPath).ifM(
-        setWd(newPath.toAbsolutePath.toString),
+      real = newPath.toRealPath()
+      out <- files.isDirectory(real).ifM(
+        setWd(real.toString),
         new RuntimeException(s"cd: no such file or directory $path").raiseError
       )
     } yield out
@@ -306,9 +308,10 @@ object Shell {
           .map(_.toString)
       )
 
+    def ls: Stream[F, String] = ls("")
     def ls(path: String): Stream[F, String] = 
       Stream.eval(getResolved(path)).flatMap(p => 
-        files.walk(p, 1).map(_.toString)
+        files.walk(p, 1).map(_.toString).drop(1) // Exclude Myself
       )
 
   }
