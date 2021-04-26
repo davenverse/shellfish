@@ -74,6 +74,7 @@ val betterMonadicForV = "0.3.1"
 // Projects
 lazy val `shellfish` = project.in(file("."))
   .disablePlugins(MimaPlugin)
+  .disablePlugins(MakePomPlugin)
   .enablePlugins(NoPublishPlugin)
   .aggregate(core, examples)
 
