@@ -209,7 +209,7 @@ object Shell {
     def cd(path: String): F[Unit] = for {
       newPath <- getResolved(path)
       out <- files.isDirectory(newPath).ifM(
-        setWd(newPath.toString),
+        setWd(newPath.toAbsolutePath.toString),
         new RuntimeException(s"cd: no such file or directory $path").raiseError
       )
     } yield out
