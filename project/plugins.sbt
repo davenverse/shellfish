@@ -2,7 +2,7 @@
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.9.2")
 addSbtPlugin("io.chrisdavenport" % "sbt-mima-version-check" % "0.1.2")
 addSbtPlugin("io.chrisdavenport" % "sbt-no-publish" % "0.1.0")
-addSbtPlugin("io.chrisdavenport" % "sbt-make-pom" % "0.0.2")
+addSbtPlugin("io.chrisdavenport" % "sbt-make-pom" % "0.0.3")
 
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.1")
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.13.1")
