@@ -7,7 +7,7 @@ addSbtPlugin("io.chrisdavenport" % "sbt-make-pom" % "0.0.2")
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.1")
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.13.1")
 addSbtPlugin("com.github.cb372" % "sbt-explicit-dependencies" % "0.2.16")
-addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.7")
+addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.5.12")
 // addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.5.1")
 addSbtPlugin("com.codecommit" % "sbt-github-actions" % "0.14.2")
 
