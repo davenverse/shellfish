@@ -1,7 +1,7 @@
 import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
-val Scala213 = "2.13.10"
-val Scala3 = "3.2.2"
+val Scala213 = "2.13.14"
+val Scala3 = "3.3.3"
 
 ThisBuild / crossScalaVersions := Seq(Scala213, Scala3)
 ThisBuild / scalaVersion := crossScalaVersions.value.last
@@ -68,7 +68,7 @@ val fs2V = "3.6.1"
 
 val munitCatsEffectV = "2.0.0-M3"
 
-val kindProjectorV = "0.13.2"
+val kindProjectorV = "0.13.3"
 val betterMonadicForV = "0.3.1"
 
 
