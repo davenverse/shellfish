@@ -63,10 +63,10 @@ ThisBuild / githubWorkflowPublish := Seq(
 )
 
 val catsV = "2.10.0"
-val catsEffectV = "3.4.10"
-val fs2V = "3.6.1"
+val catsEffectV = "3.5.4"
+val fs2V = "3.10.2"
 
-val munitCatsEffectV = "2.0.0-M3"
+val munitCatsEffectV = "2.0.0-RC1"
 
 val kindProjectorV = "0.13.3"
 val betterMonadicForV = "0.3.1"
