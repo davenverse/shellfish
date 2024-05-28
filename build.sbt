@@ -62,7 +62,7 @@ ThisBuild / githubWorkflowPublish := Seq(
   )
 )
 
-val catsV = "2.10.0"
+val catsV = "2.11.0"
 val catsEffectV = "3.5.4"
 val fs2V = "3.10.2"
 
