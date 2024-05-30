@@ -10,6 +10,9 @@ ThisBuild / developers := List(
   tlGitHubDev("armanbilge", "Arman Bilge")
 )
 
+// Use JDK 22
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.graalvm("22"))
+
 ThisBuild / tlSonatypeUseLegacyHost := false
 
 val Scala3   = "3.4.2"
