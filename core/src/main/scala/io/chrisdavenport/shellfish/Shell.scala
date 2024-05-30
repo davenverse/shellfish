@@ -184,7 +184,7 @@ object Shell {
   def apply[F[_]](implicit ev: Shell[F]): ev.type = ev
 
   def create[F[_]: Async]: F[Shell[F]] = for {
-    wd <- Sync[F].delay(System.getProperty("user.dir"))
+    wd  <- Sync[F].delay(System.getProperty("user.dir"))
     ref <- Concurrent[F].ref(wd)
   } yield new ShellImpl(ref.get, s => ref.set(s))
 
@@ -195,7 +195,7 @@ object Shell {
 
   private class ShellImpl[F[_]: Async](val pwd: F[String], setWd: String => F[Unit]) extends Shell[F] {
     val console = cats.effect.std.Console.make[F]
-    val files = fs2.io.file.Files[F]
+    val files   = fs2.io.file.Files[F]
 
     private def getResolved(path: String): F[Path] = for {
       current <- pwd
@@ -210,7 +210,7 @@ object Shell {
       getResolved(path).flatMap(p => files.readAll(p, 512).through(fs2.text.utf8Decode).compile.string)
     def writeTextFile(path: String, content: String): F[Unit] = {
       for {
-        p <- getResolved(path)
+        p      <- getResolved(path)
         exists <- files.exists(p, List())
         isFile <- files.isFile(p)
         _ <-
@@ -257,7 +257,7 @@ object Shell {
     def cp(start: String, end: String): F[Unit] = for {
       r1 <- getResolved(start)
       r2 <- getResolved(end)
-      _ <- files.copy(r1, r2)
+      _  <- files.copy(r1, r2)
     } yield ()
 
     // fs2 createDirectory
@@ -273,7 +273,7 @@ object Shell {
       for {
         r1 <- getResolved(createAt)
         r2 <- getResolved(linkTo)
-        _ <- Sync[F].delay(Files.createSymbolicLink(r1, r1))
+        _  <- Sync[F].delay(Files.createSymbolicLink(r1, r1))
       } yield ()
 
     def isNotSymLink(path: String): F[Boolean] = getResolved(path).flatMap(p =>
@@ -283,7 +283,7 @@ object Shell {
     )
 
     def testFile(path: String): F[Boolean] = getResolved(path).flatMap(files.isFile(_))
-    def testDir(path: String): F[Boolean] = getResolved(path).flatMap(files.isDirectory(_))
+    def testDir(path: String): F[Boolean]  = getResolved(path).flatMap(files.isDirectory(_))
     def testPath(path: String): F[Boolean] = getResolved(path).flatMap(files.exists(_))
 
     def date: F[Instant] = cats.effect.Clock[F].realTime.map(_.toMillis).map(Instant.ofEpochMilli)
@@ -294,7 +294,7 @@ object Shell {
     } yield i
 
     def touch(path: String): F[Unit] = for {
-      p <- getResolved(path)
+      p   <- getResolved(path)
       now <- date
       _ <- exists(p.toString).ifM(
         Sync[F].delay(Files.setLastModifiedTime(p, java.nio.file.attribute.FileTime.from(now))).void,

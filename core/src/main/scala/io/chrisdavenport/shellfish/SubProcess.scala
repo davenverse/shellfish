@@ -121,7 +121,7 @@ object SubProcess {
     ): Stream[F, String] =
       for {
         where <- Stream.eval(shell.pwd)
-        p <- Stream.resource(pr.run(where, command :: arguments))
+        p     <- Stream.resource(pr.run(where, command :: arguments))
         _ <- Stream.eval(
           stdIn.fold(Applicative[F].unit)(s =>
             p.setInput(
@@ -138,7 +138,7 @@ object SubProcess {
     ): Stream[F, Either[String, String]] =
       for {
         where <- Stream.eval(shell.pwd)
-        p <- Stream.resource(pr.run(where, command :: arguments))
+        p     <- Stream.resource(pr.run(where, command :: arguments))
         _ <- Stream.eval(
           stdIn.fold(Applicative[F].unit)(s =>
             p.setInput(

@@ -42,9 +42,9 @@ object Main extends IOApp {
       // got <- p.shellStrict("find", List("-wholename", "*.scala"))
       // got <- which("java")
       // got <- hostname
-      _ <- cd("..")
+      _   <- cd("..")
       got <- ls.compile.toList
-      _ <- echo(got.toString)
+      _   <- echo(got.toString)
       // _ <- p.shellStrict("which", "java":: Nil).flatMap(a => echo(a.toString))
     } yield ExitCode.Success
   }
