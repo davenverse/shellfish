@@ -5,7 +5,7 @@ target/
 
 # Ignore [ce]tags files
 tags
-
+null
 .bloop
 .metals
 metals.sbt
