@@ -1,6 +1,6 @@
 ThisBuild / tlBaseVersion := "0.0" // your current series x.y
 
-ThisBuild / organization     := "cats"
+ThisBuild / organization     := "io.davenport"
 ThisBuild / organizationName := "Typelevel"
 ThisBuild / startYear        := Some(2024)
 ThisBuild / licenses         := Seq(License.MIT)
@@ -10,7 +10,7 @@ ThisBuild / developers := List(
   tlGitHubDev("armanbilge", "Arman Bilge")
 )
 
-// Use JDK 22
+// Use JDK 17
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
 
 ThisBuild / tlSonatypeUseLegacyHost := false
@@ -36,7 +36,7 @@ val kindProjectorV    = "0.13.3"
 val betterMonadicForV = "0.3.1"
 
 // Projects
-lazy val `shellfish` = (project in file("."))
+lazy val shellfish = (project in file("."))
   .aggregate(core, examples)
 
 lazy val core = (project in file("core"))
