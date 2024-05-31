@@ -11,7 +11,7 @@ ThisBuild / developers := List(
 )
 
 // Use JDK 22
-ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.graalvm("22"))
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
 
 ThisBuild / tlSonatypeUseLegacyHost := false
 
