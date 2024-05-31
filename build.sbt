@@ -15,6 +15,8 @@ ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
 
 ThisBuild / tlSonatypeUseLegacyHost := false
 
+ThisBuild / tlJdkRelease := Option(9)
+
 val Scala3   = "3.4.2"
 val Scala213 = "2.13.14"
 
