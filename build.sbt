@@ -10,8 +10,8 @@ ThisBuild / developers := List(
   tlGitHubDev("armanbilge", "Arman Bilge")
 )
 
-// Use JDK 22
-ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.graalvm("22"))
+// Use JDK 17
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
 
 ThisBuild / tlSonatypeUseLegacyHost := false
 
