@@ -190,7 +190,7 @@ object Shell {
 
   def global[F[_]: Async]: Shell[F] = new ShellImpl[F](
     Sync[F].delay(System.getProperty("user.dir")),
-    s => Sync[F].delay(System.setProperty("user.dir", s))
+    s => Sync[F].delay(System.setProperty("user.dir", s)).void
   )
 
   private class ShellImpl[F[_]: Async](val pwd: F[String], setWd: String => F[Unit]) extends Shell[F] {
