@@ -1,6 +1,6 @@
 ThisBuild / tlBaseVersion := "0.0" // your current series x.y
 
-ThisBuild / organization     := "io.davenport"
+ThisBuild / organization     := "io.chrisdavenport"
 ThisBuild / organizationName := "Typelevel"
 ThisBuild / startYear        := Some(2024)
 ThisBuild / licenses         := Seq(License.MIT)
@@ -17,7 +17,7 @@ ThisBuild / tlSonatypeUseLegacyHost := false
 
 ThisBuild / tlJdkRelease := Option(9)
 
-val Scala3   = "3.4.2"
+val Scala3   = "3.3.3"
 val Scala213 = "2.13.14"
 
 //ThisBuild / crossScalaVersions := Seq(Scala213, Scala3)
