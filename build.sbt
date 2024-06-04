@@ -1,60 +1,48 @@
-ThisBuild / tlBaseVersion := "0.0" // your current series x.y
+ThisBuild / tlBaseVersion := "0.0"
 
 ThisBuild / organization     := "io.chrisdavenport"
 ThisBuild / organizationName := "Typelevel"
 ThisBuild / startYear        := Some(2024)
 ThisBuild / licenses         := Seq(License.MIT)
 ThisBuild / developers := List(
-  tlGitHubDev("ChristopherDavenport", "Christopher Davenport"),
-  tlGitHubDev("lenguyenthanh", "Thanh Le"),
-  tlGitHubDev("armanbilge", "Arman Bilge")
+  tlGitHubDev("ChristopherDavenport", "Christopher Davenport")
 )
 
-// Use JDK 17
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
+ThisBuild / crossScalaVersions         := Seq("2.13.14", "3.3.3")
+ThisBuild / tlJdkRelease               := Some(11)
+ThisBuild / tlFatalWarnings            := false
 
 ThisBuild / tlSonatypeUseLegacyHost := false
 
-ThisBuild / tlJdkRelease := Option(9)
-
-val Scala3   = "3.3.3"
-val Scala213 = "2.13.14"
-
-//ThisBuild / crossScalaVersions := Seq(Scala213, Scala3)
-ThisBuild / scalaVersion := Scala3
-
-// Core
-val catsV       = "2.12.0"
-val catsEffectV = "3.5.4"
-val fs2V        = "3.10.2"
-
-// Testing
-val munitCatsEffectV = "2.0.0-RC1"
-
-// For Scala 2
-val kindProjectorV    = "0.13.3"
-val betterMonadicForV = "0.3.1"
-
 // Projects
-lazy val shellfish = (project in file("."))
+lazy val shellfish = tlCrossRootProject
   .aggregate(core, examples)
 
-lazy val core = (project in file("core"))
+lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+  .crossType(CrossType.Pure)
+  .in(file("core"))
   .settings(
     name := "shellfish",
     libraryDependencies ++= List(
-      "org.typelevel"  %% "cats-core"         % catsV,
-      "org.typelevel"  %% "alleycats-core"    % catsV,
-      "org.typelevel"  %% "cats-effect"       % catsEffectV,
-      "co.fs2"         %% "fs2-core"          % fs2V,
-      "co.fs2"         %% "fs2-io"            % fs2V,
-      "org.typelevel" %%% "munit-cats-effect" % munitCatsEffectV % Test
+      "org.typelevel"  %% "cats-core"         % "2.10.0",
+      "org.typelevel"  %% "alleycats-core"    % "2.10.0",
+      "org.typelevel"  %% "cats-effect"       % "3.5.4",
+      "co.fs2"         %% "fs2-core"          % "3.10.2",
+      "co.fs2"         %% "fs2-io"            % "3.10.2",
+      "org.typelevel" %%% "munit-cats-effect" % "2.0.0-RC1" % Test
     )
   )
 
-lazy val examples = (project in file("examples"))
+lazy val examples = project
+  .in(file("examples"))
   .enablePlugins(NoPublishPlugin)
-  .dependsOn(core)
+  .dependsOn(core.jvm)
   .settings(
-    name := "shelfish-examples"
+    name                  := "shellfish-examples",
+    mimaPreviousArtifacts := Set()
   )
+
+lazy val site = project
+  .in(file("site"))
+  .dependsOn(core.jvm)
