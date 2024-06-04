@@ -40,6 +40,7 @@ lazy val examples = project
   .dependsOn(core.jvm)
   .settings(
     name                  := "shellfish-examples",
+    Compile / run / fork  := true,
     mimaPreviousArtifacts := Set()
   )
 
