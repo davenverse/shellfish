@@ -28,46 +28,52 @@ import fs2._
 import java.nio.file._
 import cats.effect.std.Supervisor
 
-/**
- * A Subprocess Approach To Running Shell Commands
- * Note: cp in this shell will do nothing, as the working directory is
- * determined by the Shell.
- **/
+/** A Subprocess Approach To Running Shell Commands Note: cp in this shell will
+  * do nothing, as the working directory is determined by the Shell.
+  */
 trait SubProcess[F[_]] {
   def shell(
-    command: String,
-    arguments: List[String] = List.empty,
-    stdIn: Option[Stream[F, String]] = None // Each string should be a single line
+      command: String,
+      arguments: List[String] = List.empty,
+      stdIn: Option[Stream[F, String]] =
+        None // Each string should be a single line
   ): F[ExitCode]
 
   def shellS(
-    command: String,
-    arguments: List[String] = List.empty,
-    stdIn: Option[Stream[F, String]] = None
+      command: String,
+      arguments: List[String] = List.empty,
+      stdIn: Option[Stream[F, String]] = None
   ): F[Unit]
 
-  def inShell(command: String,
-              arguments: List[String] = List.empty,
-              stdIn: Option[Stream[F, String]] = None
+  def inShell(
+      command: String,
+      arguments: List[String] = List.empty,
+      stdIn: Option[Stream[F, String]] = None
   ): Stream[F, String]
 
-  def inShellWithError(command: String,
-                       arguments: List[String] = List.empty,
-                       stdIn: Option[Stream[F, String]] = None
+  def inShellWithError(
+      command: String,
+      arguments: List[String] = List.empty,
+      stdIn: Option[Stream[F, String]] = None
   ): Stream[F, Either[String, String]]
 
-  def shellStrict(command: String,
-                  arguments: List[String] = List.empty,
-                  stdIn: Option[Stream[F, String]] = None
+  def shellStrict(
+      command: String,
+      arguments: List[String] = List.empty,
+      stdIn: Option[Stream[F, String]] = None
   ): F[(ExitCode, String)]
 
-  def shellStrictWithErr(command: String,
-                         arguments: List[String] = List.empty,
-                         stdIn: Option[Stream[F, String]] = None
+  def shellStrictWithErr(
+      command: String,
+      arguments: List[String] = List.empty,
+      stdIn: Option[Stream[F, String]] = None
   ): F[(ExitCode, String, String)]
 
   // Lower Level Control
-  def run(command: String, arguments: List[String] = List.empty): Resource[F, SubProcess.RunningProcess[F]]
+  def run(
+      command: String,
+      arguments: List[String] = List.empty
+  ): Resource[F, SubProcess.RunningProcess[F]]
 }
 object SubProcess {
 
@@ -84,12 +90,14 @@ object SubProcess {
   def fromShell[F[_]: Async](shell: Shell[F]): SubProcess[F] =
     new SubProcessImpl(shell)
 
-  private class SubProcessImpl[F[_]: Async](shell: Shell[F]) extends SubProcess[F] {
+  private class SubProcessImpl[F[_]: Async](shell: Shell[F])
+      extends SubProcess[F] {
     val pr = ProcessRunner[F]
 
-    def shell(command: String,
-              arguments: List[String] = List.empty,
-              stdIn: Option[Stream[F, String]] = None
+    def shell(
+        command: String,
+        arguments: List[String] = List.empty,
+        stdIn: Option[Stream[F, String]] = None
     ): F[ExitCode] = {
       for {
         where <- shell.pwd
@@ -106,18 +114,21 @@ object SubProcess {
       } yield out
     }
 
-    def shellS(command: String,
-               arguments: List[String] = List.empty,
-               stdIn: Option[Stream[F, String]] = None
+    def shellS(
+        command: String,
+        arguments: List[String] = List.empty,
+        stdIn: Option[Stream[F, String]] = None
     ): F[Unit] =
       shell(command, arguments, stdIn).flatMap {
         case ExitCode.Success => Applicative[F].unit
-        case othewise         => new RuntimeException("shs received non-zero exit code").raiseError
+        case othewise =>
+          new RuntimeException("shs received non-zero exit code").raiseError
       }
 
-    def inShell(command: String,
-                arguments: List[String] = List.empty,
-                stdIn: Option[Stream[F, String]] = None
+    def inShell(
+        command: String,
+        arguments: List[String] = List.empty,
+        stdIn: Option[Stream[F, String]] = None
     ): Stream[F, String] =
       for {
         where <- Stream.eval(shell.pwd)
@@ -132,9 +143,10 @@ object SubProcess {
         line <- p.output.through(fs2.text.utf8Decode[F]).through(fs2.text.lines)
       } yield line
 
-    def inShellWithError(command: String,
-                         arguments: List[String] = List.empty,
-                         stdIn: Option[Stream[F, String]] = None
+    def inShellWithError(
+        command: String,
+        arguments: List[String] = List.empty,
+        stdIn: Option[Stream[F, String]] = None
     ): Stream[F, Either[String, String]] =
       for {
         where <- Stream.eval(shell.pwd)
@@ -150,13 +162,16 @@ object SubProcess {
           .through(fs2.text.utf8Decode[F])
           .through(fs2.text.lines)
           .either(
-            p.errorOutput.through(fs2.text.utf8Decode[F]).through(fs2.text.lines)
+            p.errorOutput
+              .through(fs2.text.utf8Decode[F])
+              .through(fs2.text.lines)
           )
       } yield line
 
-    def shellStrict(command: String,
-                    arguments: List[String] = List.empty,
-                    stdIn: Option[Stream[F, String]] = None
+    def shellStrict(
+        command: String,
+        arguments: List[String] = List.empty,
+        stdIn: Option[Stream[F, String]] = None
     ): F[(ExitCode, String)] =
       for {
         where <- shell.pwd
@@ -175,9 +190,10 @@ object SubProcess {
           )
       } yield out
 
-    def shellStrictWithErr(command: String,
-                           arguments: List[String] = List.empty,
-                           stdIn: Option[Stream[F, String]] = None
+    def shellStrictWithErr(
+        command: String,
+        arguments: List[String] = List.empty,
+        stdIn: Option[Stream[F, String]] = None
     ): F[(ExitCode, String, String)] =
       for {
         where <- shell.pwd
@@ -197,7 +213,10 @@ object SubProcess {
           )
       } yield out
 
-    def run(command: String, arguments: List[String] = List.empty): Resource[F, RunningProcess[F]] =
+    def run(
+        command: String,
+        arguments: List[String] = List.empty
+    ): Resource[F, RunningProcess[F]] =
       Resource.eval(shell.pwd).flatMap { where =>
         pr.run(where, command :: arguments)
       }
@@ -226,49 +245,71 @@ object SubProcess {
   object ProcessRunner {
     def apply[F[_]](implicit F: ProcessRunner[F]): ProcessRunner[F] = F
 
-    implicit def instance[F[_]: Async]: ProcessRunner[F] = new ProcessRunner[F] {
-      import scala.jdk.CollectionConverters._
+    implicit def instance[F[_]: Async]: ProcessRunner[F] =
+      new ProcessRunner[F] {
+        import scala.jdk.CollectionConverters._
 
-      val readBufferSize = 4096
+        val readBufferSize = 4096
 
-      def run(wd: String, program: List[String]): Resource[F, RunningProcess[F]] =
-        Resource
-          .make(Sync[F].blocking(new java.lang.ProcessBuilder(program.asJava).directory(new java.io.File(wd)).start()))(
-            p => Sync[F].blocking(p.destroy())
-          )
-          .flatMap { process =>
-            // manages the consumption of the input stream
-            Supervisor[F].map { supervisor =>
-              val done = Async[F].fromCompletableFuture(Sync[F].delay(process.onExit()))
+        def run(
+            wd: String,
+            program: List[String]
+        ): Resource[F, RunningProcess[F]] =
+          Resource
+            .make(
+              Sync[F].blocking(
+                new java.lang.ProcessBuilder(program.asJava)
+                  .directory(new java.io.File(wd))
+                  .start()
+              )
+            )(p => Sync[F].blocking(p.destroy()))
+            .flatMap { process =>
+              // manages the consumption of the input stream
+              Supervisor[F].map { supervisor =>
+                val done = Async[F].fromCompletableFuture(
+                  Sync[F].delay(process.onExit())
+                )
 
-              new RunningProcess[F] {
-                def setInput(input: fs2.Stream[F, Byte]): F[Unit] =
-                  supervisor
-                    .supervise(
-                      input
-                        .through(fs2.io.writeOutputStream[F](Sync[F].blocking(process.getOutputStream())))
-                        .compile
-                        .drain
+                new RunningProcess[F] {
+                  def setInput(input: fs2.Stream[F, Byte]): F[Unit] =
+                    supervisor
+                      .supervise(
+                        input
+                          .through(
+                            fs2.io.writeOutputStream[F](
+                              Sync[F].blocking(process.getOutputStream())
+                            )
+                          )
+                          .compile
+                          .drain
+                      )
+                      .void
+
+                  val output: fs2.Stream[F, Byte] = fs2.io
+                    .readInputStream[F](
+                      Sync[F].blocking(process.getInputStream()),
+                      chunkSize = readBufferSize
                     )
-                    .void
 
-                val output: fs2.Stream[F, Byte] = fs2.io
-                  .readInputStream[F](Sync[F].blocking(process.getInputStream()), chunkSize = readBufferSize)
+                  val outputUtf8 = output.through(fs2.text.utf8Decode)
 
-                val outputUtf8 = output.through(fs2.text.utf8Decode)
+                  val errorOutput: fs2.Stream[F, Byte] = fs2.io
+                    .readInputStream[F](
+                      Sync[F].blocking(process.getErrorStream()),
+                      chunkSize = readBufferSize
+                    )
+                    // Avoids broken pipe - we cut off when the program ends.
+                    // Users can decide what to do with the error logs using the exitCode value
+                    .interruptWhen(done.void.attempt)
 
-                val errorOutput: fs2.Stream[F, Byte] = fs2.io
-                  .readInputStream[F](Sync[F].blocking(process.getErrorStream()), chunkSize = readBufferSize)
-                  // Avoids broken pipe - we cut off when the program ends.
-                  // Users can decide what to do with the error logs using the exitCode value
-                  .interruptWhen(done.void.attempt)
+                  val errorOutputUtf8 = errorOutput.through(fs2.text.utf8Decode)
 
-                val errorOutputUtf8 = errorOutput.through(fs2.text.utf8Decode)
-
-                val exitCode: F[ExitCode] = done.flatMap(p => Sync[F].blocking(p.exitValue())).map(ExitCode(_))
+                  val exitCode: F[ExitCode] = done
+                    .flatMap(p => Sync[F].blocking(p.exitValue()))
+                    .map(ExitCode(_))
+                }
               }
             }
-          }
-    }
+      }
   }
 }
