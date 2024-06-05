@@ -1,7 +1,5 @@
 ThisBuild / tlBaseVersion := "0.0"
 
-ThisBuild / organization     := "io.chrisdavenport"
-ThisBuild / organizationName := "Typelevel"
 ThisBuild / startYear        := Some(2024)
 ThisBuild / licenses         := Seq(License.MIT)
 ThisBuild / developers := List(
@@ -12,8 +10,6 @@ ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
 ThisBuild / crossScalaVersions         := Seq("2.13.14", "3.3.3")
 ThisBuild / tlJdkRelease               := Some(11)
 ThisBuild / tlFatalWarnings            := false
-
-ThisBuild / tlSonatypeUseLegacyHost := false
 
 // Projects
 lazy val shellfish = tlCrossRootProject
@@ -41,7 +37,6 @@ lazy val examples = project
   .settings(
     name                  := "shellfish-examples",
     Compile / run / fork  := true,
-    mimaPreviousArtifacts := Set()
   )
 
 lazy val site = project
