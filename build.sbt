@@ -1,7 +1,7 @@
 ThisBuild / tlBaseVersion := "0.0"
 
-ThisBuild / startYear        := Some(2024)
-ThisBuild / licenses         := Seq(License.MIT)
+ThisBuild / startYear := Some(2024)
+ThisBuild / licenses  := Seq(License.MIT)
 ThisBuild / developers := List(
   tlGitHubDev("ChristopherDavenport", "Christopher Davenport")
 )
@@ -35,8 +35,8 @@ lazy val examples = project
   .enablePlugins(NoPublishPlugin)
   .dependsOn(core.jvm)
   .settings(
-    name                  := "shellfish-examples",
-    Compile / run / fork  := true,
+    name                 := "shellfish-examples",
+    Compile / run / fork := true
   )
 
 lazy val site = project
