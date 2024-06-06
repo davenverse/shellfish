@@ -28,9 +28,10 @@ import fs2._
 import java.nio.file._
 import cats.effect.std.Supervisor
 
-/** A Subprocess Approach To Running Shell Commands Note: cp in this shell will
-  * do nothing, as the working directory is determined by the Shell.
-  */
+/**
+ * A Subprocess Approach To Running Shell Commands Note: cp in this shell will
+ * do nothing, as the working directory is determined by the Shell.
+ */
 trait SubProcess[F[_]] {
   def shell(
       command: String,

@@ -31,101 +31,124 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes
 import java.time._
 
-/** Shell Exposes a Set Of Utilities for building applications that mirrors what
-  * you would have in a traditional shell environment.
-  */
+/**
+ * Shell Exposes a Set Of Utilities for building applications that mirrors what
+ * you would have in a traditional shell environment.
+ */
 trait Shell[F[_]] {
 
-  /** Print to stdout
-    */
+  /**
+   * Print to stdout
+   */
   def echo[A](string: A)(implicit show: Show[A] = Show.fromToString): F[Unit]
 
-  /** Print to stderr
-    */
+  /**
+   * Print to stderr
+   */
   def err[A](err: A)(implicit show: Show[A] = Show.fromToString): F[Unit]
 
-  /** Read in the entire content of a text file.
-    */
+  /**
+   * Read in the entire content of a text file.
+   */
   def readTextFile(path: String): F[String]
 
-  /** Replace the entire content of a text file with the provided Text.
-    */
+  /**
+   * Replace the entire content of a text file with the provided Text.
+   */
   def writeTextFile(path: String, content: String): F[Unit]
 
-  /** Retrieve all environment variables
-    */
+  /**
+   * Retrieve all environment variables
+   */
   def env: F[Map[String, String]]
 
-  /** Look up an environment variable
-    */
+  /**
+   * Look up an environment variable
+   */
   def needEnv(variable: String): F[Option[String]]
 
-  /** Get the home directory
-    */
+  /**
+   * Get the home directory
+   */
   def home: F[String]
 
-  /** Get the path pointed to by a symlink
-    */
+  /**
+   * Get the path pointed to by a symlink
+   */
   def readLink(path: String): F[String]
 
-  /** Canonicalize a path
-    */
+  /**
+   * Canonicalize a path
+   */
   def realPath(path: String): F[String]
 
-  /** Get the current directory
-    */
+  /**
+   * Get the current directory
+   */
   def pwd: F[String]
 
-  /** Change the current directory
-    */
+  /**
+   * Change the current directory
+   */
   def cd(string: String): F[Unit]
 
-  /** Check if a path exists
-    */
+  /**
+   * Check if a path exists
+   */
   def exists(path: String): F[Boolean]
 
-  /** Copy a between locations
-    */
+  /**
+   * Copy a between locations
+   */
   def cp(start: String, end: String): F[Unit]
 
-  /** Create a directory
-    *
-    * Fails if the directory is present
-    */
+  /**
+   * Create a directory
+   *
+   * Fails if the directory is present
+   */
   def mkdir(path: String): F[Unit]
 
-  /** Create a directory tree (equivalent to mkdir -p)
-    *
-    * Does not fail if the directory is present
-    */
+  /**
+   * Create a directory tree (equivalent to mkdir -p)
+   *
+   * Does not fail if the directory is present
+   */
   def mktree(path: String): F[Unit]
 
-  /** Remove a file
-    */
+  /**
+   * Remove a file
+   */
   def rm(path: String): F[Unit]
 
-  /** Remove a directory
-    */
+  /**
+   * Remove a directory
+   */
   def rmDir(path: String): F[Unit]
 
-  /** Create a symlink from one path to another
-    */
+  /**
+   * Create a symlink from one path to another
+   */
   def symlink(createAt: String, linkTo: String): F[Unit]
 
-  /** Returns true if the given path is not a symbolic link
-    */
+  /**
+   * Returns true if the given path is not a symbolic link
+   */
   def isNotSymLink(path: String): F[Boolean]
 
-  /** Check if a file exists
-    */
+  /**
+   * Check if a file exists
+   */
   def testFile(path: String): F[Boolean]
 
-  /** Check if a directory exists
-    */
+  /**
+   * Check if a directory exists
+   */
   def testDir(path: String): F[Boolean]
 
-  /** Check is a path exists
-    */
+  /**
+   * Check is a path exists
+   */
   def testPath(path: String): F[Boolean]
 
   /** Get the current time */
@@ -134,11 +157,12 @@ trait Shell[F[_]] {
   /** Get the time a file was last modified */
   def dateFile(path: String): F[Instant]
 
-  /** Touch a file, updating the access and modification times to the current
-    * time
-    *
-    * Creates an empty file if it does not exist
-    */
+  /**
+   * Touch a file, updating the access and modification times to the current
+   * time
+   *
+   * Creates an empty file if it does not exist
+   */
   def touch(path: String): F[Unit]
 
   /** Get the system's host name */
