@@ -22,14 +22,12 @@
 package io.chrisdavenport.shellfish
 
 import cats.effect.*
-import cats.syntax.all.*
-import io.chrisdavenport.shellfish.{Shell, SubProcess}
 
 object Main extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] = {
     import Shell.io.*
-    val p = SubProcess.io
+    // val p = SubProcess.io
     for {
       // init <- pwd
       // _ <- echo(init)
