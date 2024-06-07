@@ -3,9 +3,11 @@ target/
 # vim
 *.sw?
 
+.js
+.jvm
+.native
 # Ignore [ce]tags files
 tags
-
 .bloop
 .metals
 metals.sbt
