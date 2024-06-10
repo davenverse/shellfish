@@ -27,7 +27,6 @@ object Main extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] = {
     import Shell.io.*
-    // val p = SubProcess.io
     for {
       // init <- pwd
       // _ <- echo(init)
