@@ -262,7 +262,7 @@ object Shell {
       out <- files
         .isDirectory(Path(real))
         .ifM(
-          setWd(real.toString),
+          setWd(real),
           new RuntimeException(
             s"cd: no such file or directory $path"
           ).raiseError
@@ -325,7 +325,7 @@ object Shell {
             path = p,
             lastModified = Some(now),
             lastAccess = None,
-            creationTime = Some(now),
+            creationTime = None,
             followLinks = true
           )
           .void,
@@ -367,9 +367,9 @@ object Shell {
             .emits(list)
             .map(Path(_))
             .flatMap(singleWalk)
-            .flatMap(p =>
-              Stream
-                .eval(files.isExecutable(p))
+            .evalMap(p =>
+              files
+                .isExecutable(p)
                 .map(isExe => (p, !(isExe && p.fileName == Path(path))))
             )
             .takeThrough(_._2)
@@ -377,9 +377,7 @@ object Shell {
             .compile
             .last
             .map(
-              _.flatMap(s =>
-                if (s.fileName == Path(path)) s.toString.some else None
-              )
+              _.flatMap(s => Option.when(s.fileName == Path(path))(s.toString))
             )
         )
     // Show all matching executables in PATH, not just the first
@@ -397,13 +395,14 @@ object Shell {
             .emits(list)
             .map(Path(_))
             .flatMap(singleWalk)
-            .flatMap(p =>
-              Stream
-                .eval(files.isExecutable(p))
+            .evalMap(p =>
+              files
+                .isExecutable(p)
                 .map(isExe => (p, isExe && p.fileName == Path(path)))
             )
-            .filter(_._2)
-            .map(_._1.toString)
+            .collect {
+              case x if x._2 => x._1.toString
+            }
         )
 
     def ls: Stream[F, String] = ls("")
