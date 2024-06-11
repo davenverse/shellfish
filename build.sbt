@@ -10,6 +10,8 @@ ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
 ThisBuild / crossScalaVersions         := Seq("2.13.14", "3.3.3")
 ThisBuild / tlJdkRelease               := Some(11)
 
+ThisBuild / tlSitePublishBranch := Some("main")
+
 // Projects
 lazy val shellfish = tlCrossRootProject
   .aggregate(core, examples)
@@ -40,4 +42,5 @@ lazy val examples = project
 
 lazy val site = project
   .in(file("site"))
+  .enablePlugins(TypelevelSitePlugin)
   .dependsOn(core.jvm)
