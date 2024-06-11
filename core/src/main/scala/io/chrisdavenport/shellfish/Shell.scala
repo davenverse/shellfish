@@ -24,11 +24,10 @@ package io.chrisdavenport.shellfish
 import cats._
 import cats.syntax.all._
 import cats.effect._
+import cats.effect.std.Env
 import fs2._
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes
+import fs2.io.file.{Files, Path, WalkOptions}
+import java.nio.file.{Files => JFiles}
 import java.time._
 
 /**
@@ -184,28 +183,28 @@ object Shell {
 
   def apply[F[_]](implicit ev: Shell[F]): ev.type = ev
 
-  def create[F[_]: Async]: F[Shell[F]] = for {
+  def create[F[_]: Async: Env: Files]: F[Shell[F]] = for {
     wd  <- Sync[F].delay(System.getProperty("user.dir"))
     ref <- Concurrent[F].ref(wd)
   } yield new ShellImpl(ref.get, s => ref.set(s))
 
-  def global[F[_]: Async]: Shell[F] = new ShellImpl[F](
+  def global[F[_]: Async: Env: Files]: Shell[F] = new ShellImpl[F](
     Sync[F].delay(System.getProperty("user.dir")),
     s => Sync[F].delay(System.setProperty("user.dir", s)).void
   )
 
-  private class ShellImpl[F[_]: Async](
+  private class ShellImpl[F[_]: Async: Env: Files](
       val pwd: F[String],
       setWd: String => F[Unit]
   ) extends Shell[F] {
     val console = cats.effect.std.Console.make[F]
-    val files   = fs2.io.file.Files[F]
+    val files   = Files[F]
 
     private def getResolved(path: String): F[Path] = for {
       current <- pwd
     } yield
-      if (path.startsWith("/") || path.startsWith("~")) Paths.get(path)
-      else Paths.get(current).resolve(path)
+      if (path.startsWith("/") || path.startsWith("~")) Path(path)
+      else Path(current).resolve(path)
 
     // print stdout
     def echo[A](string: A)(implicit
@@ -217,20 +216,20 @@ object Shell {
 
     def readTextFile(path: String): F[String] =
       getResolved(path).flatMap(p =>
-        files.readAll(p, 512).through(fs2.text.utf8Decode).compile.string
+        files.readAll(p).through(fs2.text.utf8.decode).compile.string
       )
     def writeTextFile(path: String, content: String): F[Unit] = {
       for {
         p      <- getResolved(path)
-        exists <- files.exists(p, List())
-        isFile <- files.isFile(p)
+        exists <- files.exists(p)
+        isFile <- files.isRegularFile(p)
         _ <-
           if (exists && !isFile)
             new RuntimeException(s"$p exists and is not a file").raiseError
           else {
             files.deleteIfExists(p) >>
               Stream(content)
-                .through(fs2.text.utf8Encode)
+                .through(fs2.text.utf8.encode)
                 .through(files.writeAll(p))
                 .compile
                 .drain
@@ -238,31 +237,32 @@ object Shell {
       } yield ()
     }
 
-    def env: F[Map[String, String]] = Sync[F].delay(scala.sys.env)
+    def env: F[Map[String, String]] = Env[F].entries.map(_.toMap)
     // What Env Variable You Want
-    def needEnv(variable: String): F[Option[String]] = env.map(_.get(variable))
+    def needEnv(variable: String): F[Option[String]] = Env[F].get(variable)
 
     def home: F[String] = Sync[F].delay(System.getProperty("user.home"))
 
     // Get the path pointed to by a symlink
     def readLink(path: String): F[String] = getResolved(path).flatMap(p =>
       Sync[F].delay {
-        Files.readSymbolicLink(p).toAbsolutePath.toString
+        JFiles.readSymbolicLink(p.toNioPath).toAbsolutePath.toString
       }
     )
+
     def realPath(path: String): F[String] = getResolved(path).flatMap(p =>
       Sync[F].delay {
-        p.toRealPath().toString
+        p.toNioPath.toRealPath().toString
       }
     )
 
     def cd(path: String): F[Unit] = for {
       newPath <- getResolved(path)
-      real = newPath.toRealPath()
+      real    <- realPath(newPath.toString)
       out <- files
-        .isDirectory(real)
+        .isDirectory(Path(real))
         .ifM(
-          setWd(real.toString),
+          setWd(real),
           new RuntimeException(
             s"cd: no such file or directory $path"
           ).raiseError
@@ -270,7 +270,7 @@ object Shell {
     } yield out
 
     def exists(path: String): F[Boolean] =
-      getResolved(path).flatMap(files.exists(_))
+      getResolved(path).flatMap(files.exists)
 
     def cp(start: String, end: String): F[Unit] = for {
       r1 <- getResolved(start)
@@ -285,58 +285,57 @@ object Shell {
     def mktree(path: String): F[Unit] =
       getResolved(path).flatMap(files.createDirectories(_).void)
 
-    def rm(path: String): F[Unit] = getResolved(path).flatMap(files.delete(_))
+    def rm(path: String): F[Unit] = getResolved(path).flatMap(files.delete)
     def rmDir(path: String): F[Unit] =
-      getResolved(path).flatMap(files.deleteDirectoryRecursively(_))
+      getResolved(path).flatMap(files.deleteRecursively)
 
     def symlink(createAt: String, linkTo: String): F[Unit] =
       for {
         r1 <- getResolved(createAt)
         r2 <- getResolved(linkTo)
-        _  <- Sync[F].delay(Files.createSymbolicLink(r1, r1))
+        _  <- files.createSymbolicLink(r1, r2)
       } yield ()
 
-    def isNotSymLink(path: String): F[Boolean] = getResolved(path).flatMap(p =>
-      Sync[F].delay {
-        !Files.isSymbolicLink(p)
-      }
-    )
+    def isNotSymLink(path: String): F[Boolean] = for {
+      newPath <- getResolved(path)
+      symlink <- files.isSymbolicLink(newPath)
+    } yield !symlink
 
     def testFile(path: String): F[Boolean] =
-      getResolved(path).flatMap(files.isFile(_))
+      getResolved(path).flatMap(files.isRegularFile)
     def testDir(path: String): F[Boolean] =
-      getResolved(path).flatMap(files.isDirectory(_))
+      getResolved(path).flatMap(files.isDirectory)
     def testPath(path: String): F[Boolean] =
-      getResolved(path).flatMap(files.exists(_))
+      getResolved(path).flatMap(files.exists)
 
     def date: F[Instant] =
       cats.effect.Clock[F].realTime.map(_.toMillis).map(Instant.ofEpochMilli)
     // lastModified
     def dateFile(path: String): F[Instant] = for {
       p <- getResolved(path)
-      i <- Sync[F].delay(Files.getLastModifiedTime(p).toInstant)
-    } yield i
+      t <- files.getLastModifiedTime(p)
+    } yield Instant.ofEpochMilli(t.toMillis)
 
     def touch(path: String): F[Unit] = for {
       p   <- getResolved(path)
-      now <- date
+      now <- cats.effect.Clock[F].realTime
       _ <- exists(p.toString).ifM(
-        Sync[F]
-          .delay(
-            Files.setLastModifiedTime(
-              p,
-              java.nio.file.attribute.FileTime.from(now)
-            )
+        files
+          .setFileTimes(
+            path = p,
+            lastModified = Some(now),
+            lastAccess = None,
+            creationTime = None,
+            followLinks = true
           )
           .void,
-        Sync[F]
-          .blocking(new java.io.File(p.toUri).createNewFile)
-          .ifM(
-            Sync[F].unit,
+        files
+          .createFile(p)
+          .handleErrorWith { _ =>
             new Throwable(
-              s"touch: file creation unsucessful for $path"
+              s"touch: file creation unsuccessful for $path"
             ).raiseError
-          )
+          }
       )
     } yield ()
 
@@ -346,7 +345,16 @@ object Shell {
         Sync[F].delay(java.net.InetAddress.getLocalHost().getHostName())
       )
 
-    // // Show the full path of an executable file
+    // Used internally as a regular walk but with `maxDepth = 1`
+    private def singleWalk(start: Path): Stream[F, Path] =
+      files.walk(
+        start,
+        WalkOptions.Default
+          .withMaxDepth(1)
+          .withFollowLinks(true)
+      )
+
+    // Show the full path of an executable file
     def which(path: String): F[Option[String]] =
       needEnv("PATH")
         .flatMap(a =>
@@ -357,20 +365,22 @@ object Shell {
         .flatMap(list =>
           Stream
             .emits(list)
-            .map(Paths.get(_))
-            .flatMap(p => files.walk(p, 1))
-            .takeThrough(f =>
-              !(f.getFileName.toString == path && Files.isExecutable(f))
+            .map(Path(_))
+            .flatMap(singleWalk)
+            .evalMap(p =>
+              files
+                .isExecutable(p)
+                .map(isExe => (p, !(isExe && p.fileName == Path(path))))
             )
+            .takeThrough(_._2)
+            .map(_._1)
             .compile
             .last
             .map(
-              _.flatMap(s =>
-                if (s.getFileName.toString == path) s.toString.some else None
-              )
+              _.flatMap(s => Option.when(s.fileName == Path(path))(s.toString))
             )
         )
-    // // Show all matching executables in PATH, not just the first
+    // Show all matching executables in PATH, not just the first
     def whichAll(path: String): Stream[F, String] =
       Stream
         .eval(
@@ -383,20 +393,25 @@ object Shell {
         .flatMap(list =>
           Stream
             .emits(list)
-            .map(Paths.get(_))
-            .flatMap(p => files.walk(p, 1))
-            .filter(f =>
-              f.getFileName.toString == path && Files.isExecutable(f)
+            .map(Path(_))
+            .flatMap(singleWalk)
+            .evalMap(p =>
+              files
+                .isExecutable(p)
+                .map(isExe => (p, isExe && p.fileName == Path(path)))
             )
-            .map(_.toString)
+            .collect {
+              case x if x._2 => x._1.toString
+            }
         )
 
     def ls: Stream[F, String] = ls("")
     def ls(path: String): Stream[F, String] =
       Stream
         .eval(getResolved(path))
-        .flatMap(p => files.walk(p, 1).map(_.toString).drop(1) // Exclude Myself
-        )
+        .flatMap(
+          singleWalk(_).map(_.toString).drop(1)
+        ) // Exclude Myself -> excluded :)
 
   }
 

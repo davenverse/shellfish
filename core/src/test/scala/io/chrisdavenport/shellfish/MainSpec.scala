@@ -22,7 +22,6 @@
 package io.chrisdavenport.shellfish
 
 import munit.CatsEffectSuite
-import cats.effect._
 
 class MainSpec extends CatsEffectSuite {
 

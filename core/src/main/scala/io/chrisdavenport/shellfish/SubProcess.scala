@@ -21,12 +21,13 @@
 
 package io.chrisdavenport.shellfish
 
-import cats._
-import cats.syntax.all._
-import cats.effect._
-import fs2._
-import java.nio.file._
+import cats.*
+import cats.syntax.all.*
+import cats.effect.*
+import cats.effect.std.Env
+import fs2.*
 import cats.effect.std.Supervisor
+import fs2.io.file.Files
 
 /**
  * A Subprocess Approach To Running Shell Commands Note: cp in this shell will
@@ -82,7 +83,7 @@ object SubProcess {
 
   val io: SubProcess[IO] = new SubProcessImpl[IO](Shell.io)
 
-  def global[F[_]: Async]: SubProcess[F] =
+  def global[F[_]: Async: Env: Files]: SubProcess[F] =
     new SubProcessImpl[F](Shell.global[F])
 
   // The relevant shell is important as java does not have
@@ -107,7 +108,7 @@ object SubProcess {
           .use(p =>
             stdIn.fold(Applicative[F].unit)(s =>
               p.setInput(
-                s.intersperse("\n").through(fs2.text.utf8Encode)
+                s.intersperse("\n").through(fs2.text.utf8.encode)
               )
             ) >>
               p.exitCode
@@ -122,7 +123,7 @@ object SubProcess {
     ): F[Unit] =
       shell(command, arguments, stdIn).flatMap {
         case ExitCode.Success => Applicative[F].unit
-        case othewise =>
+        case _ =>
           new RuntimeException("shs received non-zero exit code").raiseError
       }
 
@@ -137,11 +138,13 @@ object SubProcess {
         _ <- Stream.eval(
           stdIn.fold(Applicative[F].unit)(s =>
             p.setInput(
-              s.intersperse("\n").through(fs2.text.utf8Encode)
+              s.intersperse("\n").through(fs2.text.utf8.encode)
             )
           )
         )
-        line <- p.output.through(fs2.text.utf8Decode[F]).through(fs2.text.lines)
+        line <- p.output
+          .through(fs2.text.utf8.decode[F])
+          .through(fs2.text.lines)
       } yield line
 
     def inShellWithError(
@@ -155,16 +158,16 @@ object SubProcess {
         _ <- Stream.eval(
           stdIn.fold(Applicative[F].unit)(s =>
             p.setInput(
-              s.intersperse("\n").through(fs2.text.utf8Encode)
+              s.intersperse("\n").through(fs2.text.utf8.encode)
             )
           )
         )
         line <- p.output
-          .through(fs2.text.utf8Decode[F])
+          .through(fs2.text.utf8.decode[F])
           .through(fs2.text.lines)
           .either(
             p.errorOutput
-              .through(fs2.text.utf8Decode[F])
+              .through(fs2.text.utf8.decode[F])
               .through(fs2.text.lines)
           )
       } yield line
@@ -181,12 +184,12 @@ object SubProcess {
           .use(p =>
             stdIn.fold(Applicative[F].unit)(s =>
               p.setInput(
-                s.intersperse("\n").through(fs2.text.utf8Encode)
+                s.intersperse("\n").through(fs2.text.utf8.encode)
               )
             ) >>
               (
                 p.exitCode,
-                p.output.through(fs2.text.utf8Decode[F]).compile.string
+                p.output.through(fs2.text.utf8.decode[F]).compile.string
               ).tupled
           )
       } yield out
@@ -203,13 +206,13 @@ object SubProcess {
           .use(p =>
             stdIn.fold(Applicative[F].unit)(s =>
               p.setInput(
-                s.intersperse("\n").through(fs2.text.utf8Encode)
+                s.intersperse("\n").through(fs2.text.utf8.encode)
               )
             ) >>
               (
                 p.exitCode,
-                p.output.through(fs2.text.utf8Decode[F]).compile.string,
-                p.errorOutput.through(fs2.text.utf8Decode[F]).compile.string
+                p.output.through(fs2.text.utf8.decode[F]).compile.string,
+                p.errorOutput.through(fs2.text.utf8.decode[F]).compile.string
               ).tupled
           )
       } yield out
@@ -292,7 +295,7 @@ object SubProcess {
                       chunkSize = readBufferSize
                     )
 
-                  val outputUtf8 = output.through(fs2.text.utf8Decode)
+                  val outputUtf8 = output.through(fs2.text.utf8.decode)
 
                   val errorOutput: fs2.Stream[F, Byte] = fs2.io
                     .readInputStream[F](
@@ -303,7 +306,8 @@ object SubProcess {
                     // Users can decide what to do with the error logs using the exitCode value
                     .interruptWhen(done.void.attempt)
 
-                  val errorOutputUtf8 = errorOutput.through(fs2.text.utf8Decode)
+                  val errorOutputUtf8 =
+                    errorOutput.through(fs2.text.utf8.decode)
 
                   val exitCode: F[ExitCode] = done
                     .flatMap(p => Sync[F].blocking(p.exitValue()))
