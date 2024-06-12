@@ -17,7 +17,7 @@ Shellfish is a library to perform common script operations such as working with 
 ```scala 3 mdoc:reset
 import cats.effect.{IO, IOApp}
 
-import shellfish.os.* // Imports Shell
+import shellfish.os.* 
 
 object Main extends IOApp: 
 
