@@ -80,11 +80,11 @@ jobs:
 
       - name: Make target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
-        run: mkdir -p core/.native/target site/target core/.js/target core/.jvm/target project/target
+        run: mkdir -p core/.native/target core/.js/target core/.jvm/target project/target
 
       - name: Compress target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
-        run: tar cf targets.tar core/.native/target site/target core/.js/target core/.jvm/target project/target
+        run: tar cf targets.tar core/.native/target core/.js/target core/.jvm/target project/target
 
       - name: Upload target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
@@ -235,5 +235,42 @@ jobs:
       - name: Submit Dependencies
         uses: scalacenter/sbt-dependency-submission@v2
         with:
-          modules-ignore: shellfishnative_2.13 shellfishnative_3 shellfish-examples_2.13 shellfish-examples_3 shellfishjvm_2.13 shellfishjvm_3 shellfishjs_2.13 shellfishjs_3
+          modules-ignore: shellfishnative_2.13 shellfishnative_3 shellfish-examples_2.13 shellfish-examples_3 site_2.13 site_3 shellfishjvm_2.13 shellfishjvm_3 shellfishjs_2.13 shellfishjs_3
           configs-ignore: test scala-tool scala-doc-tool test-internal
+
+  site:
+    name: Generate Site
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        java: [temurin@17]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout current branch (full)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java (temurin@17)
+        id: setup-java-temurin-17
+        if: matrix.java == 'temurin@17'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: sbt
+
+      - name: sbt update
+        if: matrix.java == 'temurin@17' && steps.setup-java-temurin-17.outputs.cache-hit == 'false'
+        run: sbt +update
+
+      - name: Generate site
+        run: sbt site/tlSite
+
+      - name: Publish site
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: site/target/docs/site
+          keep_files: true
