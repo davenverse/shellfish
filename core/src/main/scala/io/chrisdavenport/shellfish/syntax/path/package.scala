@@ -75,7 +75,7 @@ package object path {
      *   The codec that translates the file contents into the type `A`
      * @return
      *   The file loaded in memory as a type `A`
-     * @throws Exception
+     * @throws java.lang.Exception
      *   if the file cannot be read or the contents cannot be parsed into the
      *   type `A`
      */
