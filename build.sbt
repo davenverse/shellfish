@@ -29,9 +29,9 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
       "co.fs2"        %% "fs2-io"         % "3.10.2",
       "co.fs2"        %% "fs2-scodec"     % "3.10.2",
       "org.scodec"    %% "scodec-bits"    % "1.2.0",
-      "org.scodec"    %% "scodec-core"    % (if (scalaVersion.value.startsWith("2."))
-                                            "1.11.10"
-                                          else "2.3.0"),
+      "org.scodec" %% "scodec-core" % (if (scalaVersion.value.startsWith("2."))
+                                         "1.11.10"
+                                       else "2.3.0"),
       // Testing
       "com.disneystreaming" %% "weaver-cats"       % "0.8.4" % Test,
       "com.disneystreaming" %% "weaver-scalacheck" % "0.8.4" % Test
