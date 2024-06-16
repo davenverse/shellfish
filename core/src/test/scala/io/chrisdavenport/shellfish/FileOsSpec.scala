@@ -28,9 +28,10 @@ import org.scalacheck.Gen
 
 import cats.effect.IO
 
-import fs2.io.file.{Path, Files}
+import fs2.io.file.{Files, CopyFlags}
 
 import syntax.path.*
+import fs2.io.file.CopyFlag
 
 object FileOsSpec extends SimpleIOSuite with Checkers {
 
@@ -39,29 +40,32 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
     stringGen.sample.getOrElse("Can't gen the contents 🤷🏻‍♀️")
 
   test("The API should create and delete a file") {
-    val t = Path("core/src/test/resources/temp.tmp")
-    for {
-      _       <- t.createFile
-      _       <- t.write(contents)
-      deleted <- t.deleteIfExists
-    } yield expect(deleted)
+    val temp = Files[IO].tempFile
+
+    temp.use { path =>
+      for {
+        _       <- path.write(contents)
+        deleted <- path.deleteIfExists
+      } yield expect(deleted)
+    }
   }
 
   test("Copying a file should have the same content as the original") {
 
-    val t1 = Path("core/src/test/resources/temp1.tmp")
-    val t2 = Path("core/src/test/resources/temp2.tmp")
+    val temp =
+      Files[IO].tempFile.flatMap(t1 => Files[IO].tempFile.map(t2 => (t1, t2)))
 
-    for {
-      _  <- t1.createFile
-      _  <- t1.write(contents)
-      _  <- t1.copy(t2)
-      s1 <- t1.read
-      s2 <- t2.read
-      _  <- t1.deleteIfExists
-      _  <- t2.deleteIfExists
+    temp.use { case (t1, t2) =>
+      for {
+        _  <- t1.write(contents)
+        _  <- t1.copy(CopyFlags(CopyFlag.ReplaceExisting))(t2)
+        s1 <- t1.read
+        s2 <- t2.read
+        _  <- t1.deleteIfExists
+        _  <- t2.deleteIfExists
 
-    } yield expect.same(s1, s2)
+      } yield expect.same(s1, s2)
+    }
   }
 
   test(
