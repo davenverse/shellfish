@@ -21,12 +21,39 @@
 
 package io.chrisdavenport.shellfish
 
-import munit.CatsEffectSuite
+import weaver.SimpleIOSuite
 
-class MainSpec extends CatsEffectSuite {
+import fs2.io.file.Path
 
-  test("Main should exit succesfully") {
-    assert(clue(1) == clue(1))
+import syntax.path.*
+
+object MainSpec extends SimpleIOSuite {
+
+  import Shell.io.{cd, pwd}
+
+  pureTest("Main should exit successfully") {
+    expect(1 == 1)
+  }
+
+  test("cd should some back and forth") {
+    for {
+      current  <- pwd
+      _        <- cd("..")
+      _        <- cd(current)
+      current2 <- pwd
+    } yield expect(current == current2)
+  }
+
+  test("We should be able to create and delete a directory") {
+    val td = Path("core/src/test/resources/tempDir")
+
+    for {
+      before  <- pwd
+      _       <- td.createDirectory
+      _       <- cd(td.toString)
+      current <- pwd
+      deleted <- td.deleteIfExists
+    } yield expect(Path(current) == (Path(before) / td) && deleted)
   }
 
 }
