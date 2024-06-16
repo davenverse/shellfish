@@ -232,10 +232,17 @@ package object path {
 
     /**
      * Copies the source to the target, failing if source does not exist or the
-     * target already exists. To replace the existing instead, use `copy(source,
-     * target, CopyFlags(CopyFlag.ReplaceExisting))`.
+     * target already exists. To replace the existing instead, use
+     * `source.copy(CopyFlags(CopyFlag.ReplaceExisting))(target)`.
      */
     def copy(to: Path): IO[Unit] = files.copy(path, to)
+
+    /**
+     * Copies the source to the target, following any directives supplied in the
+     * flags. By default, an error occurs if the target already exists, though
+     * this can be overriden via CopyFlag.ReplaceExisting.
+     */
+    def copy(flags: CopyFlags)(to: Path): IO[Unit] = files.copy(path, to, flags)
 
     /**
      * Creates the specified directory. Fails if the parent path does not
