@@ -21,6 +21,7 @@
 
 package io.chrisdavenport.shellfish
 
+import cats.syntax.applicative.*
 import cats.effect.{IO, IOApp}
 
 import scodec.codecs.*
@@ -40,9 +41,9 @@ object Place extends IOApp.Simple {
   def run: IO[Unit] =
     for {
       exists <- path.exists()
-      _      <- if (exists) IO.unit else path.createFile
+      _      <- path.createFile.whenA(exists)  
       _      <- path.writeAs[Place](Place(1, "Michael Phelps"))
-      _      <- path.readAs[Place].flatMap(p => IO.println(p))
+      _      <- path.readAs[Place].flatMap(IO.println)
     } yield ()
 
 }
