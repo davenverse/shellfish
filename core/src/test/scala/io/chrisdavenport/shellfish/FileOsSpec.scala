@@ -89,6 +89,19 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
     }
   }
 
+  test("Append should behave the same as adding at the end of the string") {
+    val temp = Files[IO].tempFile
+
+    temp.use { path =>
+      for {
+        before <- path.read
+        _      <- path.append(contents)
+        after  <- path.read
+        result = StringBuilder(before).append(contents).result()
+      } yield expect(result == after)
+    }
+  }
+
   test(
     "`readAs` and `writeAs` should encode and decode correctly with the same codec"
   ) {
