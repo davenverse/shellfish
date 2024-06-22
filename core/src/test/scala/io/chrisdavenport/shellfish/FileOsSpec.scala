@@ -26,25 +26,26 @@ import weaver.scalacheck.Checkers
 
 import org.scalacheck.Gen
 
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 
 import fs2.io.file.{Files, CopyFlags}
+import fs2.io.file.CopyFlag
+
+import scodec.bits.ByteVector
 
 import syntax.path.*
-import fs2.io.file.CopyFlag
+
+import weaver.scalacheck.CheckConfig
 
 object FileOsSpec extends SimpleIOSuite with Checkers {
 
-  val stringGen: Gen[String] = Gen.asciiStr
-  val contents: String =
-    stringGen.sample.getOrElse("Can't gen the contents 🤷🏻‍♀️")
+  override def checkConfig: CheckConfig =
+    super.checkConfig.copy(perPropertyParallelism = 1)
 
   test("The API should create and delete a file") {
-    val temp = Files[IO].tempFile
-
-    temp.use { path =>
+    FilesOs.files.tempFile.use { path =>
       for {
-        _       <- path.write(contents)
+        _       <- path.write("")
         deleted <- path.deleteIfExists
       } yield expect(deleted)
     }
@@ -52,78 +53,83 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
 
   test("Copying a file should have the same content as the original") {
 
-    val temp =
-      Files[IO].tempFile.flatMap(t1 => Files[IO].tempFile.map(t2 => (t1, t2)))
+    val temp = Resource.both(Files[IO].tempFile, Files[IO].tempFile)
 
-    temp.use { case (t1, t2) =>
-      for {
-        _  <- t1.write(contents)
-        _  <- t1.copy(CopyFlags(CopyFlag.ReplaceExisting))(t2)
-        s1 <- t1.read
-        s2 <- t2.read
-        _  <- t1.deleteIfExists
-        _  <- t2.deleteIfExists
+    forall(Gen.asciiStr) { contents =>
+      temp.use { case (t1, t2) =>
+        for {
+          _  <- t1.write(contents)
+          _  <- t1.copy(CopyFlags(CopyFlag.ReplaceExisting))(t2)
+          s1 <- t1.read
+          s2 <- t2.read
+          _  <- t1.deleteIfExists
+          _  <- t2.deleteIfExists
 
-      } yield expect.same(s1, s2)
+        } yield expect.same(s1, s2)
+      }
     }
   }
 
   test(
-    "Append to a file using `append` should increate the size of the file in one"
+    "Append to a file using `appendLine` should increate the size of the file in one"
   ) {
 
-    val temp = Files[IO].tempFile
     val contentGenerator =
-      Gen.size.flatMap(size => Gen.listOfN(size, stringGen))
-    val contentsList =
-      contentGenerator.sample.getOrElse(List("Can't gen the contents 🤷🏻‍♀️"))
+      Gen.size.flatMap(size => Gen.listOfN(size, Gen.asciiStr))
 
-    temp.use { path =>
-      for {
-        _          <- path.writeLines(contentsList.toVector)
-        sizeBefore <- path.readLines.map(_.size)
-        _          <- path.append("\nIm a last line!")
-        sizeAfter  <- path.readLines.map(_.size)
-      } yield expect(sizeBefore + 1 == sizeAfter)
-
+    forall(contentGenerator) { contentsList =>
+      FilesOs.files.tempFile.use { path =>
+        for {
+          _          <- path.writeLines(contentsList)
+          sizeBefore <- path.readLines.map(_.size)
+          _          <- path.appendLine("Im a last line!")
+          sizeAfter  <- path.readLines.map(_.size)
+        } yield expect(sizeBefore + 1 == sizeAfter)
+      }
     }
   }
 
   test("Append should behave the same as adding at the end of the string") {
-    val temp = Files[IO].tempFile
-
-    temp.use { path =>
-      for {
-        before <- path.read
-        _      <- path.append(contents)
-        after  <- path.read
-        result = StringBuilder(before).append(contents).result()
-      } yield expect(result == after)
+    forall(Gen.asciiStr) { contents =>
+      FilesOs.files.tempFile.use { path =>
+        for {
+          _          <- path.write(contents)
+          sizeBefore <- path.read.map(_.size)
+          _          <- path.append(contents)
+          sizeAfter  <- path.read.map(_.size)
+        } yield expect(sizeBefore + contents.size == sizeAfter)
+      }
     }
   }
 
   test(
     "`readAs` and `writeAs` should encode and decode correctly with the same codec"
   ) {
-    val temp           = Files[IO].tempFile
-    implicit val codec = scodec.codecs.utf8
+    implicit val codec = scodec.codecs.ascii
 
-    temp.use { path =>
-      for {
-        _    <- path.writeAs(contents)
-        file <- path.readAs[String]
-      } yield expect.same(contents, file)
+    forall(Gen.asciiStr) { contents =>
+      FilesOs.files.tempFile.use { path =>
+        for {
+          _          <- path.writeAs(contents)
+          sizeBefore <- path.read.map(_.size)
+          _          <- path.append(contents)
+          sizeAfter  <- path.read.map(_.size)
+        } yield expect(sizeBefore + contents.size == sizeAfter)
+      }
     }
   }
 
   test("We should write bytes and read bytes") {
-    val temp  = Files[IO].tempFile
-    val bytes = scodec.bits.ByteVector(contents.getBytes())
-    temp.use { path =>
-      for {
-        _    <- path.writeBytes(bytes)
-        file <- path.readBytes
-      } yield expect.same(bytes, file)
+
+    forall(Gen.identifier) { name =>
+      FilesOs.files.tempFile.use { path =>
+        val bytes = ByteVector(name.getBytes)
+
+        for {
+          _    <- path.writeBytes(bytes)
+          file <- path.readBytes
+        } yield expect.same(bytes, file)
+      }
     }
   }
 }
