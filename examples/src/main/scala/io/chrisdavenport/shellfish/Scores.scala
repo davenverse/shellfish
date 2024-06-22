@@ -24,7 +24,7 @@ package io.chrisdavenport.shellfish
 import cats.syntax.all.*
 import cats.effect.{IO, IOApp}
 
-import fs2.io.file.*
+import fs2.io.file.Path
 
 import io.chrisdavenport.shellfish.syntax.path.*
 
@@ -46,9 +46,8 @@ object Scores extends IOApp.Simple {
   override def run: IO[Unit] =
     for {
       lines  <- path.readLines
-      scores <- lines.traverse(parseScore(_).liftTo[IO]) 
+      scores <- lines.traverse(parseScore(_).liftTo[IO])
       _      <- IO(scores.foreach(score => println(score.show)))
-      bytes  <- path.append(s"\n${Score("daniela", 100).show}")
-      _      <- IO.println(s"Successfully written $bytes bytes.")
+      _      <- path.append(Score("daniela", 100).show)
     } yield ()
 }
