@@ -295,7 +295,7 @@ object FilesOs {
    * Similar to append, but appends a single line to the end file as a newline
    * instead of overwriting it.
    *
-   * Equivalent to `append(path)(s"\n$contents")`
+   * Equivalent to `append(path, '\n' + contents)`
    *
    * @param path
    *   The path to write to

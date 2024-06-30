@@ -241,7 +241,7 @@ package object path {
      * Similar to append, but appends a single line to the end file as a newline
      * instead of overwriting it.
      *
-     * Equivalent to `path.append(s"\n$contents")`
+     * Equivalent to `path.append('\n' + contents)`
      *
      * @param path
      *   The path to write to
