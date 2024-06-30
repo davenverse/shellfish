@@ -23,8 +23,6 @@ package io.chrisdavenport.shellfish
 
 import weaver.SimpleIOSuite
 
-import fs2.io.file.Path
-
 import syntax.path.*
 
 object MainSpec extends SimpleIOSuite {
@@ -45,17 +43,13 @@ object MainSpec extends SimpleIOSuite {
   }
 
   test("We should be able to create and delete a directory") {
-    val td = Path("core/src/test/resources/tempDir")
 
-    tempDirectory.use { dir =>
-      for {
-        before  <- pwd
-        _       <- dir.createDirectory
-        _       <- cd(td.toString)
-        current <- pwd
-        deleted <- td.deleteIfExists
-      } yield expect(Path(current) == (Path(before) / td) && deleted)
-    }
+    for {
+      home <- userHome
+      dir = home / "shellfish"
+      _       <- dir.createDirectory
+      exists  <- dir.exists
+      deleted <- dir.deleteIfExists
+    } yield expect(exists && deleted)
   }
-
 }
