@@ -47,13 +47,15 @@ object MainSpec extends SimpleIOSuite {
   test("We should be able to create and delete a directory") {
     val td = Path("core/src/test/resources/tempDir")
 
-    for {
-      before  <- pwd
-      _       <- td.createDirectory
-      _       <- cd(td.toString)
-      current <- pwd
-      deleted <- td.deleteIfExists
-    } yield expect(Path(current) == (Path(before) / td) && deleted)
+    tempDirectory.use { dir =>
+      for {
+        before  <- pwd
+        _       <- dir.createDirectory
+        _       <- cd(td.toString)
+        current <- pwd
+        deleted <- td.deleteIfExists
+      } yield expect(Path(current) == (Path(before) / td) && deleted)
+    }
   }
 
 }
