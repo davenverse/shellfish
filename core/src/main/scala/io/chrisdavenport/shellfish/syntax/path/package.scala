@@ -23,8 +23,9 @@ package io.chrisdavenport.shellfish
 package syntax
 
 import cats.syntax.all.*
-import cats.effect.IO
+import cats.effect.{IO, Resource}
 
+import fs2.Stream
 import fs2.io.file.*
 
 import scodec.bits.ByteVector
@@ -35,7 +36,9 @@ import java.nio.charset.Charset
 
 package object path {
 
-  implicit class ReadWriteOps(val path: Path) extends AnyVal {
+  private val files = Files[IO]
+
+  implicit class FileOps(val path: Path) extends AnyVal {
 
     /**
      * Reads the contents of the fileat the path using UTF-8 decoding. Returns
@@ -59,8 +62,8 @@ package object path {
      * @return
      *   The file loaded in memory as a String
      */
-    def readWithCharset(charset: Charset)(path: Path): IO[String] =
-      FilesOs.readWithCharset(charset)(path)
+    def readWithCharset(path: Path, charset: Charset): IO[String] =
+      FilesOs.readWithCharset(path, charset)
 
     /**
      * Reads the contents of the file at the path and returns it as a
@@ -119,7 +122,22 @@ package object path {
      * @param contents
      *   The contents to write to the file
      */
-    def write(contents: String): IO[Unit] = FilesOs.write(path)(contents)
+    def write(contents: String): IO[Unit] = FilesOs.write(path, contents)
+
+    /**
+     * This function overwites the contents of the file at the path using the
+     * provided charset with the contents provided in form of a entire string
+     * loaded in memory.
+     *
+     * @param path
+     *   The path to write to
+     * @param contents
+     *   The contents to write to the file
+     * @param charset
+     *   The charset to use to encode the file
+     */
+    def writeWithCharset(contents: String, charset: Charset): IO[Unit] =
+      FilesOs.writeWithCharset(path, contents, charset)
 
     /**
      * This function overwites the contents of the file at the path with the
@@ -131,7 +149,7 @@ package object path {
      *   The contents to write to the file
      */
     def writeBytes(contents: ByteVector): IO[Unit] =
-      FilesOs.writeBytes(path)(contents)
+      FilesOs.writeBytes(path, contents)
 
     /**
      * This function overwites the contents of the file at the path using UTF-8
@@ -144,7 +162,7 @@ package object path {
      *   The contents to write to the file
      */
     def writeLines(contents: Seq[String]): IO[Unit] =
-      FilesOs.writeLines(path)(contents)
+      FilesOs.writeLines(path, contents)
 
     /**
      * The functions writes the contents of the file at the path with the
@@ -162,7 +180,7 @@ package object path {
      *   The codec that translates the type A into a ByteVector
      */
     def writeAs[A: Codec](contents: A): IO[Unit] =
-      FilesOs.writeAs(path)(contents)
+      FilesOs.writeAs(path, contents)
 
     /**
      * Similar to `write`, but appends to the file instead of overwriting it.
@@ -173,7 +191,26 @@ package object path {
      * @param contents
      *   The contents to write to the file
      */
-    def append(contents: String): IO[Unit] = FilesOs.append(path)(contents)
+    def append(contents: String): IO[Unit] = FilesOs.append(path, contents)
+
+    /**
+     * Similar to `write`, but appends to the file instead of overwriting it.
+     * Saves the content at the end of the file in form of a String using the
+     * provided charset.
+     *
+     * @param path
+     *   The path to write to
+     * @param contents
+     *   The contents to write to the file
+     * @param charset
+     *   The charset to use to encode the contents
+     */
+    def appendWithCharset(
+        path: Path,
+        contents: String,
+        charset: Charset
+    ): IO[Unit] =
+      FilesOs.appendWithCharset(path, contents, charset)
 
     /**
      * Similar to `write`, but appends to the file instead of overwriting it.
@@ -185,7 +222,7 @@ package object path {
      *   The contents to write to the file
      */
     def appendBytes(contents: ByteVector): IO[Unit] =
-      FilesOs.appendBytes(path)(contents)
+      FilesOs.appendBytes(path, contents)
 
     /**
      * Similar to `write`, but appends to the file instead of overwriting it.
@@ -198,7 +235,7 @@ package object path {
      *   The contents to write to the file
      */
     def appendLines(contents: Seq[String]): IO[Unit] =
-      FilesOs.appendLines(path)(contents)
+      FilesOs.appendLines(path, contents)
 
     /**
      * Similar to append, but appends a single line to the end file as a newline
@@ -212,7 +249,7 @@ package object path {
      *   The contents to write to the file
      */
     def appendLine(contents: String): IO[Unit] =
-      FilesOs.appendLine(path)(contents)
+      FilesOs.appendLine(path, contents)
 
     /**
      * Similar to `write`, but appends to the file instead of overwriting it
@@ -228,215 +265,416 @@ package object path {
      *   The codec that translates the type A into a ByteVector
      */
     def appendAs[A: Codec](contents: A): IO[Unit] =
-      FilesOs.appendAs[A](path)(contents)
+      FilesOs.appendAs[A](path, contents)
 
-  }
-
-  private val files = Files[IO]
-
-  implicit class FileOps(val path: Path) extends AnyVal {
+    // File operations:
 
     /**
      * Copies the source to the target, failing if source does not exist or the
      * target already exists. To replace the existing instead, use
-     * `source.copy(CopyFlags(CopyFlag.ReplaceExisting))(target)`.
+     * `path.copy(target, CopyFlags(CopyFlag.ReplaceExisting))`.
      */
-    def copy(to: Path): IO[Unit] = files.copy(path, to)
+    def copy(target: Path): IO[Unit] =
+      FilesOs.copy(path, target, CopyFlags.empty)
 
     /**
      * Copies the source to the target, following any directives supplied in the
      * flags. By default, an error occurs if the target already exists, though
      * this can be overriden via CopyFlag.ReplaceExisting.
      */
-    def copy(flags: CopyFlags)(to: Path): IO[Unit] = files.copy(path, to, flags)
+    def copy(target: Path, flags: CopyFlags): IO[Unit] =
+      FilesOs.copy(path, target, flags)
 
     /**
      * Creates the specified directory with the permissions of "rwxrwxr-x" by
      * default. Fails if the parent path does not already exist.
      */
-    def createDirectory: IO[Unit] = files.createDirectories(path)
+    def createDirectory: IO[Unit] = FilesOs.createDirectory(path)
 
     /**
      * Creates the specified directory with the specified permissions. Fails if
      * the parent path does not already exist.
      */
     def createDirectory(permissions: Permissions): IO[Unit] =
-      files.createDirectories(path, permissions.some)
+      FilesOs.createDirectory(path, permissions)
 
     /**
-     * Creates the specified directory and any non-existant parent directories.
+     * Creates the specified directory and any non-existent parent directories.
      */
-    def createDirectories(path: Path): IO[Unit] = files.createDirectories(path)
+    def createDirectories: IO[Unit] = FilesOs.createDirectories(path)
 
     /**
      * Creates the specified directory and any parent directories, using the
      * supplied permissions for any directories that get created as a result of
-     * this operation. For example if `/a` exists and
-     * `createDirectories(Path("/a/b/c"), p)` is called, `/a/b` and `/a/b/c` are
-     * created with permissions set to `p` on each (and the permissions of `/a`
-     * remain unmodified).
+     * this operation.
      */
-    def createDirectories(path: Path, permissions: Permissions): IO[Unit] =
-      files.createDirectories(path, permissions.some)
+    def createDirectories(permissions: Permissions): IO[Unit] =
+      FilesOs.createDirectories(path, permissions)
 
     /**
      * Creates the specified file with the permissions of "rw-rw-r--" by
      * default. Fails if the parent path does not already exist.
      */
-    def createFile: IO[Unit] = files.createFile(path)
+    def createFile: IO[Unit] = FilesOs.createFile(path)
 
     /**
      * Creates the specified file with the specified permissions. Fails if the
      * parent path does not already exist.
      */
     def createFile(permissions: Permissions): IO[Unit] =
-      files.createFile(path, permissions.some)
+      FilesOs.createFile(path, permissions)
 
     /** Creates a hard link with an existing file. */
-    def createLink(existing: Path): IO[Unit] = files.createLink(path, existing)
+    def createLink(existing: Path): IO[Unit] =
+      FilesOs.createLink(path, existing)
 
     /** Creates a symbolic link which points to the supplied target. */
     def createSymbolicLink(target: Path): IO[Unit] =
-      files.createSymbolicLink(path, target)
+      FilesOs.createSymbolicLink(path, target)
 
     /**
      * Creates a symbolic link which points to the supplied target with optional
      * permissions.
      */
-    def createSymbolicLink(
-        target: Path,
-        permissions: Permissions
-    ): IO[Unit] =
-      files.createSymbolicLink(path, target, permissions.some)
+    def createSymbolicLink(target: Path, permissions: Permissions): IO[Unit] =
+      FilesOs.createSymbolicLink(path, target, permissions)
 
+    // Deletion
     /**
-     * Deletes the file/directory if it exists, returning whether it was
-     * deleted.
+     * Deletes the specified file or empty directory, failing if it does not
+     * exist.
      */
-    def deleteIfExists: IO[Boolean] = files.deleteIfExists(path)
+    def delete: IO[Unit] = FilesOs.delete(path)
 
     /**
-     * Deletes the file/directory recursively, without following the symbolic
-     * links.
+     * Deletes the specified file or empty directory, passing if it does not
+     * exist.
      */
-    def deleteRecursively: IO[Unit] =
-      files.deleteRecursively(path, true)
+    def deleteIfExists: IO[Boolean] = FilesOs.deleteIfExists(path)
 
     /**
-     * Deletes the file/directory recursively, optionally following symbolic
-     * links.
+     * Deletes the specified file or directory. If the path is a directory and
+     * is non-empty, its contents are recursively deleted. Symbolic links are
+     * not followed (but are deleted).
+     */
+    def deleteRecursively(
+        path: Path
+    ): IO[Unit] = FilesOs.deleteRecursively(path)
+
+    /**
+     * Deletes the specified file or directory. If the path is a directory and
+     * is non-empty, its contents are recursively deleted. Symbolic links are
+     * followed when `followLinks` is true.
      */
     def deleteRecursively(followLinks: Boolean): IO[Unit] =
-      files.deleteRecursively(path, followLinks)
-
-    /** Returns true if the path exists, following the symbolic links. */
-    def exists: IO[Boolean] =
-      files.exists(path, true)
-
-    /** Returns true if the path exists, optionally following symbolic links. */
-    def exists(followLinks: Boolean): IO[Boolean] =
-      files.exists(path, followLinks)
-
-    /** Gets file attributes, without following symbolic links. */
-    def getBasicFileAttributes: IO[BasicFileAttributes] =
-      files.getBasicFileAttributes(path, false)
-
-    /** Gets file attributes, optionally following symbolic links. */
-    def getBasicFileAttributes(followLinks: Boolean): IO[BasicFileAttributes] =
-      files.getBasicFileAttributes(path, followLinks)
+      FilesOs.deleteRecursively(path, followLinks)
 
     /**
-     * Gets POSIX file attributes, without following symbolic links (if
-     * available).
+     * Returns true if the specified path exists. Symbolic links are followed --
+     * see the overload for more details on links.
+     */
+    def exists: IO[Boolean] = FilesOs.exists(path)
+
+    /**
+     * Returns true if the specified path exists. Symbolic links are followed
+     * when `followLinks` is true.
+     */
+    def exists(followLinks: Boolean): IO[Boolean] =
+      FilesOs.exists(path, followLinks)
+
+    /**
+     * Gets `BasicFileAttributes` for the supplied path. Symbolic links are not
+     * followed.
+     */
+    def getBasicFileAttributes: IO[BasicFileAttributes] =
+      FilesOs.getBasicFileAttributes(path)
+
+    /**
+     * Gets `BasicFileAttributes` for the supplied path. Symbolic links are
+     * followed when `followLinks` is true.
+     */
+    def getBasicFileAttributes(followLinks: Boolean): IO[BasicFileAttributes] =
+      FilesOs.getBasicFileAttributes(path, followLinks)
+
+    /**
+     * Gets the last modified time of the supplied path. The last modified time
+     * is represented as a duration since the Unix epoch. Symbolic links are
+     * followed.
+     */
+    def getLastModifiedTime: IO[FiniteDuration] =
+      FilesOs.getLastModifiedTime(path)
+
+    /**
+     * Gets the last modified time of the supplied path. The last modified time
+     * is represented as a duration since the Unix epoch. Symbolic links are
+     * followed when `followLinks` is true.
+     */
+    def getLastModifiedTime(followLinks: Boolean): IO[FiniteDuration] =
+      FilesOs.getLastModifiedTime(path, followLinks)
+
+    /**
+     * Gets the POSIX attributes for the supplied path. Symbolic links are not
+     * followed.
      */
     def getPosixFileAttributes: IO[PosixFileAttributes] =
-      files.getPosixFileAttributes(
-        path,
-        false
-      ) // Note: May fail on non-POSIX systems
+      FilesOs.getPosixFileAttributes(path)
 
     /**
-     * Gets POSIX file attributes, optionally following symbolic links (if
-     * available).
+     * Gets the POSIX attributes for the supplied path. Symbolic links are
+     * followed when `followLinks` is true.
      */
-    def getPosixFileAttributes(
-        followLinks: Boolean
-    ): IO[PosixFileAttributes] =
-      files.getPosixFileAttributes(
-        path,
-        followLinks
-      ) // Note: May fail on non-POSIX systems
-
-    /** Gets last modified time, following symbolic links. */
-    def getLastModifiedTime: IO[FiniteDuration] =
-      files.getLastModifiedTime(path, true)
-
-    /** Gets last modified time, optionally following symbolic links. */
-    def getLastModifiedTime(followLinks: Boolean): IO[FiniteDuration] =
-      files.getLastModifiedTime(path, followLinks)
+    def getPosixFileAttributes(followLinks: Boolean): IO[PosixFileAttributes] =
+      FilesOs.getPosixFileAttributes(path, followLinks)
 
     /**
-     * Gets POSIX permissions, following symbolic links (if available).
+     * Gets the POSIX permissions of the supplied path. Symbolic links are
+     * followed.
      */
     def getPosixPermissions: IO[PosixPermissions] =
-      files.getPosixPermissions(
-        path,
-        true
-      ) // Note: May fail on non-POSIX systems
+      FilesOs.getPosixPermissions(path)
 
     /**
-     * Gets POSIX permissions, optionally following symbolic links (if
-     * available).
+     * Gets the POSIX permissions of the supplied path. Symbolic links are
+     * followed when `followLinks` is true.
      */
     def getPosixPermissions(followLinks: Boolean): IO[PosixPermissions] =
-      files.getPosixPermissions(
-        path,
-        followLinks
-      ) // Note: May fail on non-POSIX systems
+      FilesOs.getPosixPermissions(path, followLinks)
 
     /**
-     * Checks if the path is a directory, optionally following symbolic links.
+     * Returns true if the supplied path exists and is a directory. Symbolic
+     * links are followed.
      */
-    def isDirectory: IO[Boolean] =
-      files.isDirectory(path, true)
+    def isDirectory: IO[Boolean] = FilesOs.isDirectory(path)
 
     /**
-     * Checks if the path is a directory, optionally following symbolic links.
+     * Returns true if the supplied path exists and is a directory. Symbolic
+     * links are followed when `followLinks` is true.
      */
     def isDirectory(followLinks: Boolean): IO[Boolean] =
-      files.isDirectory(path, followLinks)
+      FilesOs.isDirectory(path, followLinks)
 
-    def isExecutable: IO[Boolean] = files.isExecutable(path)
-    def isHidden: IO[Boolean]     = files.isHidden(path)
-    def isReadable: IO[Boolean]   = files.isReadable(path)
+    /** Returns true if the supplied path exists and is executable. */
+    def isExecutable: IO[Boolean] = FilesOs.isExecutable(path)
 
     /**
-     * Checks if the path is a regular file, following symbolic links.
+     * Returns true if the supplied path is a hidden file (note: may not check
+     * for existence).
      */
-    def isRegularFile: IO[Boolean] =
-      files.isRegularFile(path, true)
+    def isHidden: IO[Boolean] = FilesOs.isHidden(path)
+
+    /** Returns true if the supplied path exists and is readable. */
+    def isReadable: IO[Boolean] = FilesOs.isReadable(path)
 
     /**
-     * Checks if the path is a regular file, optionally following symbolic
-     * links.
+     * Returns true if the supplied path is a regular file. Symbolic links are
+     * followed.
+     */
+    def isRegularFile: IO[Boolean] = FilesOs.isRegularFile(path)
+
+    /**
+     * Returns true if the supplied path is a regular file. Symbolic links are
+     * followed when `followLinks` is true.
      */
     def isRegularFile(followLinks: Boolean): IO[Boolean] =
-      files.isRegularFile(path, followLinks)
+      FilesOs.isRegularFile(path, followLinks)
 
-    def isSymbolicLink: IO[Boolean] = files.isSymbolicLink(path)
-    def isWritable: IO[Boolean]     = files.isWritable(path)
+    /** Returns true if the supplied path is a symbolic link. */
+    def isSymbolicLink: IO[Boolean] = FilesOs.isSymbolicLink(path)
 
-    /** Checks if this path references the same file as another. */
-    def isSameFile(other: Path): IO[Boolean] = files.isSameFile(path, other)
+    /** Returns true if the supplied path exists and is writable. */
+    def isWritable: IO[Boolean] = FilesOs.isWritable(path)
 
-    /** Gets the real path, resolving symbolic links. */
-    def realPath: IO[Path] = files.realPath(path)
+    /** Returns true if the supplied path reference the same file. */
+    def isSameFile(path2: Path): IO[Boolean] = FilesOs.isSameFile(path, path2)
 
-    /** Sets POSIX permissions (if supported). */
+    /** Gets the contents of the specified directory. */
+    def list: Stream[IO, Path] = FilesOs.list(path)
+
+    /**
+     * Moves the source to the target, failing if source does not exist or the
+     * target already exists. To replace the existing instead, use
+     * `path.move(target, CopyFlags(CopyFlag.ReplaceExisting))`.
+     */
+    def move(target: Path): IO[Unit] = FilesOs.move(path, target)
+
+    /**
+     * Moves the source to the target, following any directives supplied in the
+     * flags. By default, an error occurs if the target already exists, though
+     * this can be overridden via `CopyFlag.ReplaceExisting`.
+     */
+    def move(target: Path, flags: CopyFlags): IO[Unit] =
+      FilesOs.move(path, target, flags)
+
+    /** Creates a `FileHandle` for the file at the supplied `Path`. */
+    def open(flags: Flags): Resource[IO, FileHandle[IO]] =
+      FilesOs.open(path, flags)
+
+    /**
+     * Returns a `ReadCursor` for the specified path, using the supplied flags
+     * when opening the file.
+     */
+    def readCursor(flags: Flags): Resource[IO, ReadCursor[IO]] =
+      FilesOs.readCursor(path, flags)
+
+    // Real Path
+    /** Returns the real path i.e. the actual location of `path`. */
+    def realPath: IO[Path] = FilesOs.realPath(path)
+
+    /**
+     * Sets the last modified, last access, and creation time fields of the
+     * specified path. Times which are supplied as `None` are not modified.
+     */
+    def setFileTimes(
+        lastModified: Option[FiniteDuration],
+        lastAccess: Option[FiniteDuration],
+        creationTime: Option[FiniteDuration],
+        followLinks: Boolean
+    ): IO[Unit] =
+      FilesOs.setFileTimes(
+        path,
+        lastModified,
+        lastAccess,
+        creationTime,
+        followLinks
+      )
+
+    /**
+     * Sets the POSIX permissions for the supplied path. Fails on non-POSIX file
+     * systems.
+     */
     def setPosixPermissions(permissions: PosixPermissions): IO[Unit] =
-      files.setPosixPermissions(path, permissions)
+      FilesOs.setPosixPermissions(path, permissions)
 
     /** Gets the size of the supplied path, failing if it does not exist. */
-    def size: IO[Long] = files.size(path)
+    def size: IO[Long] = FilesOs.size(path)
+
   }
+
+  // No path specific methods:
+
+  /**
+   * Creates a temporary file. The created file is not automatically deleted -
+   * it is up to the operating system to decide when the file is deleted.
+   * Alternatively, use `tempFile` to get a resource, which is deleted upon
+   * resource finalization.
+   */
+  def createTempFile: IO[Path] = FilesOs.createTempFile
+
+  /**
+   * Creates a temporary file. The created file is not automatically deleted -
+   * it is up to the operating system to decide when the file is deleted.
+   * Alternatively, use `tempFile` to get a resource which deletes upon resource
+   * finalization.
+   *
+   * @param dir
+   *   the directory which the temporary file will be created in. Pass none to
+   *   use the default system temp directory
+   * @param prefix
+   *   the prefix string to be used in generating the file's name
+   * @param suffix
+   *   the suffix string to be used in generating the file's name
+   * @param permissions
+   *   permissions to set on the created file
+   */
+  def createTempFile(
+      dir: Option[Path],
+      prefix: String,
+      suffix: String,
+      permissions: Permissions
+  ): IO[Path] =
+    FilesOs.createTempFile(dir, prefix, suffix, permissions)
+
+  /**
+   * Creates a temporary directory. The created directory is not automatically
+   * deleted - it is up to the operating system to decide when the file is
+   * deleted. Alternatively, use `tempDirectory` to get a resource which deletes
+   * upon resource finalization.
+   */
+  def createTempDirectory: IO[Path] = FilesOs.createTempDirectory
+
+  /**
+   * Creates a temporary directory. The created directory is not automatically
+   * deleted - it is up to the operating system to decide when the file is
+   * deleted. Alternatively, use `tempDirectory` to get a resource which deletes
+   * upon resource finalization.
+   *
+   * @param dir
+   *   the directory which the temporary directory will be created in. Pass none
+   *   to use the default system temp directory
+   * @param prefix
+   *   the prefix string to be used in generating the directory's name
+   * @param permissions
+   *   permissions to set on the created directory
+   */
+  def createTempDirectory(
+      dir: Option[Path],
+      prefix: String,
+      permissions: Permissions
+  ): IO[Path] =
+    FilesOs.createTempDirectory(dir, prefix, permissions)
+
+  /** User's current working directory */
+  def currentWorkingDirectory: IO[Path] = FilesOs.currentWorkingDirectory
+
+  /** Returns the line separator for the specific OS */
+  def lineSeparator: String = FilesOs.lineSeparator
+
+  /**
+   * Creates a temporary file and deletes it upon finalization of the returned
+   * resource.
+   */
+  def tempFile: Resource[IO, Path] = files.tempFile(None, "", ".tmp", None)
+
+  /**
+   * Creates a temporary file and deletes it upon finalization of the returned
+   * resource.
+   *
+   * @param dir
+   *   the directory which the temporary file will be created in. Pass in None
+   *   to use the default system temp directory
+   * @param prefix
+   *   the prefix string to be used in generating the file's name
+   * @param suffix
+   *   the suffix string to be used in generating the file's name
+   * @param permissions
+   *   permissions to set on the created file
+   * @return
+   *   a resource containing the path of the temporary file
+   */
+  def tempFile(
+      dir: Option[Path],
+      prefix: String,
+      suffix: String,
+      permissions: Permissions
+  ): Resource[IO, Path] = files.tempFile(dir, prefix, suffix, permissions.some)
+
+  /**
+   * Creates a temporary directory and deletes it upon finalization of the
+   * returned resource.
+   */
+  def tempDirectory: Resource[IO, Path] = files.tempDirectory(None, "", None)
+
+  /**
+   * Creates a temporary directory and deletes it upon finalization of the
+   * returned resource.
+   *
+   * @param dir
+   *   the directory which the temporary directory will be created in. Pass in
+   *   None to use the default system temp directory
+   * @param prefix
+   *   the prefix string to be used in generating the directory's name
+   * @param permissions
+   *   permissions to set on the created file
+   * @return
+   *   a resource containing the path of the temporary directory
+   */
+  def tempDirectory(
+      dir: Option[Path],
+      prefix: String,
+      permissions: Permissions
+  ): Resource[IO, Path] = files.tempDirectory(dir, prefix, permissions.some)
+
+  /** User's home directory */
+  def userHome: IO[Path] = files.userHome
+
 }
