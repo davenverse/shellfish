@@ -41,7 +41,7 @@ object Place extends IOApp.Simple {
   def run: IO[Unit] =
     for {
       exists <- path.exists
-           // Equivalent of doing `if (exists) IO.unit else path.createFile`
+      // Equivalent of doing `if (exists) IO.unit else path.createFile`
       _ <- path.createFile.whenA(exists)
       _ <- path.writeAs[Place](Place(1, "Michael Phelps"))
       _ <- path.readAs[Place].flatMap(IO.println)
