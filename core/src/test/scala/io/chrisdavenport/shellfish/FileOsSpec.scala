@@ -43,7 +43,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
     super.checkConfig.copy(perPropertyParallelism = 1)
 
   test("The API should create and delete a file") {
-    FilesOs.files.tempFile.use { path =>
+    tempFile.use { path =>
       for {
         _       <- path.write("")
         deleted <- path.deleteIfExists
@@ -59,7 +59,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       temp.use { case (t1, t2) =>
         for {
           _  <- t1.write(contents)
-          _  <- t1.copy(CopyFlags(CopyFlag.ReplaceExisting))(t2)
+          _  <- t1.copy(t2, CopyFlags(CopyFlag.ReplaceExisting))
           s1 <- t1.read
           s2 <- t2.read
           _  <- t1.deleteIfExists
@@ -78,7 +78,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       Gen.size.flatMap(size => Gen.listOfN(size, Gen.asciiStr))
 
     forall(contentGenerator) { contentsList =>
-      FilesOs.files.tempFile.use { path =>
+      tempFile.use { path =>
         for {
           _          <- path.writeLines(contentsList)
           sizeBefore <- path.readLines.map(_.size)
@@ -91,7 +91,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
 
   test("Append should behave the same as adding at the end of the string") {
     forall(Gen.asciiStr) { contents =>
-      FilesOs.files.tempFile.use { path =>
+      tempFile.use { path =>
         for {
           _          <- path.write(contents)
           sizeBefore <- path.read.map(_.size)
@@ -103,12 +103,30 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
   }
 
   test(
+    "`append` should behave the same as `appendLine` when prepending a newline to the contents"
+  ) {
+
+    val temp = Resource.both(tempFile, tempFile)
+
+    forall(Gen.asciiStr) { contents =>
+      temp.use { case (t1, t2) =>
+        for {
+          _     <- t1.append(s"\n$contents")
+          _     <- t2.appendLine(contents)
+          file1 <- t1.read
+          file2 <- t2.read
+        } yield expect.same(file1, file2)
+      }
+    }
+  }
+
+  test(
     "`readAs` and `writeAs` should encode and decode correctly with the same codec"
   ) {
     implicit val codec = scodec.codecs.ascii
 
     forall(Gen.asciiStr) { contents =>
-      FilesOs.files.tempFile.use { path =>
+      tempFile.use { path =>
         for {
           _          <- path.writeAs(contents)
           sizeBefore <- path.read.map(_.size)
@@ -122,7 +140,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
   test("We should write bytes and read bytes") {
 
     forall(Gen.identifier) { name =>
-      FilesOs.files.tempFile.use { path =>
+      tempFile.use { path =>
         val bytes = ByteVector(name.getBytes)
 
         for {
