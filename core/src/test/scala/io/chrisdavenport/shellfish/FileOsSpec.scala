@@ -26,21 +26,15 @@ import weaver.scalacheck.Checkers
 
 import org.scalacheck.Gen
 
-import cats.effect.{IO, Resource}
+import cats.effect.Resource
 
-import fs2.io.file.{Files, CopyFlags}
-import fs2.io.file.CopyFlag
+import fs2.io.file.{CopyFlag, CopyFlags}
 
 import scodec.bits.ByteVector
 
 import syntax.path.*
 
-import weaver.scalacheck.CheckConfig
-
 object FileOsSpec extends SimpleIOSuite with Checkers {
-
-  override def checkConfig: CheckConfig =
-    super.checkConfig.copy(perPropertyParallelism = 1)
 
   test("The API should create and delete a file") {
     tempFile.use { path =>
@@ -53,7 +47,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
 
   test("Copying a file should have the same content as the original") {
 
-    val temp = Resource.both(Files[IO].tempFile, Files[IO].tempFile)
+    val temp = Resource.both(tempFile, tempFile)
 
     forall(Gen.asciiStr) { contents =>
       temp.use { case (t1, t2) =>
