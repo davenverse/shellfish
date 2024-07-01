@@ -21,35 +21,30 @@
 
 package io.chrisdavenport.shellfish
 
-import weaver.SimpleIOSuite
+import cats.syntax.applicative.*
+import cats.effect.{IO, IOApp}
 
-import syntax.path.*
+import scodec.codecs.*
+import scodec.Codec
 
-object MainSpec extends SimpleIOSuite {
+import io.chrisdavenport.shellfish.syntax.path.*
+import fs2.io.file.Path
 
-  import Shell.io.{cd, pwd}
+object Place extends IOApp.Simple {
 
-  pureTest("Main should exit successfully") {
-    expect(1 == 1)
-  }
+  case class Place(number: Int, name: String)
 
-  test("cd should some back and forth") {
+  implicit val placeCodec: Codec[Place] = (int32 :: utf8).as[Place]
+
+  val path = Path("src/main/resources/place.data")
+
+  def run: IO[Unit] =
     for {
-      current  <- pwd
-      _        <- cd("..")
-      _        <- cd(current)
-      current2 <- pwd
-    } yield expect(current == current2)
-  }
+      exists <- path.exists
+      // Equivalent of doing `if (exists) IO.unit else path.createFile`
+      _ <- path.createFile.whenA(exists)
+      _ <- path.writeAs[Place](Place(1, "Michael Phelps"))
+      _ <- path.readAs[Place].flatMap(IO.println)
+    } yield ()
 
-  test("We should be able to create and delete a directory") {
-
-    for {
-      home <- userHome
-      dir = home / "shellfish"
-      _       <- dir.createDirectory
-      exists  <- dir.exists
-      deleted <- dir.deleteIfExists
-    } yield expect(exists && deleted)
-  }
 }
