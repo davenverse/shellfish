@@ -62,7 +62,7 @@ package object path {
      * @return
      *   The file loaded in memory as a String
      */
-    def readWithCharset(path: Path, charset: Charset): IO[String] =
+    def readWithCharset(charset: Charset): IO[String] =
       FilesOs.readWithCharset(path, charset)
 
     /**
@@ -206,7 +206,6 @@ package object path {
      *   The charset to use to encode the contents
      */
     def appendWithCharset(
-        path: Path,
         contents: String,
         charset: Charset
     ): IO[Unit] =
