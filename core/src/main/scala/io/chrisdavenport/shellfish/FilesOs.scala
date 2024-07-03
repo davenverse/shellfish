@@ -41,7 +41,7 @@ object FilesOs {
   // Read operations:
 
   /**
-   * Reads the contents of the fileat the path using UTF-8 decoding. Returns it
+   * Reads the contents of the file at the path using UTF-8 decoding. Returns it
    * as a String loaded in memory.
    *
    * @param path
@@ -94,7 +94,7 @@ object FilesOs {
   /**
    * Reads the contents of the file and deserializes its contents as `A` using
    * the provided codec.
-   * @param A
+   * @tparam A
    *   The type to read the file as
    * @param path
    *   The path to read from
@@ -119,7 +119,7 @@ object FilesOs {
   // Write operations:
 
   /**
-   * This function overwites the contents of the file at the path using UTF-8
+   * This function overwrites the contents of the file at the path using UTF-8
    * encoding with the contents provided in form of a entire string loaded in
    * memory.
    *
@@ -137,7 +137,7 @@ object FilesOs {
       .drain
 
   /**
-   * This function overwites the contents of the file at the path using the
+   * This function overwrites the contents of the file at the path using the
    * provided charset with the contents provided in form of a entire string
    * loaded in memory.
    *
@@ -162,7 +162,7 @@ object FilesOs {
       .drain
 
   /**
-   * This function overwites the contents of the file at the path with the
+   * This function overwrites the contents of the file at the path with the
    * contents provided in form of bytes loaded in memory.
    *
    * @param path
@@ -179,7 +179,7 @@ object FilesOs {
       .drain
 
   /**
-   * This function overwites the contents of the file at the path using UTF-8
+   * This function overwrites the contents of the file at the path using UTF-8
    * encoding with the contents provided. Each content inside the list is
    * written as a line in the file.
    *
@@ -201,7 +201,7 @@ object FilesOs {
    * provided and returns the number of bytes written. The codec is used to
    * translate the type A into a ByteVector so it can be parsed into the file.
    *
-   * @param A
+   * @tparam A
    *   The type of the contents to write
    * @param path
    *   The path to write to
@@ -309,7 +309,7 @@ object FilesOs {
    * Similar to `write`, but appends to the file instead of overwriting it.
    * Saves the content at the end of the file in form of a type `A`.
    *
-   * @param A
+   * @tparam A
    *   The type of the contents to write
    * @param path
    *   The path to write to
@@ -334,7 +334,7 @@ object FilesOs {
   /**
    * Copies the source to the target, following any directives supplied in the
    * flags. By default, an error occurs if the target already exists, though
-   * this can be overriden via CopyFlag.ReplaceExisting.
+   * this can be overridden via CopyFlag.ReplaceExisting.
    */
   def copy(source: Path, target: Path, flags: CopyFlags): IO[Unit] =
     files.copy(source, target, flags)
@@ -353,7 +353,7 @@ object FilesOs {
     files.createDirectories(path, permissions.some)
 
   /**
-   * Creates the specified directory and any non-existant parent directories.
+   * Creates the specified directory and any non-existent parent directories.
    */
   def createDirectories(path: Path): IO[Unit] = files.createDirectories(path)
 
@@ -639,7 +639,7 @@ object FilesOs {
   /**
    * Moves the source to the target, following any directives supplied in the
    * flags. By default, an error occurs if the target already exists, though
-   * this can be overriden via `CopyFlag.ReplaceExisting`.
+   * this can be overridden via `CopyFlag.ReplaceExisting`.
    */
   def move(source: Path, target: Path, flags: CopyFlags): IO[Unit] =
     files.move(source, target, flags)
