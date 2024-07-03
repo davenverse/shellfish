@@ -28,15 +28,18 @@ import org.scalacheck.Gen
 
 import cats.effect.Resource
 
-import fs2.io.file.{CopyFlag, CopyFlags}
+import fs2.io.file.{CopyFlag, CopyFlags, Path, PosixPermissions}
 
 import scodec.bits.ByteVector
+import scodec.Codec
+
+import scala.concurrent.duration.*
 
 import syntax.path.*
 
 object FileOsSpec extends SimpleIOSuite with Checkers {
 
-  test("The API should create and delete a file") {
+  test("The API should delete a file") {
     tempFile.use { path =>
       for {
         _       <- path.write("")
@@ -65,7 +68,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
   }
 
   test(
-    "Append to a file using `appendLine` should increate the size of the file in one"
+    "Append to a file using `appendLine` should increase the size of the file in one"
   ) {
 
     val contentGenerator =
@@ -88,10 +91,10 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       tempFile.use { path =>
         for {
           _          <- path.write(contents)
-          sizeBefore <- path.read.map(_.size)
+          sizeBefore <- path.read.map(_.length)
           _          <- path.append(contents)
-          sizeAfter  <- path.read.map(_.size)
-        } yield expect(sizeBefore + contents.size == sizeAfter)
+          sizeAfter  <- path.read.map(_.length)
+        } yield expect(sizeBefore + contents.length == sizeAfter)
       }
     }
   }
@@ -117,16 +120,16 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
   test(
     "`readAs` and `writeAs` should encode and decode correctly with the same codec"
   ) {
-    implicit val codec = scodec.codecs.ascii
+    implicit val codec: Codec[String] = scodec.codecs.ascii
 
     forall(Gen.asciiStr) { contents =>
       tempFile.use { path =>
         for {
           _          <- path.writeAs(contents)
-          sizeBefore <- path.read.map(_.size)
+          sizeBefore <- path.read.map(_.length)
           _          <- path.append(contents)
-          sizeAfter  <- path.read.map(_.size)
-        } yield expect(sizeBefore + contents.size == sizeAfter)
+          sizeAfter  <- path.read.map(_.length)
+        } yield expect(sizeBefore + contents.length == sizeAfter)
       }
     }
   }
@@ -144,4 +147,200 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       }
     }
   }
+
+  test(
+    "We should be able to move a file and the contents should remain the same"
+  ) {
+
+    val pathsGenerator =
+      for {
+        pathLength <- Gen.choose(1, 10)
+        names      <- Gen.listOfN(pathLength, Gen.alphaLowerStr)
+      } yield names.foldLeft(Path(""))(_ / _)
+
+    val multipleGenerators =
+      for {
+        path     <- pathsGenerator
+        contents <- Gen.asciiStr
+      } yield (path, contents)
+
+    forall(multipleGenerators) { case (path, contents) =>
+      tempDirectory.use { dir =>
+        val firstPath = dir / "moving_file.data"
+        val movePath  = dir / path / "moved_file.data"
+
+        for {
+          _           <- firstPath.createFile
+          _           <- firstPath.write(contents)
+          _           <- (dir / path).createDirectories
+          _           <- firstPath.move(movePath)
+          moved       <- movePath.exists
+          file        <- movePath.read
+          oldLocation <- firstPath.exists
+        } yield expect(moved) and expect.same(contents, file) and not(
+          expect(oldLocation)
+        )
+      }
+    }
+  }
+
+  test("`size` should correctly calculate the size in bytes of a file") {
+    val contentGenerator: Gen[List[String]] =
+      Gen.size.flatMap(size => Gen.listOfN(size, Gen.asciiStr))
+
+    forall(contentGenerator) { contentsList =>
+      tempFile.use { path =>
+        for {
+          _          <- path.writeLines(contentsList)
+          size       <- path.size
+          streamSize <- path.readStream.compile.count
+        } yield expect(size == streamSize)
+      }
+    }
+  }
+
+  test("We should create and delete recursively directories") {
+
+    val pathsGenerator =
+      for {
+        pathLength <- Gen.choose(1, 10)
+        names      <- Gen.listOfN(pathLength, Gen.alphaLowerStr)
+      } yield names.foldLeft(Path(""))(_ / _)
+
+    tempDirectory.use { dir =>
+      forall(pathsGenerator) { paths =>
+        val tempDir = dir / paths
+
+        for {
+          _         <- tempDir.createDirectories
+          exists    <- tempDir.exists
+          _         <- tempDir.deleteRecursively
+          notExists <- tempDir.exists
+        } yield expect(exists) and not(expect(notExists))
+      }
+    }
+  }
+
+  test("We should be able to get and modify the last modified time of a file") {
+    forall(Gen.asciiStr) { contents =>
+      tempFile.use { path =>
+        for {
+          _      <- path.write(contents)
+          before <- path.getLastModifiedTime
+
+          _ <- path.setFileTimes(
+            lastModified = Option(before + 1.seconds),
+            None,
+            None,
+            true
+          )
+
+          after <- path.getLastModifiedTime
+          _     <- path.deleteIfExists
+        } yield expect(before < after)
+      }
+    }
+  }
+
+  test(
+    "Symbolic links should be created, and followed with the argument `followLinks`"
+  ) {
+
+    val pathsGenerator =
+      for {
+        pathLength <- Gen.choose(1, 10)
+        names      <- Gen.listOfN(pathLength, Gen.alphaLowerStr)
+      } yield names.foldLeft(Path(""))(_ / _)
+
+    forall(pathsGenerator) { path =>
+      Resource.both(tempFile, tempDirectory).use { case (file, dir) =>
+        val link = dir / path / "link"
+        for {
+          _           <- (dir / path).createDirectories
+          _           <- link.createSymbolicLink(file)
+          exists      <- link.exists(followLinks = true)
+          notFollowed <- link.exists(followLinks = false)
+          _           <- link.deleteRecursively(followLinks = true)
+          notExists   <- link.exists(followLinks = true)
+        } yield expect(exists) and not(expect(notExists && notFollowed))
+      }
+    }
+  }
+
+  pureTest("A line separator should add a new line to a string") {
+    expect.same(s"$lineSeparator love live serve", s"\n love live serve")
+  }
+
+  // Warning: Platform dependent test; this may fail on some operating systems
+  test("The permissions POSIX API should approve or prevent reading") {
+    tempFile.use { path =>
+      for {
+        _ <- path.setPosixPermissions(
+          PosixPermissions.fromString("r--r--r--").get
+        )
+        readable <- path.isReadable
+
+        _ <- path.setPosixPermissions(
+          PosixPermissions.fromString("---------").get
+        )
+        notReadable <- path.isReadable
+      } yield expect(readable) and not(expect(notReadable))
+    }
+  }
+
+  // Warning: Platform dependent test; this may fail on some operating systems
+  test("The permissions POSIX API should approve or prevent writing") {
+    tempFile.use { path =>
+      for {
+        _ <- path.setPosixPermissions(
+          PosixPermissions.fromString("-w--w--w-").get
+        )
+        writable <- path.isWritable
+
+        _ <- path.setPosixPermissions(
+          PosixPermissions.fromString("---------").get
+        )
+        notWritable <- path.isWritable
+      } yield expect(writable) and not(expect(notWritable))
+    }
+  }
+
+  // Warning: Platform dependent test; this may fail on some operating systems
+  test("The permissions POSIX API should approve or prevent executing") {
+    tempFile.use { path =>
+      for {
+        _ <- path.setPosixPermissions(
+          PosixPermissions.fromString("--x--x--x").get
+        )
+        executable <- path.isExecutable
+
+        _ <- path.setPosixPermissions(
+          PosixPermissions.fromString("---------").get
+        )
+        notExecutable <- path.isExecutable
+      } yield expect(executable) and not(expect(notExecutable))
+    }
+  }
+
+  // Warning: Platform dependent test; this may fail on some operating systems
+  test("We should be able to get the file permissions in POSIX systems") {
+
+    val permissionsGenerator: Gen[PosixPermissions] =
+      for {
+        value <- Gen.choose(0, 511)
+      } yield PosixPermissions.fromInt(value).get
+
+    implicit val permShow: cats.Show[PosixPermissions] =
+      cats.Show.show(_.toString)
+
+    forall(permissionsGenerator) { permissions =>
+      tempFile.use { path =>
+        for {
+          _     <- path.setPosixPermissions(permissions)
+          perms <- path.getPosixPermissions
+        } yield expect(permissions == perms)
+      }
+    }
+  }
+
 }
