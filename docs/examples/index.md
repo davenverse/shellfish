@@ -1,6 +1,6 @@
 # Examples
 
-We understand that learning a new library is easiest through hands-on experience. That's why we've created the "Examples" section. Here you'll find a curated collection of code examples that show the library in action. These are some code snippets that show how to use many of the methods. You can also find these examples in the module `examples` on the project on our GitHub!
+Here you'll find a curated collection of code examples that show the library in action. 
 
 ## Scores
 ``` scala 3 mdoc
