@@ -59,7 +59,7 @@ end Uppercase
 
 ## Places
 
-Shellfish OS has compatibility for working with scodecs!
+Shellfish OS has compatibility for working with [scodec](https://scodec.org/)!
 
 ``` scala 3 mdoc
 import cats.syntax.applicative.*
