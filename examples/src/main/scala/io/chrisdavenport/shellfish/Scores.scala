@@ -21,35 +21,33 @@
 
 package io.chrisdavenport.shellfish
 
-import weaver.SimpleIOSuite
+import cats.syntax.all.*
+import cats.effect.{IO, IOApp}
 
-import syntax.path.*
+import fs2.io.file.Path
 
-object MainSpec extends SimpleIOSuite {
+import io.chrisdavenport.shellfish.syntax.path.*
 
-  import Shell.io.{cd, pwd}
+object Scores extends IOApp.Simple {
 
-  pureTest("Main should exit successfully") {
-    expect(1 == 1)
+  case class Score(name: String, score: Int) {
+    def show: String = s"$name:$score"
   }
 
-  test("cd should some back and forth") {
+  def parseScore(strScore: String): Either[Throwable, Score] =
+    Either.catchNonFatal(
+      strScore.split(':') match {
+        case Array(name, score) => Score(name, score.toInt)
+        case _                  => Score("Cant parse this score", -1)
+      }
+    )
+
+  val path = Path("src/main/resources/scores.txt")
+  override def run: IO[Unit] =
     for {
-      current  <- pwd
-      _        <- cd("..")
-      _        <- cd(current)
-      current2 <- pwd
-    } yield expect(current == current2)
-  }
-
-  test("We should be able to create and delete a directory") {
-
-    for {
-      home <- userHome
-      dir = home / "shellfish"
-      _       <- dir.createDirectory
-      exists  <- dir.exists
-      deleted <- dir.deleteIfExists
-    } yield expect(exists && deleted)
-  }
+      lines  <- path.readLines
+      scores <- lines.traverse(parseScore(_).liftTo[IO])
+      _      <- IO(scores.foreach(score => println(score.show)))
+      _      <- path.append(Score("daniela", 100).show)
+    } yield ()
 }

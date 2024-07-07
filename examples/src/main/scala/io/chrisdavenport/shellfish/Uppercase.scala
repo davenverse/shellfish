@@ -21,35 +21,19 @@
 
 package io.chrisdavenport.shellfish
 
-import weaver.SimpleIOSuite
-
+import cats.effect.{IO, IOApp}
+import fs2.io.file.Path
 import syntax.path.*
 
-object MainSpec extends SimpleIOSuite {
+object Uppercase extends IOApp.Simple {
 
-  import Shell.io.{cd, pwd}
+  val path      = Path("src/main/resources/quijote.txt")
+  val upperPath = Path("src/main/resources/quijote_screaming.txt")
 
-  pureTest("Main should exit successfully") {
-    expect(1 == 1)
-  }
-
-  test("cd should some back and forth") {
+  def run: IO[Unit] =
     for {
-      current  <- pwd
-      _        <- cd("..")
-      _        <- cd(current)
-      current2 <- pwd
-    } yield expect(current == current2)
-  }
+      file <- path.read
+      _    <- upperPath.write(file.toUpperCase)
+    } yield ()
 
-  test("We should be able to create and delete a directory") {
-
-    for {
-      home <- userHome
-      dir = home / "shellfish"
-      _       <- dir.createDirectory
-      exists  <- dir.exists
-      deleted <- dir.deleteIfExists
-    } yield expect(exists && deleted)
-  }
 }
