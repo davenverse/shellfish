@@ -49,11 +49,8 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
   }
 
   test("Copying a file should have the same content as the original") {
-
-    val temp = Resource.both(tempFile, tempFile)
-
     forall(Gen.asciiStr) { contents =>
-      temp.use { case (t1, t2) =>
+      Resource.both(tempFile, tempFile).use { case (t1, t2) =>
         for {
           _  <- t1.write(contents)
           _  <- t1.copy(t2, CopyFlags(CopyFlag.ReplaceExisting))
@@ -102,11 +99,8 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
   test(
     "`append` should behave the same as `appendLine` when prepending a newline to the contents"
   ) {
-
-    val temp = Resource.both(tempFile, tempFile)
-
     forall(Gen.asciiStr) { contents =>
-      temp.use { case (t1, t2) =>
+      Resource.both(tempFile, tempFile).use { case (t1, t2) =>
         for {
           _     <- t1.append(s"\n$contents")
           _     <- t2.appendLine(contents)
@@ -207,8 +201,8 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
         names      <- Gen.listOfN(pathLength, Gen.alphaLowerStr)
       } yield names.foldLeft(Path(""))(_ / _)
 
-    tempDirectory.use { dir =>
-      forall(pathsGenerator) { paths =>
+    forall(pathsGenerator) { paths =>
+      tempDirectory.use { dir =>
         val tempDir = dir / paths
 
         for {
