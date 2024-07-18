@@ -22,7 +22,6 @@
 package io.chrisdavenport.shellfish
 package syntax
 
-import cats.syntax.all.*
 import cats.effect.{IO, Resource}
 
 import fs2.Stream

@@ -253,7 +253,6 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
     forall(pathsGenerator) { path =>
       tempFile { file =>
         tempDirectory { dir =>
-
           val link = dir / path / "link"
           for {
             _           <- (dir / path).createDirectories
