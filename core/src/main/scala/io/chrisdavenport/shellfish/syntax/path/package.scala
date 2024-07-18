@@ -62,8 +62,8 @@ package object path {
      * @return
      *   The file loaded in memory as a String
      */
-    def readWithCharset(charset: Charset): IO[String] =
-      FilesOs.readWithCharset(path, charset)
+    def read(charset: Charset): IO[String] =
+      FilesOs.read(path, charset)
 
     /**
      * Reads the contents of the file at the path and returns it as a
@@ -100,16 +100,6 @@ package object path {
      */
     def readAs[A: Codec]: IO[A] = FilesOs.readAs(path)
 
-    /**
-     * The function reads the contents of the file at the path and returns it as
-     * a Stream of Bytes, useful when working with large files.
-     * @param path
-     *   The path to read from
-     * @return
-     *   A Stream of Bytes
-     */
-    def readStream: fs2.Stream[IO, Byte] = FilesOs.readStream(path)
-
     // Write operations:
 
     /**
@@ -136,8 +126,8 @@ package object path {
      * @param charset
      *   The charset to use to encode the file
      */
-    def writeWithCharset(contents: String, charset: Charset): IO[Unit] =
-      FilesOs.writeWithCharset(path, contents, charset)
+    def write(contents: String, charset: Charset): IO[Unit] =
+      FilesOs.write(path, contents, charset)
 
     /**
      * This function overwrites the contents of the file at the path with the
@@ -205,11 +195,11 @@ package object path {
      * @param charset
      *   The charset to use to encode the contents
      */
-    def appendWithCharset(
+    def append(
         contents: String,
         charset: Charset
     ): IO[Unit] =
-      FilesOs.appendWithCharset(path, contents, charset)
+      FilesOs.append(path, contents, charset)
 
     /**
      * Similar to `write`, but appends to the file instead of overwriting it.
@@ -617,14 +607,16 @@ package object path {
   def lineSeparator: String = FilesOs.lineSeparator
 
   /**
-   * Creates a temporary file and deletes it upon finalization of the returned
-   * resource.
+   * Creates a temporary file and deletes it at the end of the use of it.
    */
-  def tempFile: Resource[IO, Path] = files.tempFile(None, "", ".tmp", None)
+  def tempFile[A](use: Path => IO[A]): IO[A] =
+    FilesOs.tempFile(use)
 
   /**
-   * Creates a temporary file and deletes it upon finalization of the returned
-   * resource.
+   * Creates a temporary file and deletes it at the end of the use of it.
+   *
+   * @tparam A
+   *   the type of the result computation
    *
    * @param dir
    *   the directory which the temporary file will be created in. Pass in None
@@ -636,24 +628,26 @@ package object path {
    * @param permissions
    *   permissions to set on the created file
    * @return
-   *   a resource containing the path of the temporary file
+   *   The result of the computation after using the temporary file
    */
-  def tempFile(
+  def tempFile[A](
       dir: Option[Path],
       prefix: String,
       suffix: String,
       permissions: Permissions
-  ): Resource[IO, Path] = files.tempFile(dir, prefix, suffix, permissions.some)
+  )(use: Path => IO[A]): IO[A] =
+    FilesOs.tempFile(dir, prefix, suffix, permissions)(use)
 
   /**
-   * Creates a temporary directory and deletes it upon finalization of the
-   * returned resource.
+   * Creates a temporary directory and deletes it at the end of the use of it.
    */
-  def tempDirectory: Resource[IO, Path] = files.tempDirectory(None, "", None)
+  def tempDirectory[A](use: Path => IO[A]): IO[A] = FilesOs.tempDirectory(use)
 
   /**
-   * Creates a temporary directory and deletes it upon finalization of the
-   * returned resource.
+   * Creates a temporary directory and deletes it at the end of the use of it.
+   *
+   * @tparam A
+   *   the type of the result computation
    *
    * @param dir
    *   the directory which the temporary directory will be created in. Pass in
@@ -663,13 +657,14 @@ package object path {
    * @param permissions
    *   permissions to set on the created file
    * @return
-   *   a resource containing the path of the temporary directory
+   *   the result of the computation after using the temporary directory
    */
-  def tempDirectory(
+  def tempDirectory[A](
       dir: Option[Path],
       prefix: String,
       permissions: Permissions
-  ): Resource[IO, Path] = files.tempDirectory(dir, prefix, permissions.some)
+  )(use: Path => IO[A]): IO[A] =
+    FilesOs.tempDirectory(dir, prefix, permissions)(use)
 
   /** User's home directory */
   def userHome: IO[Path] = files.userHome

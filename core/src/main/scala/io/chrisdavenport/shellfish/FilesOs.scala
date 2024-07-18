@@ -62,7 +62,7 @@ object FilesOs {
    * @return
    *   The file loaded in memory as a String
    */
-  def readWithCharset(path: Path, charset: Charset): IO[String] =
+  def read(path: Path, charset: Charset): IO[String] =
     files
       .readAll(path)
       .through(fs2.text.decodeWithCharset(charset))
@@ -106,16 +106,6 @@ object FilesOs {
   def readAs[A: Codec](path: Path): IO[A] =
     readBytes(path).map(bytes => Codec[A].decodeValue(bytes.bits).require)
 
-  /**
-   * The function reads the contents of the file at the path and returns it as a
-   * Stream of Bytes, useful when working with large files.
-   * @param path
-   *   The path to read from
-   * @return
-   *   A Stream of Bytes
-   */
-  def readStream(path: Path): Stream[IO, Byte] = files.readAll(path)
-
   // Write operations:
 
   /**
@@ -148,7 +138,7 @@ object FilesOs {
    * @param charset
    *   The charset to use to encode the file
    */
-  def writeWithCharset(
+  def write(
       path: Path,
       contents: String,
       charset: Charset
@@ -243,7 +233,7 @@ object FilesOs {
    * @param charset
    *   The charset to use to encode the contents
    */
-  def appendWithCharset(
+  def append(
       path: Path,
       contents: String,
       charset: Charset
@@ -705,14 +695,16 @@ object FilesOs {
   def size(path: Path): IO[Long] = files.size(path)
 
   /**
-   * Creates a temporary file and deletes it upon finalization of the returned
-   * resource.
+   * Creates a temporary file and deletes it at the end of the use of it.
    */
-  def tempFile: Resource[IO, Path] = files.tempFile(None, "", ".tmp", None)
+  def tempFile[A](use: Path => IO[A]): IO[A] =
+    IO.defer(files.createTempFile).bracket(use)(deleteIfExists(_).void)
 
   /**
-   * Creates a temporary file and deletes it upon finalization of the returned
-   * resource.
+   * Creates a temporary file and deletes it at the end of the use of it.
+   *
+   * @tparam A
+   *   the type of the result computation
    *
    * @param dir
    *   the directory which the temporary file will be created in. Pass in None
@@ -724,24 +716,31 @@ object FilesOs {
    * @param permissions
    *   permissions to set on the created file
    * @return
-   *   a resource containing the path of the temporary file
+   *   The result of the computation after using the temporary file
    */
-  def tempFile(
+  def tempFile[A](
       dir: Option[Path],
       prefix: String,
       suffix: String,
       permissions: Permissions
-  ): Resource[IO, Path] = files.tempFile(dir, prefix, suffix, permissions.some)
+  )(use: Path => IO[A]): IO[A] = IO
+    .defer(files.createTempFile(dir, prefix, suffix, permissions.some))
+    .bracket(use)(deleteIfExists(_).void)
 
   /**
-   * Creates a temporary directory and deletes it upon finalization of the
-   * returned resource.
+   * Creates a temporary directory and deletes it at the end of the use of it.
    */
-  def tempDirectory: Resource[IO, Path] = files.tempDirectory(None, "", None)
+  def tempDirectory[A](use: Path => IO[A]): IO[A] =
+    IO.defer(files.createTempDirectory)
+      .bracket(use)(deleteRecursively(_).recover {
+        case _: NoSuchFileException => ()
+      })
 
   /**
-   * Creates a temporary directory and deletes it upon finalization of the
-   * returned resource.
+   * Creates a temporary directory and deletes it at the end of the use of it.
+   *
+   * @tparam A
+   *   the type of the result computation
    *
    * @param dir
    *   the directory which the temporary directory will be created in. Pass in
@@ -751,13 +750,17 @@ object FilesOs {
    * @param permissions
    *   permissions to set on the created file
    * @return
-   *   a resource containing the path of the temporary directory
+   *   the result of the computation after using the temporary directory
    */
-  def tempDirectory(
+  def tempDirectory[A](
       dir: Option[Path],
       prefix: String,
       permissions: Permissions
-  ): Resource[IO, Path] = files.tempDirectory(dir, prefix, permissions.some)
+  )(use: Path => IO[A]): IO[A] = IO
+    .defer(files.createTempDirectory(dir, prefix, permissions.some))
+    .bracket(use)(deleteRecursively(_).recover { case _: NoSuchFileException =>
+      ()
+    })
 
   /** User's home directory */
   def userHome: IO[Path] = files.userHome
