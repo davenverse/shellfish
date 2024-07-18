@@ -26,9 +26,9 @@ import weaver.scalacheck.Checkers
 
 import org.scalacheck.Gen
 
-import cats.effect.Resource
+import cats.effect.IO
 
-import fs2.io.file.{CopyFlag, CopyFlags, Path, PosixPermissions}
+import fs2.io.file.*
 
 import scodec.bits.ByteVector
 import scodec.Codec
@@ -40,7 +40,7 @@ import syntax.path.*
 object FileOsSpec extends SimpleIOSuite with Checkers {
 
   test("The API should delete a file") {
-    tempFile.use { path =>
+    tempFile { path =>
       for {
         _       <- path.write("")
         deleted <- path.deleteIfExists
@@ -50,16 +50,18 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
 
   test("Copying a file should have the same content as the original") {
     forall(Gen.asciiStr) { contents =>
-      Resource.both(tempFile, tempFile).use { case (t1, t2) =>
-        for {
-          _  <- t1.write(contents)
-          _  <- t1.copy(t2, CopyFlags(CopyFlag.ReplaceExisting))
-          s1 <- t1.read
-          s2 <- t2.read
-          _  <- t1.deleteIfExists
-          _  <- t2.deleteIfExists
+      tempFile { t1 =>
+        tempFile { t2 =>
+          for {
+            _  <- t1.write(contents)
+            _  <- t1.copy(t2, CopyFlags(CopyFlag.ReplaceExisting))
+            s1 <- t1.read
+            s2 <- t2.read
+            _  <- t1.deleteIfExists
+            _  <- t2.deleteIfExists
 
-        } yield expect.same(s1, s2)
+          } yield expect.same(s1, s2)
+        }
       }
     }
   }
@@ -72,7 +74,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       Gen.size.flatMap(size => Gen.listOfN(size, Gen.asciiStr))
 
     forall(contentGenerator) { contentsList =>
-      tempFile.use { path =>
+      tempFile { path =>
         for {
           _          <- path.writeLines(contentsList)
           sizeBefore <- path.readLines.map(_.size)
@@ -85,7 +87,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
 
   test("Append should behave the same as adding at the end of the string") {
     forall(Gen.asciiStr) { contents =>
-      tempFile.use { path =>
+      tempFile { path =>
         for {
           _          <- path.write(contents)
           sizeBefore <- path.read.map(_.length)
@@ -100,13 +102,15 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
     "`append` should behave the same as `appendLine` when prepending a newline to the contents"
   ) {
     forall(Gen.asciiStr) { contents =>
-      Resource.both(tempFile, tempFile).use { case (t1, t2) =>
-        for {
-          _     <- t1.append(s"\n$contents")
-          _     <- t2.appendLine(contents)
-          file1 <- t1.read
-          file2 <- t2.read
-        } yield expect.same(file1, file2)
+      tempFile { t1 =>
+        tempFile { t2 =>
+          for {
+            _     <- t1.append(s"\n$contents")
+            _     <- t2.appendLine(contents)
+            file1 <- t1.read
+            file2 <- t2.read
+          } yield expect.same(file1, file2)
+        }
       }
     }
   }
@@ -117,7 +121,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
     implicit val codec: Codec[String] = scodec.codecs.ascii
 
     forall(Gen.asciiStr) { contents =>
-      tempFile.use { path =>
+      tempFile { path =>
         for {
           _          <- path.writeAs(contents)
           sizeBefore <- path.read.map(_.length)
@@ -131,7 +135,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
   test("We should write bytes and read bytes") {
 
     forall(Gen.identifier) { name =>
-      tempFile.use { path =>
+      tempFile { path =>
         val bytes = ByteVector(name.getBytes)
 
         for {
@@ -159,7 +163,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       } yield (path, contents)
 
     forall(multipleGenerators) { case (path, contents) =>
-      tempDirectory.use { dir =>
+      tempDirectory { dir =>
         val firstPath = dir / "moving_file.data"
         val movePath  = dir / path / "moved_file.data"
 
@@ -183,11 +187,11 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       Gen.size.flatMap(size => Gen.listOfN(size, Gen.asciiStr))
 
     forall(contentGenerator) { contentsList =>
-      tempFile.use { path =>
+      tempFile { path =>
         for {
           _          <- path.writeLines(contentsList)
           size       <- path.size
-          streamSize <- path.readStream.compile.count
+          streamSize <- Files[IO].readAll(path).compile.count
         } yield expect(size == streamSize)
       }
     }
@@ -202,7 +206,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       } yield names.foldLeft(Path(""))(_ / _)
 
     forall(pathsGenerator) { paths =>
-      tempDirectory.use { dir =>
+      tempDirectory { dir =>
         val tempDir = dir / paths
 
         for {
@@ -217,7 +221,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
 
   test("We should be able to get and modify the last modified time of a file") {
     forall(Gen.asciiStr) { contents =>
-      tempFile.use { path =>
+      tempFile { path =>
         for {
           _      <- path.write(contents)
           before <- path.getLastModifiedTime
@@ -247,16 +251,19 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       } yield names.foldLeft(Path(""))(_ / _)
 
     forall(pathsGenerator) { path =>
-      Resource.both(tempFile, tempDirectory).use { case (file, dir) =>
-        val link = dir / path / "link"
-        for {
-          _           <- (dir / path).createDirectories
-          _           <- link.createSymbolicLink(file)
-          exists      <- link.exists(followLinks = true)
-          notFollowed <- link.exists(followLinks = false)
-          _           <- link.deleteRecursively(followLinks = true)
-          notExists   <- link.exists(followLinks = true)
-        } yield expect(exists) and not(expect(notExists && notFollowed))
+      tempFile { file =>
+        tempDirectory { dir =>
+
+          val link = dir / path / "link"
+          for {
+            _           <- (dir / path).createDirectories
+            _           <- link.createSymbolicLink(file)
+            exists      <- link.exists(followLinks = true)
+            notFollowed <- link.exists(followLinks = false)
+            _           <- link.deleteRecursively(followLinks = true)
+            notExists   <- link.exists(followLinks = true)
+          } yield expect(exists) and not(expect(notExists && notFollowed))
+        }
       }
     }
   }
@@ -267,7 +274,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
 
   // Warning: Platform dependent test; this may fail on some operating systems
   test("The permissions POSIX API should approve or prevent reading") {
-    tempFile.use { path =>
+    tempFile { path =>
       for {
         _ <- path.setPosixPermissions(
           PosixPermissions.fromString("r--r--r--").get
@@ -284,7 +291,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
 
   // Warning: Platform dependent test; this may fail on some operating systems
   test("The permissions POSIX API should approve or prevent writing") {
-    tempFile.use { path =>
+    tempFile { path =>
       for {
         _ <- path.setPosixPermissions(
           PosixPermissions.fromString("-w--w--w-").get
@@ -301,7 +308,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
 
   // Warning: Platform dependent test; this may fail on some operating systems
   test("The permissions POSIX API should approve or prevent executing") {
-    tempFile.use { path =>
+    tempFile { path =>
       for {
         _ <- path.setPosixPermissions(
           PosixPermissions.fromString("--x--x--x").get
@@ -328,7 +335,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       cats.Show.show(_.toString)
 
     forall(permissionsGenerator) { permissions =>
-      tempFile.use { path =>
+      tempFile { path =>
         for {
           _     <- path.setPosixPermissions(permissions)
           perms <- path.getPosixPermissions
