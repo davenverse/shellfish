@@ -7,7 +7,7 @@ To use shellfish in an existing SBT project with Scala 2.11 or a later version, 
 
 ```scala
 libraryDependencies ++= Seq(
-  "io.chrisdavenport" %% "shellfish" % "<version>"
+  "io.chrisdavenport" %% "shellfish" % "@VERSION@"
 )
 ```
 
