@@ -1,3 +1,0 @@
-# What is this `IO` thing?
-
-Explanation coming soon ...

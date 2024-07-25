@@ -1,6 +1,6 @@
 # shellfish — Shell Scripting for Cats-Effect
 
-## Getting Started
+## Installing the library
 
 To use shellfish in an existing SBT project with Scala 2.11 or a later version, add the following dependencies to your
 `build.sbt` depending on your needs:
