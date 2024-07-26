@@ -22,9 +22,8 @@
 package io.chrisdavenport.shellfish
 package syntax
 
-import cats.effect.{IO, Resource}
+import cats.effect.IO
 
-import fs2.Stream
 import fs2.io.file.*
 
 import scodec.bits.ByteVector
@@ -474,7 +473,7 @@ package object path {
     def isSameFile(path2: Path): IO[Boolean] = FilesOs.isSameFile(path, path2)
 
     /** Gets the contents of the specified directory. */
-    def list: Stream[IO, Path] = FilesOs.list(path)
+    def list: IO[List[Path]] = FilesOs.list(path)
 
     /**
      * Moves the source to the target, failing if source does not exist or the
@@ -490,17 +489,6 @@ package object path {
      */
     def move(target: Path, flags: CopyFlags): IO[Unit] =
       FilesOs.move(path, target, flags)
-
-    /** Creates a `FileHandle` for the file at the supplied `Path`. */
-    def open(flags: Flags): Resource[IO, FileHandle[IO]] =
-      FilesOs.open(path, flags)
-
-    /**
-     * Returns a `ReadCursor` for the specified path, using the supplied flags
-     * when opening the file.
-     */
-    def readCursor(flags: Flags): Resource[IO, ReadCursor[IO]] =
-      FilesOs.readCursor(path, flags)
 
     // Real Path
     /** Returns the real path i.e. the actual location of `path`. */
