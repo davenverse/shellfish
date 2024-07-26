@@ -108,7 +108,9 @@ Now pass the program to the `run` method and everything should go nicely:
 
 @:choice(syntax)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.syntax.path.*
+import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
 object App extends IOApp.Simple:
