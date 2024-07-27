@@ -12,7 +12,9 @@ This is how you can create a file in Shellfish:
 
 @:choice(syntax)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.syntax.path.*
+import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
 object Creating extends IOApp.Simple:
@@ -31,7 +33,9 @@ end Creating
 
 @:choice(static)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.FilesOs.*
+import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
 object Creating extends IOApp.Simple:
@@ -58,7 +62,9 @@ Here, we are first creating the file using the `createFile` method and then chek
 
 @:choice(syntax)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.syntax.path.*
+import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
 object Creating extends IOApp.Simple:
@@ -73,7 +79,9 @@ end Creating
 
 @:choice(static)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.FilesOs.*
+import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
 object Creating extends IOApp.Simple:
@@ -108,6 +116,8 @@ def createFileAndDirectories(path: Path): IO[Unit] = ???
 
 @:@
 
+[See possible implementation](https://gist.github.com/00c59408740e8b52838ff07fc9154c12.git)
+
 ## Deleting here and there
 
 Creating is just the first part. Because memory is not infinite, you may also want to delete a file on your system.
@@ -118,7 +128,9 @@ Here, you can use the `delete` method:
 
 @:choice(syntax)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.syntax.path.*
+import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
 object Deleting extends IOApp.Simple:
@@ -129,6 +141,7 @@ object Deleting extends IOApp.Simple:
     for
       exists <- annoyingFile.exists
       _ <- if exists then annoyingFile.delete
+           else IO.unit
     yield ()
 
 end Deleting
@@ -136,7 +149,9 @@ end Deleting
 
 @:choice(static)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.FilesOs.*
+import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
 object Deleting extends IOApp.Simple:
@@ -147,6 +162,7 @@ object Deleting extends IOApp.Simple:
     for
       exists <- exists(annoyingFile)
       _ <- if exists then delete(annoyingFile)
+           else IO.unit
     yield ()
 
 end Deleting
@@ -160,7 +176,9 @@ Note that we first check if the file exists before deleting it, this is because 
 
 @:choice(syntax)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.syntax.path.*
+import fs2.io.file.Path
 import cats.syntax.applicative.* // You can instead import cats.syntax.all.* !
 import cats.effect.{IO, IOApp}
 
@@ -168,14 +186,20 @@ object Deleting extends IOApp.Simple:
 
   val annoyingFile = Path("desktop/extend_your_car_warranty_now.ad")
 
-  def run: IO[Unit] = annoyingFile.delete.whenA(annoyingFile.exists)
+  def run: IO[Unit] =
+    for
+      exists <- annoyingFile.exists
+      _ <- annoyingFile.delete.whenA(exists)
+    yield ()
 
 end Deleting
 ```
 
 @:choice(static)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.FilesOs.*
+import fs2.io.file.Path
 import cats.syntax.applicative.* // You can instead import cats.syntax.all.* !
 import cats.effect.{IO, IOApp}
 
@@ -183,7 +207,11 @@ object Deleting extends IOApp.Simple:
 
   val annoyingFile = Path("desktop/extend_your_car_warranty_now.ad")
 
-  def run: IO[Unit] = delete(annoyingFile).whenA(annoyingFile.exists)
+  def run: IO[Unit] =
+    for
+      exists <- exists(annoyingFile)
+      _ <- delete(annoyingFile).whenA(exists)
+    yield ()
 
 end Deleting
 ```
@@ -196,8 +224,9 @@ Or even better, use the convenience method `deleteIfExists`:
 
 @:choice(syntax)
 
-```scala
-import cats.syntax.applicative.* // You can instead import cats.syntax.all.* !
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.syntax.path.*
+import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
 object Deleting extends IOApp.Simple:
@@ -215,8 +244,9 @@ end Deleting
 
 @:choice(static)
 
-```scala
-import cats.syntax.applicative.* // You can instead import cats.syntax.all.* !
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.FilesOs.*
+import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
 object Deleting extends IOApp.Simple:
@@ -261,7 +291,9 @@ Lastly, you may want to delete not one but multiple files and directories, here 
 
 @:choice(syntax)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.syntax.path.*
+import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
 object Deleting extends IOApp.Simple:
@@ -275,7 +307,9 @@ end Deleting
 
 @:choice(static)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.FilesOs.*
+import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
 object Deleting extends IOApp.Simple:
@@ -299,7 +333,7 @@ end Deleting
 
 ### Exercise
 
-You are tired of people abusing the FTP server to upload long pirated movies. Implement a method that checks if a file exceeds a certain size, and if so, automatically deletes it (hint: check out the `size` method!). Return `true` if the file was deleted, `false` otherwise:
+You are tired of people abusing the FTP server to upload long pirated movies. So you decide to implement a method that checks if a file exceeds a certain size, and if so, automatically deletes it (hint: check out the `size` method!). Return `true` if the file was deleted, `false` otherwise:
 
 @:select(api-style)
 
@@ -317,6 +351,8 @@ def deleteIfChubby(path: Path, threshold: Long): IO[Boolean] = ???
 
 @:@
 
+[See possible implementation](https://gist.github.com/a4f2ef825f8b3425f41a6069b13a08c0.git)
+
 ## Using temporary files
 
 Maybe you don't want to manually delete a file after its use. This is where temporary files come in to play, as they are deleted automatically.
@@ -329,17 +365,19 @@ The former takes as a parameter a function that describes how you want to use th
 
 @:choice(syntax)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.syntax.path._
 import cats.syntax.all.*
 import cats.effect.{IO, IOApp}
 
 object Temporary extends IOApp.Simple:
 
-  def run: IO[Unit] = tempFile: path =>
+  def run: IO[Unit] = tempFile.use: path => // TODO: Change when simpler-api PR merges
     for
       _ <- path.writeLines(LazyList.from('a').map(_.toChar.toString).take(26))
       alphabet <- path.read
-      _ <- IO.println("ASCII took hispanics into account!").whenA(alphabet.contains('ñ')) // Not gonna be printed, sadly
+      _ <- IO.println("ASCII took hispanics into account!").whenA(alphabet.contains('ñ'))
+      // Not gonna be printed, sadly
     yield ()
 
 end Temporary
@@ -347,17 +385,19 @@ end Temporary
 
 @:choice(static)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.FilesOs.*
 import cats.syntax.all.*
 import cats.effect.{IO, IOApp}
 
 object Temporary extends IOApp.Simple:
 
-  def run: IO[Unit] = tempFile: path =>
+  def run: IO[Unit] = tempFile.use: path => // TODO: Change when simpler-api PR merges
     for
       _ <- writeLines(path, LazyList.from('a').map(_.toChar.toString).take(26))
       alphabet <- read(path)
-      _ <- IO.println("ASCII took hispanics into account!").whenA(alphabet.contains('ñ')) // Not gonna be printed, sadly
+      _ <- IO.println("ASCII took hispanics into account!").whenA(alphabet.contains('ñ'))
+      // Not gonna be printed, sadly
     yield ()
 
 end Temporary
@@ -373,7 +413,9 @@ The last alternative is with `createTempFile` or `createTempDirectory`. The diff
 
 @:choice(syntax)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.syntax.path.*
+import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
 object Temporary extends IOApp.Simple:
@@ -392,7 +434,9 @@ end Temporary
 
 @:choice(static)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.FilesOs.*
+import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
 object Temporary extends IOApp.Simple:
@@ -419,4 +463,8 @@ Another really nice way to handle resource lifecycle [is with a `Resource`](http
 import cats.effect.Resource
 
 def makeTempFile: Resource[IO, Path] = ???
+
+def makeTempDirectory: Resource[IO, Path] = ???
 ```
+
+[See possible implementations](https://gist.github.com/17aa677269ff0f94af0bd2a557f548e1.git)

@@ -104,6 +104,7 @@ As you might know, whats happening above is that we are calling the `flatMap` me
 
 Now pass the program to the `run` method and everything should go nicely:
 
+
 @:select(api-style)
 
 @:choice(syntax)
@@ -124,7 +125,9 @@ end App
 
 @:choice(static)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.FilesOs.*
+import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
 object App extends IOApp.Simple:
@@ -142,7 +145,7 @@ Congratulations! You have just loaded the contents of a file in pure Scala 🎉.
 
 ### Exercise
 
-You may not like to keep using the `flatMap` function over and over again to sequence computations. This is why there is the [macro keyword `for`](https://docs.scala-lang.org/scala3/book/control-structures.html#for-expressions) to automatically let the compiler write the `flatMap`s for you. Why don't you try rewriting the program we just did using for-comprenhensions?
+You may not like to keep using the `flatMap` function over and over again to sequence computations. This is why there is the [macro keyword `for`](https://docs.scala-lang.org/scala3/book/control-structures.html#for-expressions) to automatically let the compiler write the `flatMap`s for you. Why don't you try rewriting the program we just did using for-comprenhensions? 
 
 ```scala
 def run: IO[Unit] =
@@ -151,6 +154,7 @@ def run: IO[Unit] =
     ...
   yield ()
 ```
+[See solution](https://gist.github.com/f8cf952fd5f7341ef698dfe825cfca93.git)
 
 ## Writing and modifing the contents of a file
 
@@ -162,7 +166,9 @@ To write to a file, use the `write' function with one of its variants, so that y
 
 @:choice(syntax)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.syntax.path.*
+import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
 object App extends IOApp.Simple:
@@ -181,7 +187,9 @@ end App
 
 @:choice(static)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.FilesOs.*
+import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
 object App extends IOApp.Simple:
@@ -190,7 +198,7 @@ object App extends IOApp.Simple:
 
   def run: IO[Unit] =
     for
-      file <- path.read
+      file <- read(path)
       reversedFile = file.reverse
       _ <- write(path, reversedFile)
     yield ()
@@ -205,6 +213,8 @@ Be aware that this will overwrite the contents of the file. So be careful not to
 ### Exercise
 
 Try loading the contents of two different files, concatenating them, and saving the result to a third location. How would you do it?
+
+[See possible solution](https://gist.github.com/99880af9b051b15f8adace7fe7aee2e3.git)
 
 ## Working line by line
 
@@ -226,7 +236,11 @@ River
 
 @:choice(syntax)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.syntax.path.*
+import fs2.io.file.Path
+import cats.effect.{IO, IOApp}
+
 object Names extends IOApp.Simple:
 
   case class Name(value: String)
@@ -245,7 +259,11 @@ end Names
 
 @:choice(static)
 
-```scala
+```scala mdoc:compile-only
+import io.chrisdavenport.shellfish.FilesOs.*
+import fs2.io.file.Path
+import cats.effect.{IO, IOApp}
+
 object Names extends IOApp.Simple:
 
   case class Name(value: String)
@@ -315,3 +333,5 @@ Is but a dream within a dream.
 ```
 
 How would you do this? (hint: use `writeLines`).
+
+[See possible solution](https://gist.github.com/eaf4e550a90c355b9698f51c8311eeff.git)
