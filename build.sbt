@@ -48,7 +48,11 @@ lazy val examples = project
     Compile / run / fork := true
   )
 
+import Site.SiteConfig
 lazy val site = project
   .in(file("site"))
   .enablePlugins(TypelevelSitePlugin)
   .dependsOn(core.jvm)
+  .settings(
+    laikaConfig := SiteConfig.laikaConfig
+  )
