@@ -38,7 +38,7 @@ package object path {
 
   private val files = Files[IO]
 
-  implicit class FileOps(val path: Path) extends AnyVal {
+  implicit class FileOps(private val path: Path) extends AnyVal {
 
     /**
      * Reads the contents of the file at the path using UTF-8 decoding. Returns
