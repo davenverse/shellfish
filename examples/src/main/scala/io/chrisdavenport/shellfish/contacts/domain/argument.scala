@@ -1,6 +1,6 @@
 package io.chrisdavenport.shellfish.contacts.domain
 
-import io.chrisdavenport.shellfish.contacts.domain.*
+import io.chrisdavenport.shellfish.contacts.domain.contact.*
 
 sealed abstract class Argument
 case object AddContact                       extends Argument
