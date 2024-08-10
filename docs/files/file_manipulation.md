@@ -4,11 +4,11 @@ Beyond simple read and write operations, this section allows you to interact dir
 
 ## Creating files and directories
 
-This section enables you to create new files and directories, as well as delete existing ones.
+In this section, you'll see how to create new files and directories, as well as delete existing ones.
 
 ### `createFile`    
 
-Creates a new file in the specified path, failing if the parent directory does not exist. You can also specify some permissions if you wish. To see what the `exists` function does, see [the reference](#exists):
+Creates a new file in the specified path, failing if the parent directory doesn’t exist. You can also specify some permissions if you wish. To see what the `exists` function does, see [the reference](#exists):
 
 @:select(api-style)
 
