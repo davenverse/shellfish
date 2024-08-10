@@ -15,9 +15,7 @@ Creates a new file in the specified path, failing if the parent directory doesnâ
 @:choice(syntax)
 
 ```scala 3
-import cats.syntax.all.* /* for the >> operator, its just a
-                          * rename for flatMap( _ => IO(...) )
-                          */
+import cats.syntax.all.* 
 
 import shellfish.syntax.path.*
 
@@ -29,9 +27,7 @@ path.createFile >> path.exists // Should return true
 @:choice(static)
 
 ```scala 3
-import cats.syntax.all.* /* for the >> operator, its just a
-                          * rename for flatMap( _ => IO(...) )
-                          */
+import cats.syntax.all.*
 
 import shellfish.FilesOs
 
@@ -43,9 +39,7 @@ FilesOs.createFile(path) >> FilesOs.exists(path) // Should return true
 @:choice(fs2)
 
 ```scala 3
-import cats.syntax.all.* /* for the >> operator, its just a
-                          * rename for flatMap( _ => IO(...) )
-                          */
+import cats.syntax.all.*
 
 import fs2.io.file.Files
 
