@@ -1,10 +1,10 @@
 # File Handling
 
-A scripting library does not only contain reading and writing operations, thats why we also include methods for manipulating files such as creations, deletions, permissions and other nice stuff in the library.
+A scripting library does not only contain reading and writing operations, that's why we also include methods for manipulating files such as creations, deletions, permissions and other nice stuff in the library.
 
 ## Create a file
 
-You may want to create a file without inmediatly writing on it. For example, when you want to modify the permissions first or let another process/fiber handle it instead. For such and more reasons, you can create a file or directory using the `createFile` and `createDirectory` functions.
+You may want to create a file without immediately writing on it. For example, when you want to modify the permissions first or let another process/fiber handle it instead. For such and more reasons, you can create a file or directory using the `createFile` and `createDirectory` functions.
 
 This is how you can create a file in Shellfish:
 
@@ -34,7 +34,7 @@ end Creating
 @:choice(static)
 
 ```scala mdoc:compile-only
-import io.chrisdavenport.shellfish.FilesOs.*
+import io.chrisdavenport.shellfish.FilesOs
 import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
@@ -44,8 +44,8 @@ object Creating extends IOApp.Simple:
 
   def run: IO[Unit] =
     for
-      _ <- createFile(filePath)
-      created <- exists(filePath)
+      _ <- FilesOs.createFile(filePath)
+      created <- FilesOs.exists(filePath)
       _ <- IO.println(s"File created? $created")
     yield ()
 
@@ -80,7 +80,7 @@ end Creating
 @:choice(static)
 
 ```scala mdoc:compile-only
-import io.chrisdavenport.shellfish.FilesOs.*
+import io.chrisdavenport.shellfish.FilesOs
 import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
@@ -89,7 +89,8 @@ object Creating extends IOApp.Simple:
   val emptyDirectories = Path("create/me/first")
 
   def run: IO[Unit] =
-    createDirectories(emptyDirectories) >> createFile(Path("now_i_can_be_created.fs"))
+    FilesOs.createDirectories(emptyDirectories) >> 
+      FilesOs.createFile(Path("now_i_can_be_created.fs"))
 
 end Creating
 ```
@@ -150,7 +151,7 @@ end Deleting
 @:choice(static)
 
 ```scala mdoc:compile-only
-import io.chrisdavenport.shellfish.FilesOs.*
+import io.chrisdavenport.shellfish.FilesOs
 import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
@@ -160,8 +161,8 @@ object Deleting extends IOApp.Simple:
 
   def run: IO[Unit] =
     for
-      exists <- exists(annoyingFile)
-      _ <- if exists then delete(annoyingFile)
+      exists <- FilesOs.exists(annoyingFile)
+      _ <- if exists then FilesOs.delete(annoyingFile)
            else IO.unit
     yield ()
 
@@ -198,7 +199,7 @@ end Deleting
 @:choice(static)
 
 ```scala mdoc:compile-only
-import io.chrisdavenport.shellfish.FilesOs.*
+import io.chrisdavenport.shellfish.FilesOs
 import fs2.io.file.Path
 import cats.syntax.applicative.* // You can instead import cats.syntax.all.* !
 import cats.effect.{IO, IOApp}
@@ -209,8 +210,8 @@ object Deleting extends IOApp.Simple:
 
   def run: IO[Unit] =
     for
-      exists <- exists(annoyingFile)
-      _ <- delete(annoyingFile).whenA(exists)
+      exists <- FilesOs.exists(annoyingFile)
+      _ <- FilesOs.delete(annoyingFile).whenA(exists)
     yield ()
 
 end Deleting
@@ -245,7 +246,7 @@ end Deleting
 @:choice(static)
 
 ```scala mdoc:compile-only
-import io.chrisdavenport.shellfish.FilesOs.*
+import io.chrisdavenport.shellfish.FilesOs
 import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
@@ -255,7 +256,7 @@ object Deleting extends IOApp.Simple:
 
   def run: IO[Unit] =
     for
-      deleted <- deleteIfExists(annoyingFile)
+      deleted <- FilesOs.deleteIfExists(annoyingFile)
       _ <- IO.println(s"Are they reaching out? $deleted")
     yield ()
 
@@ -308,7 +309,7 @@ end Deleting
 @:choice(static)
 
 ```scala mdoc:compile-only
-import io.chrisdavenport.shellfish.FilesOs.*
+import io.chrisdavenport.shellfish.FilesOs
 import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
@@ -316,7 +317,7 @@ object Deleting extends IOApp.Simple:
 
   val nonEmptyFolder = Path("downloads/non empty folder")
 
-  def run: IO[Unit] = deleteRecursively(nonEmptyFolder)
+  def run: IO[Unit] = FilesOs.deleteRecursively(nonEmptyFolder)
 
 end Deleting
 ```
@@ -366,7 +367,7 @@ The former takes as a parameter a function that describes how you want to use th
 @:choice(syntax)
 
 ```scala mdoc:compile-only
-import io.chrisdavenport.shellfish.syntax.path._
+import io.chrisdavenport.shellfish.syntax.path.*
 import cats.syntax.all.*
 import cats.effect.{IO, IOApp}
 
@@ -386,16 +387,16 @@ end Temporary
 @:choice(static)
 
 ```scala mdoc:compile-only
-import io.chrisdavenport.shellfish.FilesOs.*
+import io.chrisdavenport.shellfish.FilesOs
 import cats.syntax.all.*
 import cats.effect.{IO, IOApp}
 
 object Temporary extends IOApp.Simple:
 
-  def run: IO[Unit] = tempFile.use: path => // TODO: Change when simpler-api PR merges
+  def run: IO[Unit] = FilesOs.tempFile.use: path => // TODO: Change when simpler-api PR merges
     for
-      _ <- writeLines(path, LazyList.from('a').map(_.toChar.toString).take(26))
-      alphabet <- read(path)
+      _ <- FilesOs.writeLines(path, LazyList.from('a').map(_.toChar.toString).take(26))
+      alphabet <- FilesOs.read(path)
       _ <- IO.println("ASCII took hispanics into account!").whenA(alphabet.contains('ñ'))
       // Not gonna be printed, sadly
     yield ()
@@ -435,7 +436,7 @@ end Temporary
 @:choice(static)
 
 ```scala mdoc:compile-only
-import io.chrisdavenport.shellfish.FilesOs.*
+import io.chrisdavenport.shellfish.FilesOs
 import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
@@ -443,11 +444,11 @@ object Temporary extends IOApp.Simple:
 
   val secretPath = Path(".secrets/to_my_secret_lover.txt")
 
-  def run: IO[Unit] = createTempFile.flatMap: path =>
+  def run: IO[Unit] = FilesOs.createTempFile.flatMap: path =>
     for
-      _ <- write(path,"A confesion to my lover: ")
-      letter <- read(secretPath)
-      _ <- appendLine(path, letter)
+      _ <- FilesOs.write(path,"A confesion to my lover: ")
+      letter <- FilesOs.read(secretPath)
+      _ <- FilesOs.appendLine(path, letter)
     yield ()
 
 end Temporary

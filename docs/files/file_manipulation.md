@@ -6,7 +6,7 @@ Beyond simple read and write operations, this section allows you to interact dir
 
 This section enables you to create new files and directories, as well as delete existing ones.
 
-### `createFile`
+### `createFile`    
 
 Creates a new file in the specified path, failing if the parent directory does not exist. You can also specify some permissions if you wish. To see what the `exists` function does, see [the reference](#exists):
 
@@ -33,11 +33,11 @@ import cats.syntax.all.* /* for the >> operator, its just a
                           * rename for flatMap( _ => IO(...) )
                           */
 
-import shellfish.FilesOs.*
+import shellfish.FilesOs
 
 val path = Path("path/to/create/file.txt")
 
-createFile(path) >> exists(path) // Should return true
+FilesOs.createFile(path) >> FilesOs.exists(path) // Should return true
 ```
 
 @:choice(fs2)
@@ -77,7 +77,7 @@ directories.createDirectories >> path.createFile
 val directories = Path("here/are/some/dirs")
 val path = directories / Path("file.txt")
 
-createDirectories(directories) >> createFile(path)
+FilesOs.createDirectories(directories) >> FilesOs.createFile(path)
 ```
 
 @:choice(fs2)
@@ -112,10 +112,10 @@ yield ()
 
 ```scala 3
 for 
-  path <- createTempFile
+  path <- FilesOs.createTempFile
   
   // Its going to be deleted eventually!
-  _ <- write(path, "I don't wanna go!") 
+  _ <- FilesOs.write(path, "I don't wanna go!") 
 yield ()
 ```
 
@@ -149,8 +149,8 @@ tempFile.use: path =>
 @:choice(static)
 
 ```scala 3
-tempFile.use: path =>
-  write(path, "I have accepted my fate...")
+FilesOs.tempFile.use: path =>
+  FilesOs.write(path, "I have accepted my fate...")
 ```
 
 @:choice(fs2)
@@ -184,8 +184,8 @@ yield ()
 
 ```scala 3
 for 
-  dir <- createTempDirectory
-  _ <- createFile(dir / "tempfile.tmp")
+  dir <- FilesOs.createTempDirectory
+  _ <- FilesOs.createFile(dir / "tempfile.tmp")
 yield ()
 
 ```
@@ -218,8 +218,8 @@ tempDirectory.use: dir =>
 @:choice(static)
 
 ```scala 3
-tempDirectory.use: dir => 
-  createFile(dir / "its_going_to_go_soon.mp3")
+FilesOs.tempDirectory.use: dir =>
+  FilesOs.createFile(dir / "its_going_to_go_soon.mp3")
 ```
 
 @:choice(fs2)
@@ -253,7 +253,7 @@ linkPath.createSymbolicLink(targetPath)
 val linkPath   = Path("store/the/link/here/symlink")
 val targetPath = Path("path/to/file/to/target.sh")
 
-createSymbolicLink(linkPath, targetPath)
+FilesOs.createSymbolicLink(linkPath, targetPath)
 ```
 
 @:choice(fs2)
@@ -290,9 +290,9 @@ path.createFile >>
 ```scala 3
 import cats.syntax.all.*
 
-createFile(path) >> 
-  write(path, "TOP SECRET 🚫, MUST DELETE") >>
-    path.delete
+FilesOs.createFile(path) >>
+  FilesOs.write(path, "TOP SECRET 🚫, MUST DELETE") >>
+    FilesOs.delete(path)
 ```
 
 @:choice(fs2)
@@ -327,7 +327,7 @@ path.deleteIfExists >>=
 @:choice(static)
 
 ```scala 3
-deleteIfExists(path) >>= 
+FilesOs.deleteIfExists(path) >>= 
   (deleted => IO.println(s"Was the file deleted? $deleted"))
 ```
 
@@ -363,8 +363,8 @@ yield ()
 val dirs = Path("this/folders/will/be/created/and/deleted")
 
 for 
-  _ <- createDirectories(dirs)
-  _ <- deleteRecursively(dirs) // Will delete all of them!
+  _ <- FilesOs.createDirectories(dirs)
+  _ <- FilesOs.deleteRecursively(dirs) // Will delete all of them!
 yield ()
 ```
 
@@ -412,8 +412,8 @@ val source = Path("source/file/secret.txt")
 val target = Path("target/dir/not_so_secret.txt")
 
 for 
-  _ <- write(source, "The no-cloning theorem says you can't copy me!")
-  _ <- copy(source, target)
+  _ <- FilesOs.write(source, "The no-cloning theorem says you can't copy me!")
+  _ <- FilesOs.copy(source, target)
 yield ()
 ```
 
@@ -453,7 +453,7 @@ source.move(target)
 val source = Path("i/cant/move.mp4")
 val target = Path("teleporting/around/movie.mp4")
 
-move(source, target)
+FilesOs.move(source, target)
 ```
 
 @:choice(fs2)
@@ -497,9 +497,9 @@ val source = Path("need/to/ve/copied/bin.sha256")
 val target = Path("need/to/be/deleted/bin.sha254")
 
 for 
-  _ <- delete(target) // Delete before copying to avoid errors (and flags)
-  exists <- exists(target)
-  _ <- copy(source, target).whenA(exists)
+  _ <- FilesOs.delete(target) // Delete before copying to avoid errors (and flags)
+  exists <- FilesOs.exists(target)
+  _ <- FilesOs.copy(source, target).whenA(exists)
 yield ()
 ```
 

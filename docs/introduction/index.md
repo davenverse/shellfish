@@ -6,7 +6,9 @@ In shellfish, you have two different ways of doing things:
 
 - First, if you prefer a more concise, fluent syntax, use the extension methods (e.g. `path.read()`) by importing the `shellfish.syntax.all.*` package.
 
-- If you prefer calling static methods, use direct method calls on the `FilesOs` and `ProcessesOs` objects (e.g., `FilesOs.read(path)`).
+- If you prefer calling static methods, use direct method calls on the `FilesOs` object (e.g., `FilesOs.read(path)`). You can also import all the functions inside the `shellfish.FilesOs` package if you don't want to call the `FilesOs` object every time (e.g., `read(path)`). 
+
+    For this documentation we'll call the methods on the `FilesOs` objects in the static variant to difference them from the extension methods.
 
 @:select(api-style)
 

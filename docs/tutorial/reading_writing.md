@@ -2,7 +2,7 @@
 
 In this section, we'll guide you through the process of opening and extracting information from files using our simple, intuitive API. Whether you're working with text, binary, or other formats, you'll find the tools you need to seamlessly integrate file reading into your Scala project. Let's dive in and unlock the power of data stored in files!
 
-**Important:** To avoid tutorial hell, we recomment to do a really small project while you read this turorial in order to place acquired knowledge into practice. It doesn't have to be fancy, but it should tap into your curiosity and challenge you just a little.
+**Important:** To avoid tutorial hell, we recommend to do a really small project while you read this tutorial in order to place acquired knowledge into practice. It doesn't have to be fancy, but it should tap into your curiosity and challenge you just a little.
 
 ## Reading and printing a file
 
@@ -23,7 +23,7 @@ import shellfish.syntax.path.*
 
 ```scala
 import shellfish.Path
-import shellfish.FilesOs.*
+import shellfish.FilesOs
 ```
 
 @:@
@@ -40,7 +40,7 @@ object App extends IOApp.Simple:
 end App
 ```
 
-Now we can start using the library! First, create a `Path` contanining the path to the file you want to read:
+Now we can start using the library! First, create a `Path` containing the path to the file you want to read:
 
 ```scala mdoc:compile-only
 import fs2.io.file.Path // TODO: delete this and use the Shellfish's one
@@ -54,7 +54,6 @@ And simply use the `read` function to load the file in memory as a string:
 @:choice(syntax)
 
 ```scala mdoc:fail
-import fs2.io.file.Path // TODO: delete this and use the Shellfish's one
 import cats.effect.{IO, IOApp}
 
 object App extends IOApp.Simple:
@@ -75,14 +74,14 @@ object App extends IOApp.Simple:
 
   val path = Path("testdata/readme.txt")
 
-  def run: IO[Unit] = read(path)
+  def run: IO[Unit] = FilesOs.read(path)
 
 end App
 ```
 
 @:@
 
-Oops! We got an error saying that the `run` function accepts an `IO[Unit]`, but the `read` function returns an `IO[String]`. This happens because we are not doing anything with the string loaded and therefore not returning `IO[Unit]`. Fortunately, because `IO` is a monad, we can secuence the value obtained by evaluating the `read` computation with another that prints things to the console (and thus returns `IO[Unit]`!). This is achieved by using the `flatMap` function as follows:
+Oops! We got an error saying that the `run` function accepts an `IO[Unit]`, but the `read` function returns an `IO[String]`. This happens because we are not doing anything with the string loaded and therefore not returning `IO[Unit]`. Fortunately, because `IO` is a monad, we can sequence the value obtained by evaluating the `read` computation with another that prints things to the console (and thus returns `IO[Unit]`!). This is achieved by using the `flatMap` function as follows:
 
 @:select(api-style)
 
@@ -95,12 +94,12 @@ path.read.flatMap(file => IO(println(file)))
 @:choice(static)
 
 ```scala
-read(path).flatMap(file => IO(println(file)))
+FilesOs.read(path).flatMap(file => IO(println(file)))
 ```
 
 @:@
 
-As you might know, whats happening above is that we are calling the `flatMap` method and passing as parameter a function describing what we want to do with the `file` inside the `IO`, in this case, passing it to the computation `IO(println(file))`.
+As you might know, what's happening above is that we are calling the `flatMap` method and passing as parameter a function describing what we want to do with the `file` inside the `IO`, in this case, passing it to the computation `IO(println(file))`.
 
 Now pass the program to the `run` method and everything should go nicely:
 
@@ -126,7 +125,7 @@ end App
 @:choice(static)
 
 ```scala mdoc:compile-only
-import io.chrisdavenport.shellfish.FilesOs.*
+import io.chrisdavenport.shellfish.FilesOs
 import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
@@ -134,7 +133,7 @@ object App extends IOApp.Simple:
 
   val path = Path("testdata/readme.txt")
 
-  def run: IO[Unit] = read(path).flatMap(file => IO(println(file)))
+  def run: IO[Unit] = FilesOs.read(path).flatMap(file => IO(println(file)))
 
 end App
 ```
@@ -188,7 +187,7 @@ end App
 @:choice(static)
 
 ```scala mdoc:compile-only
-import io.chrisdavenport.shellfish.FilesOs.*
+import io.chrisdavenport.shellfish.FilesOs
 import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
@@ -198,9 +197,9 @@ object App extends IOApp.Simple:
 
   def run: IO[Unit] =
     for
-      file <- read(path)
+      file <- FilesOs.read(path)
       reversedFile = file.reverse
-      _ <- write(path, reversedFile)
+      _ <- FilesOs.write(path, reversedFile)
     yield ()
 
 end App
@@ -260,7 +259,7 @@ end Names
 @:choice(static)
 
 ```scala mdoc:compile-only
-import io.chrisdavenport.shellfish.FilesOs.*
+import io.chrisdavenport.shellfish.FilesOs
 import fs2.io.file.Path
 import cats.effect.{IO, IOApp}
 
@@ -272,9 +271,9 @@ object Names extends IOApp.Simple:
 
   def run: IO[Unit] =
     for
-      lines <- readLines(namesPath)     // (1)
-      names = lines.map(Name(_))        // (2)
-      _ <- IO(names.foreach(println))   // (3)
+      lines <- FilesOs.readLines(namesPath)   // (1)
+      names = lines.map(Name(_))              // (2)
+      _ <- IO(names.foreach(println))         // (3)
     yield ()
 
 end Names

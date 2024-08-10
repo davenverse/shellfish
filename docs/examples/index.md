@@ -35,7 +35,7 @@ def parseScore(strScore: String): Either[Throwable, Score] =
       case _                  => Score("Cant parse this score", -1)   // (2)
   )
 ```
-The method is going to return an `Either` type, which is a type that can be either a `Left` or a `Right`. In this case, we are using it to represent a success or a failure in parsing the score, its very similar to the `Result` type in Rust! Here the function is doing two things:
+The method is going to return an `Either` type, which is a type that can be either a `Left` or a `Right`. In this case, we are using it to represent a success or a failure in parsing the score, it's very similar to the `Result` type in Rust! Here the function is doing two things:
 
 1. `Either.catchNonFatal` is a function that catches exceptions and wraps them in a `Left` value.
 2. If the score can't be parsed, we return a default score.
@@ -102,7 +102,7 @@ import cats.effect.{IO, IOApp}
 
 import fs2.io.file.Path
 
-import shellfish.os.FilesOs.*
+import shellfish.os.FilesOs
 
 object Scores extends IOApp.Simple:
 
@@ -120,10 +120,10 @@ object Scores extends IOApp.Simple:
 
   def run: IO[Unit] =
     for
-      lines  <- readLines(path)
+      lines  <- FilesOs.readLines(path)
       scores <- lines.traverse(parseScore(_).liftTo[IO])
       _      <- IO(scores.foreach(score => println(score.show)))
-      _      <- appendLine(path, Score("daniela", 100).show)
+      _      <- FilesOs.appendLine(path, Score("daniela", 100).show)
     yield ()
 
 end Scores
@@ -225,7 +225,7 @@ end Uppercase
 import cats.effect.{IO, IOApp}
 import fs2.io.file.Path
 
-import shellfish.os.syntax.FilesOs.*
+import shellfish.os.syntax.FilesOs
 
 object Uppercase extends IOApp.Simple:
 
@@ -234,8 +234,8 @@ object Uppercase extends IOApp.Simple:
 
   def run: IO[Unit] =
     for
-      file <- read(path)
-      _    <- write(upperPath, file.toUpperCase)
+      file <- FilesOs.read(path)
+      _    <- FilesOs.write(upperPath, file.toUpperCase)
     yield ()
 
 end Uppercase
@@ -354,7 +354,7 @@ import fs2.io.file.Path
 import scodec.codecs.*
 import scodec.Codec
 
-import shellfish.os.syntax.FilesOs.*
+import shellfish.os.syntax.FilesOs
 
 object Place extends IOApp.Simple:
 
@@ -364,11 +364,11 @@ object Place extends IOApp.Simple:
 
   def run: IO[Unit] =
     for
-      exists <- path.exists
+      exists <- FilesOs.exists(path)
            // Equivalent of doing `if (exists) IO.unit else path.createFile`
-      _ <- createFile(path).whenA(exists)
-      _ <- writeAs[Place](path, Place(1, "Michael Phelps"))
-      _ <- readAs[Place](path).flatMap(IO.println)
+      _ <- FilesOs.createFile(path).whenA(exists)
+      _ <- FilesOs.writeAs[Place](path, Place(1, "Michael Phelps"))
+      _ <- FilesOs.readAs[Place](path).flatMap(IO.println)
     yield ()
 
 end Place
