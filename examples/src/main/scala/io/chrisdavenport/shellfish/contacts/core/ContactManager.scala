@@ -2,15 +2,13 @@ package io.chrisdavenport.shellfish.contacts.core
 
 import cats.syntax.all.*
 import cats.effect.IO
-
+import fs2.io.file.Path
 import io.chrisdavenport.shellfish.syntax.path.*
-import io.chrisdavenport.shellfish.contacts.domain.*
-import cats.effect.std.UUIDGen
-import java.io.IOException
-import io.chrisdavenport.shellfish.FilesOs.readLines
+import io.chrisdavenport.shellfish.contacts.domain.contact.*
+
 
 trait ContactManager {
-
+  
   def addContact(contact: Contact): IO[Username]
 
   def removeContact(username: Username): IO[Unit]
@@ -32,7 +30,7 @@ trait ContactManager {
    * @return
    *   The updated contact
    */
-  def updateContact(username: String, newContact: Contact): IO[Contact]
+  def updateContact(username: String)(modify: Contact => Contact): IO[Contact]
 
 }
 
@@ -40,7 +38,7 @@ object ContactManager {
   def impl: ContactManager = new ContactManager {
 
     private val bookPath =
-      userHome.map(usrHome => usrHome / ".shellfish" / "contacts")
+      userHome.map(usrHome => usrHome / ".shellfish" / "contacts.data")
 
     private def parseContact(contact: String): Either[Exception, Contact] =
       contact.split('|') match {
@@ -52,9 +50,10 @@ object ContactManager {
 
     private def showPersisted(contact: Contact): String =
       s"${contact.username}|${contact.firstName}|${contact.lastName}|${contact.phoneNumber}|${contact.email}"
-
+    
     override def addContact(contact: Contact): IO[Username] =
       bookPath.flatMap { path =>
+        
         path.readLines.flatMap { lines =>
           lines.find(_.startsWith(contact.username)) match {
             case Some(_) =>
@@ -138,7 +137,7 @@ object ContactManager {
                     showPersisted(modify(contact))
                   )
                 )
-              ) *> modify(contact).pure[IO]
+              ) >> modify(contact).pure[IO]
             case None =>
               IO.raiseError(
                 new Exception(s"Contact with id $username not found")

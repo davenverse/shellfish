@@ -5,7 +5,7 @@ import io.chrisdavenport.shellfish.contacts.domain.*
 object Prompt {
   def parsePrompt(args: List[String]): Argument =
     args match {
-      case Nil                                   => Info
+      case Nil                                   => Help
       case "add" :: Nil                          => AddContact
       case "remove" :: username :: Nil           => RemoveContact(username)
       case "search" :: "id" :: username :: Nil   => SearchId(username)
@@ -44,5 +44,4 @@ object Prompt {
 
     tailParse(options, Nil)
   }
-
 }
