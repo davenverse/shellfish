@@ -4,7 +4,7 @@ This library comes with three different functions for reading and writing operat
 
 ## Reading
 
-One of the most common operations in scripting is reading a file, thats why you can read a file in different ways: 
+One of the most common operations in scripting is reading a file, that's why you can read a file in different ways: 
 
 ### `read`
 
@@ -15,7 +15,7 @@ This function loads the whole file as a string in memory using UTF-8 encoding.
 @:choice(syntax)
 
 ```scala 3
-import cats.syntax.all.* // for the >>= operator, its just a rename for flatMap
+import cats.syntax.all.* // for the >>= operator, it's just a rename for flatMap
 
 import shellfish.syntax.path.*
 
@@ -27,13 +27,13 @@ path.read >>= IO.println
 @:choice(static)
 
 ```scala 3
-import cats.syntax.all.* // for the >>= operator, its just a rename for flatMap
+import cats.syntax.all.* // for the >>= operator, it's just a rename for flatMap
 
-import shellfish.FilesOs.*
+import shellfish.FilesOs
 
 val path = Path("link/to/your/file.txt")
 
-read(path) >>= IO.println
+FilesOs.read(path) >>= IO.println
 ```
 
 @:choice(fs2)
@@ -68,7 +68,7 @@ path.readWithCharset(StandardCharsets.UTF_16)
 ```scala 3
 import java.nio.charset.StandardCharsets
 
-readWithCharset(path, StandardCharsets.UTF_16)
+FilesOs.readWithCharset(path, StandardCharsets.UTF_16)
 ```
 
 @:choice(fs2)
@@ -100,7 +100,7 @@ path.readBytes.map(_.rotateLeft(2))
 @:choice(static)
 
 ```scala 3
-readBytes(path).map(_.rotateLeft(2))
+FilesOs.readBytes(path).map(_.rotateLeft(2))
 ```
 
 @:choice(fs2)
@@ -133,7 +133,7 @@ yield ()
 
 ```scala 3
 for
-  lines <- readLines(path)
+  lines <- FilesOs.readLines(path)
   _     <- IO(lines.foreach(println))
 yield ()
 ```
@@ -170,7 +170,7 @@ import scodec.Codec
 
 case class Coordinates(x: Double, y: Double) derives Codec
 
-readAs[Coordinates](path).map(coord => coord.x + coord.y)
+FilesOs.readAs[Coordinates](path).map(coord => coord.x + coord.y)
 ```
 
 @:choice(fs2)
@@ -234,7 +234,7 @@ val poem =
     |
     |— Robert Herrick""".toStripMargin
 
-write(path, poem)
+FilesOs.write(path, poem)
 ```
 
 @:choice(fs2)
@@ -283,7 +283,7 @@ import java.nio.charset.StandardCharsets
 
 val message = "Imagine writing Java 😭"
 
-writeWithCharset(path, message, StandardCharsets.US_ASCII)
+FilesOs.writeWithCharset(path, message, StandardCharsets.US_ASCII)
 ```
 
 @:choice(fs2)
@@ -324,7 +324,7 @@ path.writeBytes(niceBytes)
 import scodec.bits.*
 val niceBytes = hex"BadBabe"
 
-writeBytes(path, niceBytes)
+FilesOs.writeBytes(path, niceBytes)
 ```
 
 @:choice(fs2)
@@ -372,7 +372,7 @@ val todoList = List(
   "Take the dog for a walk"
 )
 
-writeLines(path, todoList)
+FilesOs.writeLines(path, todoList)
 ```
 
 @:choice(fs2)
@@ -417,7 +417,7 @@ import scodec.Codec
 
 case class Rectangle(base: Float, height: Float) derives Codec
 
-writeAs[Rectangle](path, Rectangle(2.4, 6.0))
+FilesOs.writeAs[Rectangle](path, Rectangle(2.4, 6.0))
 ```
 
 @:choice(fs2)
@@ -468,8 +468,8 @@ val path = Path("path/to/append.txt")
 val secretFormula = "And the dish's final secret ingredient is "
 
 for 
-  _ <- write(path, secretFormula)
-  _ <- append(path, "Rustacean legs! 🦀")
+  _ <- FilesOs.write(path, secretFormula)
+  _ <- FilesOs.append(path, "Rustacean legs! 🦀")
 yield ()
 
 ```
@@ -515,7 +515,7 @@ path.appendWithCharset("What encoding I'm I?", StandardCharsets.ISO_8859_1)
 ```scala 3
 import java.nio.charset.StandardCharsets
 
-appendWithCharset(path, "What encoding I'm I?", StandardCharsets.ISO_8859_1)
+FilesOs.appendWithCharset(path, "What encoding I'm I?", StandardCharsets.ISO_8859_1)
 ```
 
 @:choice(fs2)
@@ -552,8 +552,8 @@ yield ()
 
 ```scala 3
 for 
-  _ <- write(path, "I'm at the top!")
-  _ <- appendLine(path, "I'm at the bottom 😞")
+  _ <- FilesOs.write(path, "I'm at the top!")
+  _ <- FilesOs.appendLine(path, "I'm at the bottom 😞")
 yield ()
 ```
 
@@ -597,9 +597,9 @@ yield ()
 import scodec.bits.ByteVector
 
 for 
-  document  <- read(path)
+  document  <- FilesOs.read(path)
   signature <- IO(document.hashCode().toByte)
-  _ <- appendBytes(path, ByteVector(signature))
+  _ <- FilesOs.appendBytes(path, ByteVector(signature))
 yield ()
 ```
 
@@ -647,7 +647,7 @@ val missingIngredients = Vector(
   "500 ml mascarpone, cold."
 )
 
-appendLines(path, missingIngredients)
+FilesOs.appendLines(path, missingIngredients)
 ```
 
 @:choice(fs2)
@@ -696,7 +696,7 @@ import scodec.codecs.*
 opaque type Ranking = (Int, Long)
 given rankingCodec: Codec[Ranking] = uint8 :: int64
 
-appendAs[Ranking](path, (2, 3120948123123L))
+FilesOs.appendAs[Ranking](path, (2, 3120948123123L))
 ```
 
 @:choice(fs2)
