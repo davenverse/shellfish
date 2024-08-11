@@ -70,7 +70,7 @@ If UTF-8 is not your favorite flavour, you can also use a custom `java.nio.chars
 
 @:choice(syntax)
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
 path.read(StandardCharsets.UTF_16)
@@ -78,7 +78,7 @@ path.read(StandardCharsets.UTF_16)
 
 @:choice(static)
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
 FilesOs.read(path, StandardCharsets.UTF_16)
@@ -279,7 +279,7 @@ The default charset can also be changed for encoding when writing strings:
 
 @:choice(syntax)
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
 val message = "Imagine writing Java 😭"
@@ -289,7 +289,7 @@ path.write(message, StandardCharsets.US_ASCII)
 
 @:choice(static)
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
 val message = "Imagine writing Java 😭"
@@ -515,7 +515,7 @@ Like in the other variants, you can also use a custom charset to encode strings:
 
 @:choice(syntax)
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
 path.append("Which encoding I'm I?", StandardCharsets.ISO_8859_1)
@@ -523,7 +523,7 @@ path.append("Which encoding I'm I?", StandardCharsets.ISO_8859_1)
 
 @:choice(static)
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
 FilesOs.append(path, "Which encoding I'm I?", StandardCharsets.ISO_8859_1)

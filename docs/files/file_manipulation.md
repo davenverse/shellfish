@@ -145,14 +145,14 @@ Very similar to `createTempFile`, but Cats Effect handles the deletion of the fi
 
 @:choice(syntax)
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 tempFile: path =>
   path.write("I have accepted my fate...")
 ```
 
 @:choice(static)
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 FilesOs.tempFile: path =>
   FilesOs.write(path, "I have accepted my fate...")
 ```
@@ -214,14 +214,14 @@ Similar to `createTempDirectory`, but the deletion of the directory is managed b
 
 @:choice(syntax)
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 tempDirectory: dir => 
   (dir / "its_going_to_go_soon.mp3").createFile
 ```
 
 @:choice(static)
 
-```scala mdoc:compile-only
+```scala 3 mdoc:compile-only
 FilesOs.tempDirectory: dir =>
   FilesOs.createFile(dir / "its_going_to_go_soon.mp3")
 ```
