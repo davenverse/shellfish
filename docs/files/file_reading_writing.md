@@ -2,6 +2,22 @@
 
 This library comes with three different functions for reading and writing operations, `read`, `write` and `append`, each with four different variants: Standalone, `Bytes`, `WithCharset`, `Lines` and `As`, with these variants you will be able to work with the file and/or its contents as a string, as bytes, as a string with a custom `java.nio.charset.Charset` and with a custom codec respectively. 
 
+```scala mdoc:invisible
+// This sections adds every import to the code snippets
+
+import cats.effect.IO
+import cats.syntax.all.*
+
+import fs2.Stream
+import fs2.io.file.{Path, Files}
+
+import io.chrisdavenport.shellfish
+import shellfish.syntax.path.*
+import shellfish.FilesOs
+
+val path = Path("testdata/dummy.something")
+```
+
 ## Reading
 
 One of the most common operations in scripting is reading a file, that's why you can read a file in different ways: 
@@ -14,7 +30,7 @@ This function loads the whole file as a string in memory using UTF-8 encoding.
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 import cats.syntax.all.* // for the >>= operator, it's just a rename for flatMap
 
 import shellfish.syntax.path.*
@@ -26,7 +42,7 @@ path.read >>= IO.println
 
 @:choice(static)
 
-```scala 3
+```scala scala mdoc:compile-only
 import cats.syntax.all.* // for the >>= operator, it's just a rename for flatMap
 
 import shellfish.FilesOs
@@ -38,12 +54,12 @@ FilesOs.read(path) >>= IO.println
 
 @:choice(fs2)
 
-```scala 3
-import fs2.io.files.Files
+```scala mdoc:compile-only
+import fs2.io.file.Files
 
 val path = Path("link/to/your/file.txt")
 
-Files[F].readUtf8(path).evalMap(IO.println).compile.drain
+Files[IO].readUtf8(path).evalMap(IO.println).compile.drain
 ```
 
 @:@
@@ -57,7 +73,7 @@ If UTF-8 is not your favorite flavour, you can also use a custom `java.nio.chars
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
 path.readWithCharset(StandardCharsets.UTF_16)
@@ -65,7 +81,7 @@ path.readWithCharset(StandardCharsets.UTF_16)
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
 FilesOs.readWithCharset(path, StandardCharsets.UTF_16)
@@ -73,11 +89,11 @@ FilesOs.readWithCharset(path, StandardCharsets.UTF_16)
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 import fs2.text.decodeWithCharset
 import java.nio.charset.StandardCharsets
 
-Files[F].readAll(path)
+Files[IO].readAll(path)
   .through(decodeWithCharset(StandardCharsets.UTF_16))
   .compile
   .string
@@ -93,22 +109,22 @@ Reads the file as a `ByteVector`, useful when working with binary data:
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 path.readBytes.map(_.rotateLeft(2))
 ```
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 FilesOs.readBytes(path).map(_.rotateLeft(2))
 ```
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 import scodec.bits.ByteVector
 
-Files[F].readAll(path).compile.as(ByteVector).map(_.rotateLeft(2))
+Files[IO].readAll(path).compile.to(ByteVector).map(_.rotateLeft(2))
 ```
 
 @:@
@@ -122,7 +138,7 @@ Similar to `read` as it reads the file as a UTF-8 string, but stores each line o
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 for
   lines <- path.readLines
   _     <- IO(lines.foreach(println))
@@ -131,7 +147,7 @@ yield ()
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 for
   lines <- FilesOs.readLines(path)
   _     <- IO(lines.foreach(println))
@@ -140,8 +156,8 @@ yield ()
 
 @:choice(fs2)
 
-```scala 3
-Files[F].readUtf8Lines(path).evalMap(IO.println).compile.drain
+```scala mdoc:compile-only
+Files[IO].readUtf8Lines(path).evalMap(IO.println).compile.drain
 ```
 
 @:@
@@ -155,7 +171,7 @@ This method reads the contents of the file given a `Codec[A]` in scope, useful w
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 import scodec.Codec
 
 case class Coordinates(x: Double, y: Double) derives Codec
@@ -165,7 +181,7 @@ path.readAs[Coordinates].map(coord => coord.x + coord.y)
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 import scodec.Codec
 
 case class Coordinates(x: Double, y: Double) derives Codec
@@ -175,7 +191,7 @@ FilesOs.readAs[Coordinates](path).map(coord => coord.x + coord.y)
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 import scodec.Codec
 import fs2.interop.scodec.StreamDecoder
 
@@ -203,7 +219,7 @@ Writes to the desired file in the path. The contents of the file will be written
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 val path = Path("path/to/write.txt")
 
 val poem = 
@@ -214,14 +230,14 @@ val poem =
     |Fall down, down, down, from those thy chiming spheres
     |To charm our souls, as thou enchant'st our ears.
     |
-    |— Robert Herrick""".toStripMargin
+    |— Robert Herrick""".stripMargin
 
 path.write(poem)
 ```
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 val path = Path("path/to/write.txt")
 
 val poem = 
@@ -232,14 +248,14 @@ val poem =
     |Fall down, down, down, from those thy chiming spheres
     |To charm our souls, as thou enchant'st our ears.
     |
-    |— Robert Herrick""".toStripMargin
+    |— Robert Herrick""".stripMargin
 
 FilesOs.write(path, poem)
 ```
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 val path = Path("path/to/write.txt")
 
 val poem = 
@@ -250,10 +266,10 @@ val poem =
     |Fall down, down, down, from those thy chiming spheres
     |To charm our souls, as thou enchant'st our ears.
     |
-    |— Robert Herrick""".toStripMargin
+    |— Robert Herrick""".stripMargin
 
 Stream.emit(poem)
-  .through(Files[F].writeUtf8(path))
+  .through(Files[IO].writeUtf8(path))
   .compile
   .drain
 ```
@@ -268,7 +284,7 @@ The default charset can also be changed for encoding when writing strings:
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
 val message = "Imagine writing Java 😭"
@@ -278,7 +294,7 @@ path.writeWithCharset(message, StandardCharsets.US_ASCII)
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
 val message = "Imagine writing Java 😭"
@@ -288,15 +304,15 @@ FilesOs.writeWithCharset(path, message, StandardCharsets.US_ASCII)
 
 @:choice(fs2)
 
-```scala 3
-import fs2.text.encodeWithCharset
+```scala mdoc:compile-only
+import fs2.text.encode
 import java.nio.charset.StandardCharsets
 
 val message = "Imagine writing Java 😭"
 
 Stream.emit(message)
-  .through(encodeWithCharset(StandardCharsets.US_ASCII))
-  .through(Files[F].writeAll(path))
+  .through(encode(StandardCharsets.US_ASCII))
+  .through(Files[IO].writeAll(path))
   .compile
   .drain
 ```
@@ -311,7 +327,7 @@ With this method you can write bytes directly to a binary file. The contents of 
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 import scodec.bits.*
 val niceBytes = hex"BadBabe"
 
@@ -320,7 +336,7 @@ path.writeBytes(niceBytes)
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 import scodec.bits.*
 val niceBytes = hex"BadBabe"
 
@@ -329,12 +345,15 @@ FilesOs.writeBytes(path, niceBytes)
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
+
+
 import scodec.bits.*
 val niceBytes = hex"BadBabe"
 
-Stream.emit(niceBytes)
-  .through(Files[F].writeAll(path))
+Stream.chunk(fs2.Chunk.byteVector(niceBytes))
+  .covary[IO]
+  .through(Files[IO].writeAll(path))
   .compile
   .drain
 ```
@@ -349,7 +368,7 @@ If you want to write many lines to a file, you can provide the contents as a col
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 val todoList = List(
   "Buy Milk",
   "Finish the pending work",
@@ -363,7 +382,7 @@ path.writeLines(todoList)
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 val todoList = List(
   "Buy Milk",
   "Finish the pending work",
@@ -377,7 +396,7 @@ FilesOs.writeLines(path, todoList)
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 val todoList = List(
   "Buy Milk",
   "Finish the pending work",
@@ -387,7 +406,7 @@ val todoList = List(
 )
 
 Stream.emits(todoList)
-  .through(Files[F].writeUtf8Lines(path))
+  .through(Files[IO].writeUtf8Lines(path))
   .compile
   .drain
 ```                                                                                                                                                              
@@ -402,7 +421,7 @@ This method allows you to write a custom type `A` to a file, given a `Codec[A]` 
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 import scodec.Codec
 
 case class Rectangle(base: Float, height: Float) derives Codec
@@ -412,7 +431,7 @@ path.writeAs[Rectangle]( Rectangle(2.4, 6.0) )
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 import scodec.Codec
 
 case class Rectangle(base: Float, height: Float) derives Codec
@@ -422,15 +441,16 @@ FilesOs.writeAs[Rectangle](path, Rectangle(2.4, 6.0))
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 import scodec.Codec
 import fs2.interop.scodec.StreamEncoder
 
 case class Rectangle(base: Float, height: Float) derives Codec
 
 Stream.emit( Rectangle(2.4, 6.0) )
+  .covary[IO]
   .through(StreamEncoder.many(summon[Codec[Rectangle]]).toPipeByte)
-  .through(Files[F].writeAll(path))
+  .through(Files[IO].writeAll(path))
   .compile
   .drain
 ```
@@ -449,7 +469,7 @@ Similar to `write`, but adds the content to the end of the file instead of overw
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 val path = Path("path/to/append.txt")
 
 val secretFormula = "And the dish's final secret ingredient is "
@@ -462,7 +482,7 @@ yield ()
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 val path = Path("path/to/append.txt")
 
 val secretFormula = "And the dish's final secret ingredient is "
@@ -476,19 +496,18 @@ yield ()
 
 @:choice(fs2)
 
-```scala 3
-import fs2.io.files.Flags
+```scala mdoc:compile-only
+import fs2.io.file.Flags
 
 val path = Path("path/to/append.txt")
 
 val secretFormula = "And the dish's final secret ingredient is "
 
 Stream.emit(secretFormula)
-  .through(Files[F].writeUtf8(path))
-  .flatMap( _ =>
-    Stream.emit("Rustacean legs! 🦀")
-      .through(Files[F].writeUtf8(path, Flags.Append))
-  )
+  .covary[IO]
+  .through(Files[IO].writeUtf8(path))
+  .map( _ => "Rustacean legs! 🦀")
+  .through(Files[IO].writeUtf8(path, Flags.Append))
   .compile
   .drain
 ```
@@ -504,7 +523,7 @@ Like in [`writeWithCharset`](#writewithcharset), you can also use a custom chars
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
 path.appendWithCharset("What encoding I'm I?", StandardCharsets.ISO_8859_1)
@@ -512,7 +531,7 @@ path.appendWithCharset("What encoding I'm I?", StandardCharsets.ISO_8859_1)
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
 FilesOs.appendWithCharset(path, "What encoding I'm I?", StandardCharsets.ISO_8859_1)
@@ -520,12 +539,14 @@ FilesOs.appendWithCharset(path, "What encoding I'm I?", StandardCharsets.ISO_885
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
+import fs2.text.encode
+
 import java.nio.charset.StandardCharsets
 
 Stream.emit("What encoding I'm I?")
-  .through(encodeWithCharset(StandardCharsets.ISO_8859_1))
-  .through(Files[F].writeAll(path))
+  .through(encode(StandardCharsets.ISO_8859_1))
+  .through(Files[IO].writeAll(path))
   .compile
   .drain
 ```
@@ -541,7 +562,7 @@ Very similar to `append`, with the difference that appends the contents as a new
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 for 
   _ <- path.write("I'm at the top!")
   _ <- path.appendLine("I'm at the bottom 😞")
@@ -550,7 +571,7 @@ yield ()
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 for 
   _ <- FilesOs.write(path, "I'm at the top!")
   _ <- FilesOs.appendLine(path, "I'm at the bottom 😞")
@@ -559,13 +580,13 @@ yield ()
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
+import fs2.io.file.Flags
+
 Stream.emit("I'm at the top!")
-  .through(Files[F].writeUtf8(path))
-  .flatMap( _ =>
-    Stream.emit("\nI'm at the bottom 😞")
-      .through(Files[F].writeUtf8(path, Flags.Append))
-  )
+  .through(Files[IO].writeUtf8(path))
+  .map(_ => "\nI'm at the bottom 😞")
+  .through(Files[IO].writeUtf8(path, Flags.Append))
   .compile
   .drain
 ```
@@ -581,7 +602,7 @@ This function can be used to append bytes to the end of a binary file:
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 import scodec.bits.ByteVector
 
 for 
@@ -593,7 +614,7 @@ yield ()
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 import scodec.bits.ByteVector
 
 for 
@@ -605,7 +626,7 @@ yield ()
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 import fs2.io.file.Flags
 
 Files[IO].readUtf8(path)
@@ -626,9 +647,9 @@ You can also append multiple lines at the end of the file in the following way:
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 val missingIngredients = Vector(
-  "40 ladyfingers."
+  "40 ladyfingers.",
   "6 egg yolks",
   "3/4 cup granulated sugar.",
   "500 ml mascarpone, cold."
@@ -639,9 +660,9 @@ path.appendLines(missingIngredients)
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 val missingIngredients = Vector(
-  "40 ladyfingers."
+  "40 ladyfingers.",
   "6 egg yolks",
   "3/4 cup granulated sugar.",
   "500 ml mascarpone, cold."
@@ -652,11 +673,11 @@ FilesOs.appendLines(path, missingIngredients)
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 import fs2.io.file.Flags
 
 val missingIngredients = Vector(
-  "40 ladyfingers."
+  "40 ladyfingers.",
   "6 egg yolks",
   "3/4 cup granulated sugar.",
   "500 ml mascarpone, cold."
@@ -677,7 +698,7 @@ Finally, given a `Codec[A]` in the scope, this method will append a custom type 
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 import scodec.Codec
 import scodec.codecs.*
 
@@ -689,7 +710,7 @@ path.appendAs[Ranking]( (2, 3120948123123L) )
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 import scodec.Codec
 import scodec.codecs.*
 
@@ -701,18 +722,19 @@ FilesOs.appendAs[Ranking](path, (2, 3120948123123L))
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 import scodec.Codec
 import scodec.codecs.*
 import fs2.interop.scodec.*
-import fs2.io.files.Flags
+import fs2.io.file.Flags
 
 opaque type Ranking = (Int, Long)
 given rankingCodec: Codec[Ranking] = uint8 :: int64
 
 Stream.emit( (2, 3120948123123L) )
+  .covary[IO]
   .through(StreamEncoder.many(summon[Codec[Ranking]]).toPipeByte)
-  .through(Files[F].writeAll(path, Flags.Append))
+  .through(Files[IO].writeAll(path, Flags.Append))
   .compile
   .drain
 ```

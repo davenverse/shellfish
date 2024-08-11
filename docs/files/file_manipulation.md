@@ -10,13 +10,27 @@ In this section, you'll see how to create new files and directories, as well as 
 
 Creates a new file in the specified path, failing if the parent directory doesn’t exist. You can also specify some permissions if you wish. To see what the `exists` function does, see [the reference](#exists):
 
+```scala mdoc:invisible
+// This sections adds every import to the code snippets
+
+import cats.effect.IO
+import cats.syntax.all.*
+
+import fs2.Stream
+import fs2.io.file.{Path, Files}
+
+import io.chrisdavenport.shellfish
+import shellfish.syntax.path.*
+import shellfish.FilesOs
+
+val path = Path("testdata/dummy.something")
+```
+
 @:select(api-style)
 
 @:choice(syntax)
 
-```scala 3
-import cats.syntax.all.* 
-
+```scala mdoc:compile-only
 import shellfish.syntax.path.*
 
 val path = Path("path/to/create/file.txt")
@@ -26,9 +40,7 @@ path.createFile >> path.exists // Should return true
 
 @:choice(static)
 
-```scala 3
-import cats.syntax.all.*
-
+```scala mdoc:compile-only
 import shellfish.FilesOs
 
 val path = Path("path/to/create/file.txt")
@@ -38,9 +50,7 @@ FilesOs.createFile(path) >> FilesOs.exists(path) // Should return true
 
 @:choice(fs2)
 
-```scala 3
-import cats.syntax.all.*
-
+```scala mdoc:compile-only
 import fs2.io.file.Files
 
 val path = Path("path/to/create/file.txt")
@@ -58,7 +68,7 @@ Creates all the directories in the path, with the default permissions or, with s
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 val directories = Path("here/are/some/dirs")
 val path = directories / Path("file.txt")
 
@@ -67,7 +77,7 @@ directories.createDirectories >> path.createFile
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 val directories = Path("here/are/some/dirs")
 val path = directories / Path("file.txt")
 
@@ -76,7 +86,7 @@ FilesOs.createDirectories(directories) >> FilesOs.createFile(path)
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 val directories = Path("here/are/some/dirs")
 val path = directories / Path("file.txt")
 
@@ -93,7 +103,7 @@ If you want to create a temporary file that is automatically deleted by the oper
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 for 
   path <- createTempFile
 
@@ -104,7 +114,7 @@ yield ()
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 for 
   path <- FilesOs.createTempFile
   
@@ -115,11 +125,11 @@ yield ()
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 Stream.eval(Files[IO].createTempFile)
-  flatMap( path => 
+  .flatMap( path => 
     Stream.emit("I don't wanna go!")
-      .through(Files[IO].writeUtf(path))
+      .through(Files[IO].writeUtf8(path))
   )
   .compile
   .drain
@@ -135,21 +145,21 @@ Very similar to `createTempFile`, but Cats Effect handles the deletion of the fi
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 tempFile.use: path =>
   path.write("I have accepted my fate...")
 ```
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 FilesOs.tempFile.use: path =>
   FilesOs.write(path, "I have accepted my fate...")
 ```
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 Files[IO].tempFile.use: path =>
   Stream.emit("I have accepted my fate...")
    .through(Files[IO].writeUtf8(path))
@@ -167,7 +177,7 @@ Creates a temporary directory that will eventually be deleted by the operating s
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 for 
   dir <- createTempDirectory
   _ <- (dir / "tempfile.tmp").createFile
@@ -176,7 +186,7 @@ yield ()
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 for 
   dir <- FilesOs.createTempDirectory
   _ <- FilesOs.createFile(dir / "tempfile.tmp")
@@ -186,7 +196,7 @@ yield ()
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 for 
   dir <- Files[IO].createTempDirectory
   _   <- Files[IO].createFile(dir / "tempfile.tmp")
@@ -204,21 +214,21 @@ Similar to `createTempDirectory`, but the deletion of the directory is managed b
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 tempDirectory.use: dir => 
   (dir / "its_going_to_go_soon.mp3").createFile
 ```
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 FilesOs.tempDirectory.use: dir =>
   FilesOs.createFile(dir / "its_going_to_go_soon.mp3")
 ```
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 Files[IO].tempDirectory.use: dir => 
   Files[IO].createFile(dir / "its_going_to_go_soon.mp3")
 
@@ -234,7 +244,7 @@ Creates a [Symbolic Link](https://en.wikipedia.org/wiki/Symbolic_link) to a file
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 val linkPath   = Path("store/the/link/here/symlink")
 val targetPath = Path("path/to/file/to/target.sh")
 
@@ -243,7 +253,7 @@ linkPath.createSymbolicLink(targetPath)
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 val linkPath   = Path("store/the/link/here/symlink")
 val targetPath = Path("path/to/file/to/target.sh")
 
@@ -252,7 +262,7 @@ FilesOs.createSymbolicLink(linkPath, targetPath)
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 val linkPath   = Path("store/the/link/here/symlink")
 val targetPath = Path("path/to/file/to/target.sh")
 
@@ -271,9 +281,7 @@ Deletes a file or empty directory that must exist (otherwise it will fail).
 
 @:choice(syntax)
 
-```scala 3
-import cats.syntax.all.*
-
+```scala mdoc:compile-only
 path.createFile >> 
   path.write("TOP SECRET 🚫, MUST DELETE") >>
     path.delete
@@ -281,9 +289,7 @@ path.createFile >>
 
 @:choice(static)
 
-```scala 3
-import cats.syntax.all.*
-
+```scala mdoc:compile-only
 FilesOs.createFile(path) >>
   FilesOs.write(path, "TOP SECRET 🚫, MUST DELETE") >>
     FilesOs.delete(path)
@@ -291,7 +297,7 @@ FilesOs.createFile(path) >>
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 for
   _ <- Files[IO].createFile(path)
 
@@ -301,6 +307,7 @@ for
         .drain
 
   _ <- Files[IO].delete(path)
+yield ()
 ```
 
 @:@
@@ -313,21 +320,21 @@ Similar to `delete`, but returns `true` if the deletion was succesfull instead o
 
 @:choice(syntax)
 
-```scala 3
+```scala mdoc:compile-only
 path.deleteIfExists >>= 
   (deleted => IO.println(s"Was the file deleted? $deleted"))
 ```
 
 @:choice(static)
 
-```scala 3
+```scala mdoc:compile-only
 FilesOs.deleteIfExists(path) >>= 
   (deleted => IO.println(s"Was the file deleted? $deleted"))
 ```
 
 @:choice(fs2)
 
-```scala 3
+```scala mdoc:compile-only
 Files[IO].deleteIfExists(path) >>= 
   (deleted => IO.println(s"Was the file deleted? $deleted"))
 ```
