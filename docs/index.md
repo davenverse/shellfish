@@ -15,18 +15,21 @@ libraryDependencies ++= Seq(
 Shellfish is a library to perform common script operations such as working with processes and files while maintaining referential transparency! 
 
 ```scala 3 mdoc:reset
-import cats.effect.{IO, IOApp}
+import cats.effect.{IO, IOApp, ExitCode}
 
-import shellfish.os.* 
+import shellfish.*
+import shellfish.syntax.path.*
 
 object Main extends IOApp: 
 
   def run(args: List[String]): IO[ExitCode] = 
-    import Shell.io.*
     for
-      _   <- cd("..")
-      got <- ls.compile.toList
-      _   <- echo(got.toString)
+      home   <- userHome
+      config = home / ".shellfish" / "config.conf"
+      _         <- config.createFile
+      _         <- config.write("scripting.made.easy = true")
+      newconfig <- config.read
+      _         <- IO.println(s"Loading config: $newconfig")
     yield ExitCode.Success
     
 end Main
