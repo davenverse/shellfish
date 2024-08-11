@@ -11,7 +11,7 @@ In this section, you will see how to create new files and directories, as well a
 Creates a new file in the specified path, failing if the parent directory does not exist. You can also specify some permissions if you wish. To see what the `exists` function does, see [the reference](#exists):
 
 ```scala mdoc:invisible
-// This sections adds every import to the code snippets
+// This section adds every import to the code snippets
 
 import cats.effect.IO
 import cats.syntax.all.*
@@ -107,7 +107,7 @@ This function creates a temporary file that gets automatically deleted by the op
 for 
   path <- createTempFile
 
-  // Its going to be deleted eventually!
+  // It's going to be deleted eventually!
   _ <- path.write("I don't wanna go!") 
 yield ()
 ```
@@ -118,7 +118,7 @@ yield ()
 for 
   path <- FilesOs.createTempFile
   
-  // Its going to be deleted eventually!
+  // It's going to be deleted eventually!
   _ <- FilesOs.write(path, "I don't wanna go!") 
 yield ()
 ```
@@ -314,7 +314,7 @@ yield ()
 
 ### `deleteIfExists`
 
-Similar to `delete`, but returns `true` if the deletion was succesfull instead of failing: 
+Similar to `delete`, but returns `true` if the deletion was successful instead of failing: 
 
 @:select(api-style)
 
@@ -390,7 +390,7 @@ yield ()
 
 ## File operations
 
-Working directly with files is a common need in many scripting scenarios. This library provides essential functions for renaming, moving, and copying files, allowing you to efficiently manage and organize your data. 
+Working directly with files is a common need in many scripting scenarios. This library provides essential functions for renaming, moving, and copying files, allowing you to efficiently manage and organise your data. 
 
 ### `copy`
 

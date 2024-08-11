@@ -40,13 +40,13 @@ yield ()
 
 @:@
 
-Which one you should use really depends on your preferences and choices; if you like the method style of calling functions directly to the object, stick to the extension methods syntax, if you rather prefer a more Haskell like style, stick to the static object calls!
+Which one you should use really depends on your preferences and choices; if you like the method style of calling functions directly to the object, stick to the extension methods syntax, if you rather prefer a more Haskell-like style, stick to the static object calls!
 
 ## Imports
 
 If you just want to start scripting right away, importing `shellfish.*` will do the trick; it imports all the extension methods and functionality you need, such as types and functions, to start working right away.
 
-But if you want more consice functionality, the `shellfish.syntax.path.*` and `shellfish.syntax.process.*` will only import the extension methods.
+But if you want more concise functionality, the `shellfish.syntax.path.*` and `shellfish.syntax.process.*` will only import the extension methods.
 
 For the static methods, the `shellfish.FilesOs` and `shellfish.ProcessesOs` imports will provide the functions to work with files and processes, if that is your preferred style.
 
@@ -54,7 +54,7 @@ Finally, `shellfish.domain.*` will import all the types needed to work with the 
 
 ## What is this `IO` thing?
 
-You may be wondering at this point, what is this `IO` thing that appears at the end of the functions? Well, thats the [IO monad](https://typelevel.org/cats-effect/docs/2.x/datatypes/io) of Cats Effect; the concept is much more extensive than we can explain on this page, but basically it is a type that allows us to suspend side effects so that they do not run instantly:
+You may be wondering at this point, what is this `IO` thing that appears at the end of the functions? Well, that's the [IO monad](https://typelevel.org/cats-effect/docs/2.x/datatypes/io) of Cats Effect; the concept is much more extensive than we can explain on this page, but basically it is a type that allows us to suspend side effects so that they do not run instantly:
 
 ```scala mdoc
 import cats.effect.IO
@@ -66,7 +66,7 @@ val printingHello = println("Hello newbies!")
 val suspendingHello = IO(println("Hello newbies!"))
 ```
 
-In order to actually run the computation you have two options, the first one (and not recommended) is to call the `unsafeRunSync()` function at the very end of the program:
+To actually run the computation, you have two options, the first one (and not recommended) is to call the `unsafeRunSync()` function at the very end of the program:
 
 ```scala mdoc
 import cats.effect.unsafe.implicits.global // Imports the runtime that executes the IO monad
@@ -74,7 +74,7 @@ import cats.effect.unsafe.implicits.global // Imports the runtime that executes 
 suspendingHello.unsafeRunSync()
 ```
 
-But this is not the usual way, the common way is to pass it to the `run` function (similar to the main method in scala, but for `IO`!). To to that, you have to extend the object with `IOApp`:
+But this is not the usual way; the common way is to pass it to the `run` function (similar to the main method in scala, but for `IO`!). To that, you have to extend the object with `IOApp`:
 
 ```scala mdoc:silent
 import cats.effect.IOApp
@@ -86,7 +86,7 @@ object Main extends IOApp.Simple:
 end Main
 ```
 
-On either way, the `IO` will be executed and all the computacion will be evaluated.
+On either way, the `IO` will be executed and all the computation will be evaluated.
 
 But why's that useful? Well, one of the advantages is referential transparency, and that basically means that we can replace the code wherever it is referenced and expect the same results every time:
 
@@ -96,7 +96,7 @@ val num = 2
 (num + num) == (2 + 2)
 ```
 
-It may seem trivial, but that's not allways the case:
+It may seem trivial, but that's not always the case:
 
 ```scala mdoc
 import scala.util.Random
@@ -106,7 +106,7 @@ val rndNum = Random.nextInt(10)
 val result1 = rndNum + rndNum
 ```
 
-If referential transparency exists in your program, replacing `Random.nextInt(10)` in `rndNum` whould yield the same result, which is not the case:
+If referential transparency exists in your program, replacing `Random.nextInt(10)` in `rndNum` would yield the same result, which is not the case:
 
 ```scala mdoc
 val result2 = Random.nextInt(10) + Random.nextInt(10)

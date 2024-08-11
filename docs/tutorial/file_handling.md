@@ -1,6 +1,6 @@
 # File Handling
 
-A scripting library does not only contain reading and writing operations, that's why we also include methods for manipulating files such as creations, deletions, permissions and other nice stuff in the library.
+A scripting library does not only contain reading and writing operations, that is why we also include methods for manipulating files such as creations, deletions, permissions, and other nice stuff in the library.
 
 ## Create a file
 
@@ -54,9 +54,9 @@ end Creating
 
 @:@
 
-Here, we are first creating the file using the `createFile` method and then cheking its existante with the `exists` method.
+Here, we are first creating the file using the `createFile` method and then checking its existent with the `exists` method.
 
-**Important:** The `createFile` and `createDirectory` methods will only work if the parent directory aready exists, otherwise it will fail so be carefull with that. Because of that, if you want to create the parent directories as well you should use the `createDirectories` method like this:
+**Important:** The `createFile` and `createDirectory` methods will only work if the parent directory already exists, otherwise it will fail so be careful with that. Because of that, if you want to create the parent directories, as well you should use the `createDirectories` method like this:
 
 @:select(api-style)
 
@@ -99,7 +99,7 @@ end Creating
 
 ### Exercise
 
-Imagine that you need to create a lot nested files on a directory that also needs the creation of the subsecuent folders. For that reason, you need to implement a function that creates both the file and the parent directories. Can you implement it? How?
+Imagine that you need to create a lot of nested files in a directory that also needs the creation of the subsequent folders. For that reason, you need to implement a function that creates both the file and the parent directories. Can you implement it? How?
 
 @:select(api-style)
 
@@ -171,7 +171,7 @@ end Deleting
 
 @:@
 
-Note that we first check if the file exists before deleting it, this is because trying to delete a file with `delete` that does not exist will result in a error. If thats not your style you have two options. One is using the `whenA` combinator from `cats.syntax.applicative.*`:
+Note that we first check if the file exists before deleting it, this is because trying to delete a file with `delete` that does not exist will result in an error. If that is not your style, you have two options. One is using the `whenA` combinator from `cats.syntax.applicative.*`:
 
 @:select(api-style)
 
@@ -265,7 +265,7 @@ end Deleting
 
 @:@
 
-It will return a boolean indicating whether or not the file has been deleted (also deletes directories).
+It will return a boolean indicating whether the file has been deleted (also deletes directories).
 
 Lastly, you may want to delete not one but multiple files and directories, here is when the `deleteDirectorires` comes handy, as it will delete all the files and directories recursively (similar to `rm -r`):
 
@@ -356,9 +356,9 @@ def deleteIfChubby(path: Path, threshold: Long): IO[Boolean] = ???
 
 ## Using temporary files
 
-Maybe you don't want to manually delete a file after its use. This is where temporary files come in to play, as they are deleted automatically.
+Maybe you do not want to manually delete a file after its use. This is where temporary files come in to play, as they are deleted automatically.
 
-To create temporary files you have two options, one is to make Cats Effect automatically handle their lifecycle with the `tempFile` and `tempDirectory` methods (useful when you want the files deleted right away), or, if you rather prefer the operating system to take hands in its lifecycle, you can use the `createTempFile` and `createTempDirectory` variants (suitable if you don't care if the files are deleted immediately).
+To create temporary files, you have two options, one is to make Cats Effect automatically handle their lifecycle with the `tempFile` and `tempDirectory` methods (useful when you want the files deleted right away), or, if you rather prefer the operating system to take hands in its lifecycle, you can use the `createTempFile` and `createTempDirectory` variants (suitable if you do not care if the files are deleted immediately).
 
 The former takes as a parameter a function that describes how you want to use the file, like this:
 
@@ -406,7 +406,7 @@ end Temporary
 
 @:@
 
-You'll see that the `use` function goes from `Path => IO[A]`, and that `use` basically describes a path that will be used to compute an `A`, with some side effects along the way. When the computation is finished, the file will no longer exist.
+You will see that the `use` function goes from `Path => IO[A]`, and that `use` basically describes a path that will be used to compute an `A`, with some side effects along the way. When the computation is finished, the file will no longer exist.
 
 The last alternative is with `createTempFile` or `createTempDirectory`. The difference to the one without `create` is that it returns the path where the file was created, something like this:
 
@@ -425,7 +425,7 @@ object Temporary extends IOApp.Simple:
 
   def run: IO[Unit] = createTempFile.flatMap: path =>
     for
-      _ <- path.write("A confesion to my lover: ")
+      _ <- path.write("A confession to my lover: ")
       letter <- secretPath.read
       _ <- path.appendLine(letter)
     yield ()
@@ -446,7 +446,7 @@ object Temporary extends IOApp.Simple:
 
   def run: IO[Unit] = FilesOs.createTempFile.flatMap: path =>
     for
-      _ <- FilesOs.write(path,"A confesion to my lover: ")
+      _ <- FilesOs.write(path,"A confession to my lover: ")
       letter <- FilesOs.read(secretPath)
       _ <- FilesOs.appendLine(path, letter)
     yield ()

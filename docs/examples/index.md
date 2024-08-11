@@ -1,6 +1,6 @@
 # Working with Files
 
-Here you'll find a curated collection of code examples that show the library in action.
+Here you will find a curated collection of code examples that show the library in action.
 
 ## Scores
 
@@ -17,7 +17,7 @@ gabriel:32123
 
 We also want to read the file, parse the scores, and print them to the console. We also want to append a new score to the file.
 
-For that, you will first need to create a representation of the scores in Scala, that's via a `case class`:
+For that, you will first need to create a representation of the scores in Scala, that is via a `case class`:
 
 ```scala 3
 case class Score(name: String, score: Int):
@@ -35,10 +35,10 @@ def parseScore(strScore: String): Either[Throwable, Score] =
       case _                  => Score("Cant parse this score", -1)   // (2)
   )
 ```
-The method is going to return an `Either` type, which is a type that can be either a `Left` or a `Right`. In this case, we are using it to represent a success or a failure in parsing the score, it's very similar to the `Result` type in Rust! Here the function is doing two things:
+The method is going to return an `Either` type, which is a type that can be either a `Left` or a `Right`. In this case, we are using it to represent a success or a failure in parsing the score. It is very similar to the `Result` type in Rust! Here the function is doing two things:
 
 1. `Either.catchNonFatal` is a function that catches exceptions and wraps them in a `Left` value.
-2. If the score can't be parsed, we return a default score.
+2. If the score cannot be parsed, we return a default score.
 
 After that, we start creating our script: 
 
@@ -51,7 +51,7 @@ for
 yield ()
 ```
 
-First, we load every line as part of a list of strings (1). Then, we use the `traverse` method to apply an effect to every of the elements of the list and then turn the type inside the list, inside out (like a pure `foreach`) (2), in this case, we are parsing the scores and converting the `Either` type to an `IO` type(`List[String] => List[Right[Score]] => List[IO[Score]] => IO[List[Score]`). After that, we print every score to the console (3). 
+First, we load every line as part of a list of strings (1). Then, we use the `traverse` method to apply an effect to every element in the list and then turn the type inside the list, inside out (like a pure `foreach`) (2), in this case, we are parsing the scores and converting the `Either` type to an `IO` type(`List[String] => List[Right[Score]] => List[IO[Score]] => IO[List[Score]`). After that, we print every score to the console (3). 
 
 Finally, we append a new score to the file (4) via the `appendLine` method.
 
@@ -172,7 +172,7 @@ end Scores
 
 ## Uppercase
 
-You can also manipule entire files on one go. In this example, we are going to read a file, convert it to uppercase, and write it to another file.
+You can also manipule entire files in one go. In this example, we are going to read a file, convert it to uppercase, and write it to another file.
 
 First thing, we are going to define the locations of the original file and the new file:
 

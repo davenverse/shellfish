@@ -1,6 +1,6 @@
 # Using Paths
 
-One of the main types that use this library is [`Path'](https://www.javadoc.io/static/co.fs2/fs2-docs_3/3.8.0/fs2/io/file/Path.html). It represents a path to a file or a directory.
+One of the main types that use this library is [`Path`](https://www.javadoc.io/static/co.fs2/fs2-docs_3/3.8.0/fs2/io/file/Path.html). It represents a path to a file or a directory.
 
 You can start using `Path`s by importing the domain from the library: 
 

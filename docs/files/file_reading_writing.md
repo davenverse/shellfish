@@ -3,7 +3,7 @@
 This library comes with three different functions for reading and writing operations, `read`, `write` and `append`, each with four different variants: Standalone, `Bytes`, `Lines` and `As`, with these variants you will be able to work with the file and/or its contents as a UTF-8 string or with a custom `java.nio.charset.Charset`, as bytes, line by line, and with a custom codec respectively. 
 
 ```scala mdoc:invisible
-// This sections adds every import to the code snippets
+// This section adds every import to the code snippets
 
 import cats.effect.IO
 import cats.syntax.all.*
@@ -20,7 +20,7 @@ val path = Path("testdata/dummy.something")
 
 ## Reading
 
-One of the most common operations in scripting is reading a file, that's why you can read a file in different ways: 
+One of the most common operations in scripting is reading a file, that is why you can read a file in different ways: 
 
 ### `read`
 
@@ -31,7 +31,7 @@ This function loads the whole file as a string in memory using UTF-8 encoding.
 @:choice(syntax)
 
 ```scala mdoc:compile-only
-import cats.syntax.all.* // for the >>= operator, it's just a rename for flatMap
+import cats.syntax.all.*
 
 import shellfish.syntax.path.*
 
@@ -43,7 +43,7 @@ path.read >>= IO.println
 @:choice(static)
 
 ```scala scala mdoc:compile-only
-import cats.syntax.all.* // for the >>= operator, it's just a rename for flatMap
+import cats.syntax.all.* 
 
 import shellfish.FilesOs
 
@@ -357,7 +357,7 @@ Stream.chunk(fs2.Chunk.byteVector(niceBytes))
 
 ### `writeLines`
 
-If you want to write many lines to a file, you can provide the contents as a collection of strings and this function will write each element as a new line:
+If you want to write many lines to a file, you can provide the contents as a collection of strings, and this function will write each element as a new line:
 
 @:select(api-style)
 
@@ -458,7 +458,7 @@ Appending is very similar to writing, except that, instead of overwriting the co
 
 ### `append`
 
-Similar to `write`, but adds the content to the end of the file instead of overwriting it. The function will append the contents to the last line of the file, if you want to append the contents as a new line, see [`appendLine`](#appendline).
+Similar to `write`, but adds the content to the end of the file instead of overwriting it. The function will append the contents to the last line of the file if you want to append the contents as a new line, see [`appendLine`](#appendline).
 
 @:select(api-style)
 
