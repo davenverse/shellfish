@@ -1,6 +1,6 @@
-# Reading, writing and appending 
+# Reading, writing, and appending 
 
-This library comes with three different functions for reading and writing operations, `read`, `write` and `append`, each with four different variants: Standalone, `Bytes`, `WithCharset`, `Lines` and `As`, with these variants you will be able to work with the file and/or its contents as a string, as bytes, as a string with a custom `java.nio.charset.Charset` and with a custom codec respectively. 
+This library comes with three different functions for reading and writing operations, `read`, `write` and `append`, each with four different variants: Standalone, `Bytes`, `Lines` and `As`, with these variants you will be able to work with the file and/or its contents as a UTF-8 string or with a custom `java.nio.charset.Charset`, as bytes, line by line, and with a custom codec respectively. 
 
 ```scala mdoc:invisible
 // This sections adds every import to the code snippets
@@ -64,9 +64,6 @@ Files[IO].readUtf8(path).evalMap(IO.println).compile.drain
 
 @:@
 
-
-### `readWithCharset`
-
 If UTF-8 is not your favorite flavour, you can also use a custom `java.nio.charset.Charset` to decode your file:
 
 @:select(api-style)
@@ -76,7 +73,7 @@ If UTF-8 is not your favorite flavour, you can also use a custom `java.nio.chars
 ```scala mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
-path.readWithCharset(StandardCharsets.UTF_16)
+path.read(StandardCharsets.UTF_16)
 ```
 
 @:choice(static)
@@ -84,7 +81,7 @@ path.readWithCharset(StandardCharsets.UTF_16)
 ```scala mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
-FilesOs.readWithCharset(path, StandardCharsets.UTF_16)
+FilesOs.read(path, StandardCharsets.UTF_16)
 ```
 
 @:choice(fs2)
@@ -276,8 +273,6 @@ Stream.emit(poem)
 
 @:@
 
-### `writeWithCharset`
-
 The default charset can also be changed for encoding when writing strings:
 
 @:select(api-style)
@@ -289,7 +284,7 @@ import java.nio.charset.StandardCharsets
 
 val message = "Imagine writing Java 😭"
 
-path.writeWithCharset(message, StandardCharsets.US_ASCII)
+path.write(message, StandardCharsets.US_ASCII)
 ```
 
 @:choice(static)
@@ -299,7 +294,7 @@ import java.nio.charset.StandardCharsets
 
 val message = "Imagine writing Java 😭"
 
-FilesOs.writeWithCharset(path, message, StandardCharsets.US_ASCII)
+FilesOs.write(path, message, StandardCharsets.US_ASCII)
 ```
 
 @:choice(fs2)
@@ -514,10 +509,7 @@ Stream.emit(secretFormula)
 
 @:@
 
-
-### `appendWithCharset`
-
-Like in [`writeWithCharset`](#writewithcharset), you can also use a custom charset to encode strings:
+Like in the other variants, you can also use a custom charset to encode strings:
 
 @:select(api-style)
 
@@ -526,7 +518,7 @@ Like in [`writeWithCharset`](#writewithcharset), you can also use a custom chars
 ```scala mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
-path.appendWithCharset("What encoding I'm I?", StandardCharsets.ISO_8859_1)
+path.append("Which encoding I'm I?", StandardCharsets.ISO_8859_1)
 ```
 
 @:choice(static)
@@ -534,7 +526,7 @@ path.appendWithCharset("What encoding I'm I?", StandardCharsets.ISO_8859_1)
 ```scala mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
-FilesOs.appendWithCharset(path, "What encoding I'm I?", StandardCharsets.ISO_8859_1)
+FilesOs.append(path, "Which encoding I'm I?", StandardCharsets.ISO_8859_1)
 ```
 
 @:choice(fs2)
@@ -544,7 +536,7 @@ import fs2.text.encode
 
 import java.nio.charset.StandardCharsets
 
-Stream.emit("What encoding I'm I?")
+Stream.emit("Which encoding I'm I?")
   .through(encode(StandardCharsets.ISO_8859_1))
   .through(Files[IO].writeAll(path))
   .compile
