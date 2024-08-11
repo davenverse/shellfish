@@ -4,11 +4,11 @@ Beyond simple read and write operations, this section allows you to interact dir
 
 ## Creating files and directories
 
-In this section, you'll see how to create new files and directories, as well as delete existing ones.
+In this section, you will see how to create new files and directories, as well as delete existing ones.
 
 ### `createFile`    
 
-Creates a new file in the specified path, failing if the parent directory doesn’t exist. You can also specify some permissions if you wish. To see what the `exists` function does, see [the reference](#exists):
+Creates a new file in the specified path, failing if the parent directory does not exist. You can also specify some permissions if you wish. To see what the `exists` function does, see [the reference](#exists):
 
 ```scala mdoc:invisible
 // This sections adds every import to the code snippets
@@ -62,7 +62,7 @@ Files[IO].createFile(path) >> Files[IO].exists(path) // Should return true
 
 ### `createDirectories`
 
-Creates all the directories in the path, with the default permissions or, with supplyed ones:
+Creates all the directories in the path, with the default permissions or with the supplied ones:
 
 @:select(api-style)
 
@@ -97,7 +97,7 @@ Files[IO].createDirectories(directories) >> Files[IO].createFile(path)
 
 ### `createTempFile`
 
-If you want to create a temporary file that is automatically deleted by the operating system, you can use this function. It accepts cero parameters if you prefer to use the default ones, or multiple parameters such as a directory, a prefix (the name of the file), a suffix (the extension of the file) and some permissions if you feel like declaring them. It return the path of the recently created file: 
+This function creates a temporary file that gets automatically deleted by the operating system. It optionally accepts multiple parameters such as a directory, a prefix (the name of the file), a suffix (the extension of the file) and permissions. It returns the path of the newly created file:
 
 @:select(api-style)
 
@@ -139,21 +139,21 @@ Stream.eval(Files[IO].createTempFile)
 
 ### `tempFile`
 
-Very similar to `createTempFile`, but Cats Effect handles the deletion of the file via [Resource](https://typelevel.org/cats-effect/docs/std/resource). Accepts the same parameters like a custom directory, a prefix, a suffix, and some permissions but returns a `Resource` containing the path of the file:
+Very similar to `createTempFile`, but Cats Effect handles the deletion of the file by itself. Accepts the same parameters as a custom directory, a prefix, a suffix, and some permissions but takes a `use` function as well. This function is a description of how the path will be used and what will be computed after that:
 
 @:select(api-style)
 
 @:choice(syntax)
 
 ```scala mdoc:compile-only
-tempFile.use: path =>
+tempFile: path =>
   path.write("I have accepted my fate...")
 ```
 
 @:choice(static)
 
 ```scala mdoc:compile-only
-FilesOs.tempFile.use: path =>
+FilesOs.tempFile: path =>
   FilesOs.write(path, "I have accepted my fate...")
 ```
 
@@ -171,7 +171,7 @@ Files[IO].tempFile.use: path =>
 
 ### `createTempDirectory`
 
-Creates a temporary directory that will eventually be deleted by the operating system. Takes as parameters a custom directory, a prefix (the name of the directory) and some permissions, or you can specify nothing and it will use some defaults. Returns the path to the created directory: 
+Creates a temporary directory that will eventually be deleted by the operating system. It accepts a few optional parameters like a custom parent directory, a prefix, and some permissions. It returns the path to the newly created directory:
 
 @:select(api-style)
 
@@ -208,21 +208,21 @@ yield ()
 
 ### `tempDirectory`
 
-Similar to `createTempDirectory`, but the deletion of the directory is managed by Cats Effect using a [Resource](https://typelevel.org/cats-effect/docs/std/resource). Takes the same arguments as a custom directory, a prefix and some permissions. Returns a `Resource` containing the path to the directory:
+Similar to `createTempDirectory`, but the deletion of the directory is managed by Cats Effect. Takes the same arguments as a custom directory, a prefix and some permissions and most importantly, a `use` function that describes how the directory will be used and computed:
 
 @:select(api-style)
 
 @:choice(syntax)
 
 ```scala mdoc:compile-only
-tempDirectory.use: dir => 
+tempDirectory: dir => 
   (dir / "its_going_to_go_soon.mp3").createFile
 ```
 
 @:choice(static)
 
 ```scala mdoc:compile-only
-FilesOs.tempDirectory.use: dir =>
+FilesOs.tempDirectory: dir =>
   FilesOs.createFile(dir / "its_going_to_go_soon.mp3")
 ```
 
@@ -345,6 +345,10 @@ Files[IO].deleteIfExists(path) >>=
 
 With the previous functions, the directory had to be empty to be deleted. The difference with this method is that it recursively deletes all files or folders contained inside it, optionally following symbolic links if specified: 
 
+Recursively deletes all files or folders, following symbolic links if specified. 
+
+Note that, unlike the previous functions, this one will not fail if the directories are empty or do not exist:
+
 @:select(api-style)
 
 @:choice(syntax)
@@ -435,7 +439,7 @@ Stream.emit("The no-cloning theorem says you can't copy me!")
 
 ### `move`
 
-Very similar to `copy`, but deletes the file in the original destination path. Also, optionally takes flags as arguments to define its move behaviour:
+Very similar to `copy`, but deletes the file in the original destination path. Optionally takes flags as arguments to define its move behaviour:
 
 @:select(api-style)
 
@@ -470,7 +474,7 @@ Files[IO].move(source, target)
 
 ### `exists`
 
-This function checks whether or not a file exists in a specified path and returns `true` if it does:
+This function checks whether a file exists at a specified path:
 
 @:select(api-style)
 

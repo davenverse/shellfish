@@ -1,4 +1,4 @@
-# Getting Started
+# First steps
 
 ## Which API should I use?
 
