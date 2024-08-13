@@ -22,10 +22,8 @@
 package io.chrisdavenport.shellfish
 package syntax
 
-import cats.syntax.all.*
-import cats.effect.{IO, Resource}
+import cats.effect.IO
 
-import fs2.Stream
 import fs2.io.file.*
 
 import scodec.bits.ByteVector
@@ -62,8 +60,8 @@ package object path {
      * @return
      *   The file loaded in memory as a String
      */
-    def readWithCharset(charset: Charset): IO[String] =
-      FilesOs.readWithCharset(path, charset)
+    def read(charset: Charset): IO[String] =
+      FilesOs.read(path, charset)
 
     /**
      * Reads the contents of the file at the path and returns it as a
@@ -100,16 +98,6 @@ package object path {
      */
     def readAs[A: Codec]: IO[A] = FilesOs.readAs(path)
 
-    /**
-     * The function reads the contents of the file at the path and returns it as
-     * a Stream of Bytes, useful when working with large files.
-     * @param path
-     *   The path to read from
-     * @return
-     *   A Stream of Bytes
-     */
-    def readStream: fs2.Stream[IO, Byte] = FilesOs.readStream(path)
-
     // Write operations:
 
     /**
@@ -136,8 +124,8 @@ package object path {
      * @param charset
      *   The charset to use to encode the file
      */
-    def writeWithCharset(contents: String, charset: Charset): IO[Unit] =
-      FilesOs.writeWithCharset(path, contents, charset)
+    def write(contents: String, charset: Charset): IO[Unit] =
+      FilesOs.write(path, contents, charset)
 
     /**
      * This function overwrites the contents of the file at the path with the
@@ -205,11 +193,11 @@ package object path {
      * @param charset
      *   The charset to use to encode the contents
      */
-    def appendWithCharset(
+    def append(
         contents: String,
         charset: Charset
     ): IO[Unit] =
-      FilesOs.appendWithCharset(path, contents, charset)
+      FilesOs.append(path, contents, charset)
 
     /**
      * Similar to `write`, but appends to the file instead of overwriting it.
@@ -485,7 +473,7 @@ package object path {
     def isSameFile(path2: Path): IO[Boolean] = FilesOs.isSameFile(path, path2)
 
     /** Gets the contents of the specified directory. */
-    def list: Stream[IO, Path] = FilesOs.list(path)
+    def list: IO[List[Path]] = FilesOs.list(path)
 
     /**
      * Moves the source to the target, failing if source does not exist or the
@@ -501,17 +489,6 @@ package object path {
      */
     def move(target: Path, flags: CopyFlags): IO[Unit] =
       FilesOs.move(path, target, flags)
-
-    /** Creates a `FileHandle` for the file at the supplied `Path`. */
-    def open(flags: Flags): Resource[IO, FileHandle[IO]] =
-      FilesOs.open(path, flags)
-
-    /**
-     * Returns a `ReadCursor` for the specified path, using the supplied flags
-     * when opening the file.
-     */
-    def readCursor(flags: Flags): Resource[IO, ReadCursor[IO]] =
-      FilesOs.readCursor(path, flags)
 
     // Real Path
     /** Returns the real path i.e. the actual location of `path`. */
@@ -617,14 +594,16 @@ package object path {
   def lineSeparator: String = FilesOs.lineSeparator
 
   /**
-   * Creates a temporary file and deletes it upon finalization of the returned
-   * resource.
+   * Creates a temporary file and deletes it at the end of the use of it.
    */
-  def tempFile: Resource[IO, Path] = files.tempFile(None, "", ".tmp", None)
+  def withTempFile[A](use: Path => IO[A]): IO[A] =
+    FilesOs.withTempFile(use)
 
   /**
-   * Creates a temporary file and deletes it upon finalization of the returned
-   * resource.
+   * Creates a temporary file and deletes it at the end of the use of it.
+   *
+   * @tparam A
+   *   the type of the result computation
    *
    * @param dir
    *   the directory which the temporary file will be created in. Pass in None
@@ -636,24 +615,27 @@ package object path {
    * @param permissions
    *   permissions to set on the created file
    * @return
-   *   a resource containing the path of the temporary file
+   *   The result of the computation after using the temporary file
    */
-  def tempFile(
+  def withTempFile[A](
       dir: Option[Path],
       prefix: String,
       suffix: String,
       permissions: Permissions
-  ): Resource[IO, Path] = files.tempFile(dir, prefix, suffix, permissions.some)
+  )(use: Path => IO[A]): IO[A] =
+    FilesOs.withTempFile(dir, prefix, suffix, permissions)(use)
 
   /**
-   * Creates a temporary directory and deletes it upon finalization of the
-   * returned resource.
+   * Creates a temporary directory and deletes it at the end of the use of it.
    */
-  def tempDirectory: Resource[IO, Path] = files.tempDirectory(None, "", None)
+  def withTempDirectory[A](use: Path => IO[A]): IO[A] =
+    FilesOs.withTempDirectory(use)
 
   /**
-   * Creates a temporary directory and deletes it upon finalization of the
-   * returned resource.
+   * Creates a temporary directory and deletes it at the end of the use of it.
+   *
+   * @tparam A
+   *   the type of the result computation
    *
    * @param dir
    *   the directory which the temporary directory will be created in. Pass in
@@ -663,13 +645,14 @@ package object path {
    * @param permissions
    *   permissions to set on the created file
    * @return
-   *   a resource containing the path of the temporary directory
+   *   the result of the computation after using the temporary directory
    */
-  def tempDirectory(
+  def withTempDirectory[A](
       dir: Option[Path],
       prefix: String,
       permissions: Permissions
-  ): Resource[IO, Path] = files.tempDirectory(dir, prefix, permissions.some)
+  )(use: Path => IO[A]): IO[A] =
+    FilesOs.withTempDirectory(dir, prefix, permissions)(use)
 
   /** User's home directory */
   def userHome: IO[Path] = files.userHome
