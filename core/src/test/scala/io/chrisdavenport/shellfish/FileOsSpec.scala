@@ -40,7 +40,7 @@ import syntax.path.*
 object FileOsSpec extends SimpleIOSuite with Checkers {
 
   test("The API should delete a file") {
-    tempFile { path =>
+    withTempFile { path =>
       for {
         _       <- path.write("")
         deleted <- path.deleteIfExists
@@ -50,8 +50,8 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
 
   test("Copying a file should have the same content as the original") {
     forall(Gen.asciiStr) { contents =>
-      tempFile { t1 =>
-        tempFile { t2 =>
+      withTempFile { t1 =>
+        withTempFile { t2 =>
           for {
             _  <- t1.write(contents)
             _  <- t1.copy(t2, CopyFlags(CopyFlag.ReplaceExisting))
@@ -74,7 +74,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       Gen.size.flatMap(size => Gen.listOfN(size, Gen.asciiStr))
 
     forall(contentGenerator) { contentsList =>
-      tempFile { path =>
+      withTempFile { path =>
         for {
           _          <- path.writeLines(contentsList)
           sizeBefore <- path.readLines.map(_.size)
@@ -87,7 +87,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
 
   test("Append should behave the same as adding at the end of the string") {
     forall(Gen.asciiStr) { contents =>
-      tempFile { path =>
+      withTempFile { path =>
         for {
           _          <- path.write(contents)
           sizeBefore <- path.read.map(_.length)
@@ -102,8 +102,8 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
     "`append` should behave the same as `appendLine` when prepending a newline to the contents"
   ) {
     forall(Gen.asciiStr) { contents =>
-      tempFile { t1 =>
-        tempFile { t2 =>
+      withTempFile { t1 =>
+        withTempFile { t2 =>
           for {
             _     <- t1.append(s"\n$contents")
             _     <- t2.appendLine(contents)
@@ -121,7 +121,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
     implicit val codec: Codec[String] = scodec.codecs.ascii
 
     forall(Gen.asciiStr) { contents =>
-      tempFile { path =>
+      withTempFile { path =>
         for {
           _          <- path.writeAs(contents)
           sizeBefore <- path.read.map(_.length)
@@ -135,7 +135,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
   test("We should write bytes and read bytes") {
 
     forall(Gen.identifier) { name =>
-      tempFile { path =>
+      withTempFile { path =>
         val bytes = ByteVector(name.getBytes)
 
         for {
@@ -163,7 +163,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       } yield (path, contents)
 
     forall(multipleGenerators) { case (path, contents) =>
-      tempDirectory { dir =>
+      withTempDirectory { dir =>
         val firstPath = dir / "moving_file.data"
         val movePath  = dir / path / "moved_file.data"
 
@@ -187,7 +187,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       Gen.size.flatMap(size => Gen.listOfN(size, Gen.asciiStr))
 
     forall(contentGenerator) { contentsList =>
-      tempFile { path =>
+      withTempFile { path =>
         for {
           _          <- path.writeLines(contentsList)
           size       <- path.size
@@ -206,7 +206,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       } yield names.foldLeft(Path(""))(_ / _)
 
     forall(pathsGenerator) { paths =>
-      tempDirectory { dir =>
+      withTempDirectory { dir =>
         val tempDir = dir / paths
 
         for {
@@ -221,7 +221,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
 
   test("We should be able to get and modify the last modified time of a file") {
     forall(Gen.asciiStr) { contents =>
-      tempFile { path =>
+      withTempFile { path =>
         for {
           _      <- path.write(contents)
           before <- path.getLastModifiedTime
@@ -251,8 +251,8 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       } yield names.foldLeft(Path(""))(_ / _)
 
     forall(pathsGenerator) { path =>
-      tempFile { file =>
-        tempDirectory { dir =>
+      withTempFile { file =>
+        withTempDirectory { dir =>
           val link = dir / path / "link"
           for {
             _           <- (dir / path).createDirectories
@@ -273,7 +273,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
 
   // Warning: Platform dependent test; this may fail on some operating systems
   test("The permissions POSIX API should approve or prevent reading") {
-    tempFile { path =>
+    withTempFile { path =>
       for {
         _ <- path.setPosixPermissions(
           PosixPermissions.fromString("r--r--r--").get
@@ -290,7 +290,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
 
   // Warning: Platform dependent test; this may fail on some operating systems
   test("The permissions POSIX API should approve or prevent writing") {
-    tempFile { path =>
+    withTempFile { path =>
       for {
         _ <- path.setPosixPermissions(
           PosixPermissions.fromString("-w--w--w-").get
@@ -307,7 +307,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
 
   // Warning: Platform dependent test; this may fail on some operating systems
   test("The permissions POSIX API should approve or prevent executing") {
-    tempFile { path =>
+    withTempFile { path =>
       for {
         _ <- path.setPosixPermissions(
           PosixPermissions.fromString("--x--x--x").get
@@ -334,7 +334,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       cats.Show.show(_.toString)
 
     forall(permissionsGenerator) { permissions =>
-      tempFile { path =>
+      withTempFile { path =>
         for {
           _     <- path.setPosixPermissions(permissions)
           perms <- path.getPosixPermissions

@@ -596,8 +596,8 @@ package object path {
   /**
    * Creates a temporary file and deletes it at the end of the use of it.
    */
-  def tempFile[A](use: Path => IO[A]): IO[A] =
-    FilesOs.tempFile(use)
+  def withTempFile[A](use: Path => IO[A]): IO[A] =
+    FilesOs.withTempFile(use)
 
   /**
    * Creates a temporary file and deletes it at the end of the use of it.
@@ -617,18 +617,19 @@ package object path {
    * @return
    *   The result of the computation after using the temporary file
    */
-  def tempFile[A](
+  def withTempFile[A](
       dir: Option[Path],
       prefix: String,
       suffix: String,
       permissions: Permissions
   )(use: Path => IO[A]): IO[A] =
-    FilesOs.tempFile(dir, prefix, suffix, permissions)(use)
+    FilesOs.withTempFile(dir, prefix, suffix, permissions)(use)
 
   /**
    * Creates a temporary directory and deletes it at the end of the use of it.
    */
-  def tempDirectory[A](use: Path => IO[A]): IO[A] = FilesOs.tempDirectory(use)
+  def withTempDirectory[A](use: Path => IO[A]): IO[A] =
+    FilesOs.withTempDirectory(use)
 
   /**
    * Creates a temporary directory and deletes it at the end of the use of it.
@@ -646,12 +647,12 @@ package object path {
    * @return
    *   the result of the computation after using the temporary directory
    */
-  def tempDirectory[A](
+  def withTempDirectory[A](
       dir: Option[Path],
       prefix: String,
       permissions: Permissions
   )(use: Path => IO[A]): IO[A] =
-    FilesOs.tempDirectory(dir, prefix, permissions)(use)
+    FilesOs.withTempDirectory(dir, prefix, permissions)(use)
 
   /** User's home directory */
   def userHome: IO[Path] = files.userHome

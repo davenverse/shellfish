@@ -681,7 +681,7 @@ object FilesOs {
   /**
    * Creates a temporary file and deletes it at the end of the use of it.
    */
-  def tempFile[A](use: Path => IO[A]): IO[A] =
+  def withTempFile[A](use: Path => IO[A]): IO[A] =
     files.tempFile.use(use)
 
   /**
@@ -702,7 +702,7 @@ object FilesOs {
    * @return
    *   The result of the computation after using the temporary file
    */
-  def tempFile[A](
+  def withTempFile[A](
       dir: Option[Path],
       prefix: String,
       suffix: String,
@@ -713,7 +713,7 @@ object FilesOs {
   /**
    * Creates a temporary directory and deletes it at the end of the use of it.
    */
-  def tempDirectory[A](use: Path => IO[A]): IO[A] =
+  def withTempDirectory[A](use: Path => IO[A]): IO[A] =
     files.tempDirectory.use(use)
 
   /**
@@ -732,7 +732,7 @@ object FilesOs {
    * @return
    *   the result of the computation after using the temporary directory
    */
-  def tempDirectory[A](
+  def withTempDirectory[A](
       dir: Option[Path],
       prefix: String,
       permissions: Permissions
