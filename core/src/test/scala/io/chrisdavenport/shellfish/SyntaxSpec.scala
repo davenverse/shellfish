@@ -34,7 +34,7 @@ object SyntaxSpec extends SimpleIOSuite with Checkers {
     "Extension methods for read, write and append should work the same as the normal ones"
   ) {
     forall(Gen.asciiStr) { contents =>
-      tempFile.use { path =>
+      withTempFile { path =>
         for {
           _  <- path.write(contents)
           _  <- path.append("Hi from the test!")
@@ -50,7 +50,7 @@ object SyntaxSpec extends SimpleIOSuite with Checkers {
   test(
     "Extension methods for creating and deleting a file should work the same as the normal ones"
   ) {
-    tempDirectory.use { dir =>
+    withTempDirectory { dir =>
       val path = dir / "sample.txt"
       for {
         _        <- path.createFile
@@ -67,7 +67,7 @@ object SyntaxSpec extends SimpleIOSuite with Checkers {
     "Extension methods for copying a file should work the same as the normal ones"
   ) {
     forall(Gen.asciiStr) { contents =>
-      tempDirectory.use { dir =>
+      withTempDirectory { dir =>
         val original = dir / "sample.txt"
         val copy1    = dir / "sample-copy.txt"
         val copy2    = dir / "sample-copy-jo2.txt"
@@ -87,7 +87,7 @@ object SyntaxSpec extends SimpleIOSuite with Checkers {
   ) {
 
     forall(Gen.asciiStr) { contents =>
-      tempDirectory.use { dir =>
+      withTempDirectory { dir =>
         val original = dir / "sample.txt"
         val moved    = dir / "sample-moved.txt"
         for {

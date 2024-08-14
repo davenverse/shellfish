@@ -22,7 +22,7 @@
 package io.chrisdavenport.shellfish
 
 import cats.syntax.all.*
-import cats.effect.{IO, Resource}
+import cats.effect.IO
 
 import fs2.{Stream, Chunk}
 import fs2.io.file.*
@@ -62,7 +62,7 @@ object FilesOs {
    * @return
    *   The file loaded in memory as a String
    */
-  def readWithCharset(path: Path, charset: Charset): IO[String] =
+  def read(path: Path, charset: Charset): IO[String] =
     files
       .readAll(path)
       .through(fs2.text.decodeWithCharset(charset))
@@ -106,16 +106,6 @@ object FilesOs {
   def readAs[A: Codec](path: Path): IO[A] =
     readBytes(path).map(bytes => Codec[A].decodeValue(bytes.bits).require)
 
-  /**
-   * The function reads the contents of the file at the path and returns it as a
-   * Stream of Bytes, useful when working with large files.
-   * @param path
-   *   The path to read from
-   * @return
-   *   A Stream of Bytes
-   */
-  def readStream(path: Path): Stream[IO, Byte] = files.readAll(path)
-
   // Write operations:
 
   /**
@@ -148,7 +138,7 @@ object FilesOs {
    * @param charset
    *   The charset to use to encode the file
    */
-  def writeWithCharset(
+  def write(
       path: Path,
       contents: String,
       charset: Charset
@@ -243,7 +233,7 @@ object FilesOs {
    * @param charset
    *   The charset to use to encode the contents
    */
-  def appendWithCharset(
+  def append(
       path: Path,
       contents: String,
       charset: Charset
@@ -626,7 +616,7 @@ object FilesOs {
   def lineSeparator: String = files.lineSeparator
 
   /** Gets the contents of the specified directory. */
-  def list(path: Path): Stream[IO, Path] = files.list(path)
+  def list(path: Path): IO[List[Path]] = files.list(path).compile.toList
 
   /**
    * Moves the source to the target, failing if source does not exist or the
@@ -643,22 +633,6 @@ object FilesOs {
    */
   def move(source: Path, target: Path, flags: CopyFlags): IO[Unit] =
     files.move(source, target, flags)
-
-  /**
-   * Creates a `FileHandle` for the file at the supplied `Path`. The supplied
-   * flags indicate the mode used when opening the file (e.g. read, write,
-   * append) as well as the ability to specify additional options (e.g.
-   * automatic deletion at process exit).
-   */
-  def open(path: Path, flags: Flags): Resource[IO, FileHandle[IO]] =
-    files.open(path, flags)
-
-  /**
-   * Returns a `ReadCursor` for the specified path, using the supplied flags
-   * when opening the file.
-   */
-  def readCursor(path: Path, flags: Flags): Resource[IO, ReadCursor[IO]] =
-    files.readCursor(path, flags)
 
   /**
    * Returns the real path i.e. the actual location of `path`. The precise
@@ -705,14 +679,16 @@ object FilesOs {
   def size(path: Path): IO[Long] = files.size(path)
 
   /**
-   * Creates a temporary file and deletes it upon finalization of the returned
-   * resource.
+   * Creates a temporary file and deletes it at the end of the use of it.
    */
-  def tempFile: Resource[IO, Path] = files.tempFile(None, "", ".tmp", None)
+  def withTempFile[A](use: Path => IO[A]): IO[A] =
+    files.tempFile.use(use)
 
   /**
-   * Creates a temporary file and deletes it upon finalization of the returned
-   * resource.
+   * Creates a temporary file and deletes it at the end of the use of it.
+   *
+   * @tparam A
+   *   the type of the result computation
    *
    * @param dir
    *   the directory which the temporary file will be created in. Pass in None
@@ -724,24 +700,27 @@ object FilesOs {
    * @param permissions
    *   permissions to set on the created file
    * @return
-   *   a resource containing the path of the temporary file
+   *   The result of the computation after using the temporary file
    */
-  def tempFile(
+  def withTempFile[A](
       dir: Option[Path],
       prefix: String,
       suffix: String,
       permissions: Permissions
-  ): Resource[IO, Path] = files.tempFile(dir, prefix, suffix, permissions.some)
+  )(use: Path => IO[A]): IO[A] =
+    files.tempFile(dir, prefix, suffix, permissions.some).use(use)
 
   /**
-   * Creates a temporary directory and deletes it upon finalization of the
-   * returned resource.
+   * Creates a temporary directory and deletes it at the end of the use of it.
    */
-  def tempDirectory: Resource[IO, Path] = files.tempDirectory(None, "", None)
+  def withTempDirectory[A](use: Path => IO[A]): IO[A] =
+    files.tempDirectory.use(use)
 
   /**
-   * Creates a temporary directory and deletes it upon finalization of the
-   * returned resource.
+   * Creates a temporary directory and deletes it at the end of the use of it.
+   *
+   * @tparam A
+   *   the type of the result computation
    *
    * @param dir
    *   the directory which the temporary directory will be created in. Pass in
@@ -751,13 +730,14 @@ object FilesOs {
    * @param permissions
    *   permissions to set on the created file
    * @return
-   *   a resource containing the path of the temporary directory
+   *   the result of the computation after using the temporary directory
    */
-  def tempDirectory(
+  def withTempDirectory[A](
       dir: Option[Path],
       prefix: String,
       permissions: Permissions
-  ): Resource[IO, Path] = files.tempDirectory(dir, prefix, permissions.some)
+  )(use: Path => IO[A]): IO[A] =
+    files.tempDirectory(dir, prefix, permissions.some).use(use)
 
   /** User's home directory */
   def userHome: IO[Path] = files.userHome
