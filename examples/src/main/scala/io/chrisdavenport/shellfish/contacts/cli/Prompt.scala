@@ -2,8 +2,10 @@ package io.chrisdavenport.shellfish.contacts.cli
 
 import io.chrisdavenport.shellfish.contacts.domain.*
 
+import scala.annotation.tailrec
+
 object Prompt {
-  def parsePrompt(args: List[String]): Argument =
+  def parsePrompt(args: List[String]): CliCommand =
     args match {
       case Nil                                   => Help
       case "add" :: Nil                          => AddContact
@@ -12,7 +14,7 @@ object Prompt {
       case "search" :: "name" :: name :: Nil     => SearchName(name)
       case "search" :: "email" :: email :: Nil   => SearchEmail(email)
       case "search" :: "number" :: number :: Nil => SearchNumber(number)
-      case "view" :: "all" :: _                  => ViewAll
+      case "list" :: _                            => ViewAll
       case "update" :: username :: options =>
         UpdateContact(username, parseUpdateFlags(options))
       case "--help" :: _ => Help
@@ -20,8 +22,9 @@ object Prompt {
       case _             => Help
     }
 
-  def parseUpdateFlags(options: List[String]): List[Flag] = {
+  private def parseUpdateFlags(options: List[String]): List[Flag] = {
 
+    @tailrec
     def tailParse(remaining: List[String], acc: List[Flag]): List[Flag] =
       remaining match {
 

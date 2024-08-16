@@ -2,13 +2,13 @@ package io.chrisdavenport.shellfish.contacts.domain
 
 import io.chrisdavenport.shellfish.contacts.domain.contact.*
 
-sealed abstract class Argument
-case object AddContact                       extends Argument
-case class RemoveContact(username: Username) extends Argument
-case class SearchId(username: Username)      extends Argument
-case class SearchName(name: Name)            extends Argument
-case class SearchEmail(email: Email)         extends Argument
-case class SearchNumber(number: PhoneNumber) extends Argument
+sealed abstract class CliCommand
+case object AddContact                       extends CliCommand
+case class RemoveContact(username: Username) extends CliCommand
+case class SearchId(username: Username)      extends CliCommand
+case class SearchName(name: Name)            extends CliCommand
+case class SearchEmail(email: Email)         extends CliCommand
+case class SearchNumber(number: PhoneNumber) extends CliCommand
 
 /**
  * TODO: How to handle options? For example, --first-name "John" --last-name
@@ -18,8 +18,7 @@ case class SearchNumber(number: PhoneNumber) extends Argument
 case class UpdateContact(
     username: Username,
     options: List[Flag]
-) extends Argument
+) extends CliCommand
 
-case object ViewAll extends Argument
-case object Help    extends Argument
-case object Info    extends Argument
+case object ViewAll extends CliCommand
+case object Help    extends CliCommand
