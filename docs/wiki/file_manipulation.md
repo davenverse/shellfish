@@ -137,7 +137,7 @@ Stream.eval(Files[IO].createTempFile)
 
 @:@
 
-### `tempFile`
+### `withTempFile`
 
 Very similar to `createTempFile`, but Cats Effect handles the deletion of the file by itself. Accepts the same parameters as a custom directory, a prefix, a suffix, and some permissions but takes a `use` function as well. This function is a description of how the path will be used and what will be computed after that:
 
@@ -146,14 +146,14 @@ Very similar to `createTempFile`, but Cats Effect handles the deletion of the fi
 @:choice(syntax)
 
 ```scala 3 mdoc:compile-only
-tempFile: path =>
+withTempFile: path =>
   path.write("I have accepted my fate...")
 ```
 
 @:choice(static)
 
 ```scala 3 mdoc:compile-only
-FilesOs.tempFile: path =>
+FilesOs.withTempFile: path =>
   FilesOs.write(path, "I have accepted my fate...")
 ```
 
@@ -206,7 +206,7 @@ yield ()
 
 @:@
 
-### `tempDirectory`
+### `withTempDirectory`
 
 Similar to `createTempDirectory`, but the deletion of the directory is managed by Cats Effect. Takes the same arguments as a custom directory, a prefix and some permissions and most importantly, a `use` function that describes how the directory will be used and computed:
 
@@ -215,14 +215,14 @@ Similar to `createTempDirectory`, but the deletion of the directory is managed b
 @:choice(syntax)
 
 ```scala 3 mdoc:compile-only
-tempDirectory: dir => 
+withTempDirectory: dir => 
   (dir / "its_going_to_go_soon.mp3").createFile
 ```
 
 @:choice(static)
 
 ```scala 3 mdoc:compile-only
-FilesOs.tempDirectory: dir =>
+FilesOs.withTempDirectory: dir =>
   FilesOs.createFile(dir / "its_going_to_go_soon.mp3")
 ```
 
