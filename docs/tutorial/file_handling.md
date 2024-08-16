@@ -358,7 +358,7 @@ def deleteIfChubby(path: Path, threshold: Long): IO[Boolean] = ???
 
 Maybe you do not want to manually delete a file after its use. This is where temporary files come in to play, as they are deleted automatically.
 
-To create temporary files, you have two options, one is to make Cats Effect automatically handle their lifecycle with the `tempFile` and `tempDirectory` methods (useful when you want the files deleted right away), or, if you rather prefer the operating system to take hands in its lifecycle, you can use the `createTempFile` and `createTempDirectory` variants (suitable if you do not care if the files are deleted immediately).
+To create temporary files, you have two options, one is to make Cats Effect automatically handle their lifecycle with the `withTempFile` and `withTempDirectory` methods (useful when you want the files deleted right away), or, if you rather prefer the operating system to take hands in its lifecycle, you can use the `createTempFile` and `createTempDirectory` variants (suitable if you do not care if the files are deleted immediately).
 
 The former takes as a parameter a function that describes how you want to use the file, like this:
 
@@ -373,7 +373,7 @@ import cats.effect.{IO, IOApp}
 
 object Temporary extends IOApp.Simple:
 
-  def run: IO[Unit] = tempFile.use: path => // TODO: Change when simpler-api PR merges
+  def run: IO[Unit] = withTempFile: path =>
     for
       _ <- path.writeLines(LazyList.from('a').map(_.toChar.toString).take(26))
       alphabet <- path.read
@@ -393,7 +393,7 @@ import cats.effect.{IO, IOApp}
 
 object Temporary extends IOApp.Simple:
 
-  def run: IO[Unit] = FilesOs.tempFile.use: path => // TODO: Change when simpler-api PR merges
+  def run: IO[Unit] = FilesOs.withTempFile: path =>
     for
       _ <- FilesOs.writeLines(path, LazyList.from('a').map(_.toChar.toString).take(26))
       alphabet <- FilesOs.read(path)
