@@ -6,9 +6,8 @@ import fs2.io.file.Path
 import io.chrisdavenport.shellfish.syntax.path.*
 import io.chrisdavenport.shellfish.contacts.domain.contact.*
 
-
 trait ContactManager {
-  
+
   def addContact(contact: Contact): IO[Username]
 
   def removeContact(username: Username): IO[Unit]
@@ -35,10 +34,7 @@ trait ContactManager {
 }
 
 object ContactManager {
-  def impl: ContactManager = new ContactManager {
-
-    private val bookPath =
-      userHome.map(usrHome => usrHome / ".shellfish" / "contacts.data")
+  def impl(bookPath: Path): ContactManager = new ContactManager {
 
     private def parseContact(contact: String): Either[Exception, Contact] =
       contact.split('|') match {
@@ -50,101 +46,87 @@ object ContactManager {
 
     private def showPersisted(contact: Contact): String =
       s"${contact.username}|${contact.firstName}|${contact.lastName}|${contact.phoneNumber}|${contact.email}"
-    
-    override def addContact(contact: Contact): IO[Username] =
-      bookPath.flatMap { path =>
-        
-        path.readLines.flatMap { lines =>
-          lines.find(_.startsWith(contact.username)) match {
-            case Some(_) =>
-              ContactFound(contact.username).raiseError[IO, Username]
 
-            case None =>
-              path.exists.ifM(
-                path.appendLine(showPersisted(contact)),
-                path.write(showPersisted(contact))
-              ) >> contact.username.pure[IO]
-          }
+    override def addContact(contact: Contact): IO[Username] = {
+      bookPath.readLines.flatMap { lines =>
+        lines.find(_.startsWith(contact.username)) match {
+          case Some(_) =>
+            ContactFound(contact.username).raiseError[IO, Username]
+
+          case None =>
+            lines.isEmpty
+              .pure[IO]
+              .ifM(
+                bookPath.write(showPersisted(contact)).as(contact.username),
+                bookPath.appendLine(showPersisted(contact)).as(contact.username)
+              )
         }
       }
+    }
 
     override def removeContact(username: Username): IO[Unit] =
       for {
-        path     <- bookPath
-        contacts <- path.readLines
-        _ <- path.writeLines(
+        contacts <- bookPath.readLines
+        _ <- bookPath.writeLines(
           contacts.filterNot(_.startsWith(username))
         )
       } yield ()
 
     override def searchId(username: Username): IO[Option[Contact]] =
       for {
-        path     <- bookPath
-        contacts <- path.readLines
+        contacts <- bookPath.readLines
       } yield contacts
         .find(_.startsWith(username))
         .flatMap(parseContact(_).toOption)
 
     override def searchName(name: Name): IO[List[Contact]] =
       for {
-        path     <- bookPath
-        contacts <- path.readLines.map(_.filter(_.contains(name)))
-        parsed <- contacts.traverseEither(parseContact(_).pure[IO])((_, e) =>
-          IO.raiseError(e).void
+        contacts <- bookPath.readLines.map(_.filter(_.contains(name)))
+        parsed <- contacts.traverse(contact =>
+          IO.fromEither(parseContact(contact))
         )
       } yield parsed
 
     override def searchEmail(email: Email): IO[List[Contact]] =
       for {
-        path     <- bookPath
-        contacts <- path.readLines.map(_.filter(_.contains(email)))
-        parsed <- contacts.traverseEither(parseContact(_).pure[IO])((_, e) =>
-          IO.raiseError(e).void
+        contacts <- bookPath.readLines.map(_.filter(_.contains(email)))
+        parsed <- contacts.traverse(contact =>
+          IO.fromEither(parseContact(contact))
         )
       } yield parsed
 
     override def searchNumber(number: PhoneNumber): IO[List[Contact]] =
       for {
-        path     <- bookPath
-        contacts <- path.readLines.map(_.filter(_.contains(number)))
-        parsed <- contacts.traverseEither(parseContact(_).pure[IO])((_, e) =>
-          IO.raiseError(e).void
+        contacts <- bookPath.readLines.map(_.filter(_.contains(number)))
+        parsed <- contacts.traverse(contact =>
+          IO.fromEither(parseContact(contact))
         )
       } yield parsed
 
     override def getAll: IO[List[Contact]] =
       for {
-        path     <- bookPath
-        contacts <- path.readLines
-        parsed <- contacts.traverseEither(parseContact(_).pure[IO])((_, e) =>
-          IO.raiseError(e).void
+        contacts <- bookPath.readLines
+        parsed <- contacts.traverse(contact =>
+          IO.fromEither(parseContact(contact))
         )
       } yield parsed
 
     override def updateContact(
         username: Username
-    )(modify: Contact => Contact ): IO[Contact] =
-      bookPath.flatMap { path =>
-        path.readLines.map(_.toVector).flatMap { contacts =>
-          contacts
-            .find(_.startsWith(username))
-            .flatMap(parseContact(_).toOption) match {
-            case Some(contact) =>
-              path.writeLines(
-                contacts.map(
-                  _.replaceFirst(
-                    s"${username}.*",
-                    showPersisted(modify(contact))
-                  )
-                )
-              ) >> modify(contact).pure[IO]
+    )(modify: Contact => Contact): IO[Contact] =
+      bookPath.readLines
+        .flatMap(_.toVector.traverse(c => IO.fromEither(parseContact(c))))
+        .flatMap { contacts =>
+          contacts.zipWithIndex.find(_._1.username == username) match {
+            case Some((contact, index)) =>
+              val updated = modify(contact)
+              bookPath.writeLines(
+                contacts.updated(index, updated).map(showPersisted)
+              ) *> IO.pure(updated)
             case None =>
-              IO.raiseError(
-                new Exception(s"Contact with id $username not found")
-              )
-
+              new Exception(s"Contact $username nor found")
+                .raiseError[IO, Contact]
           }
         }
-      }
   }
 }
