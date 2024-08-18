@@ -53,6 +53,7 @@ For the static methods, the `shellfish.FilesOs` will provide the functions to wo
 Finally, `shellfish.domain.*` will import all the types needed to work with the library!
 
 
+
 ## Talking about computations
 
 Throughout this library you will often see the word calculation, but what is it? A computation is a well-defined, step-by-step work that calculates a value when evaluated (and can also perform side effects along the way). For example, this is a computation: 
@@ -171,3 +172,27 @@ Here's a [good explanation](https://blog.rockthejvm.com/referential-transparency
 
 Another benefit is gaining explicit control over code execution. By encapsulating computations within the `IO` monad, your programs become blueprints rather than direct statements. This gives you the ability to decide precisely when to execute those statements.
 
+
+## Weird `>>` and `>>=` methods, what are these?
+
+While reading the documentation of this library, you may come across some strange like `>>`, don't worry, this is convenience syntax sugar for some fairly common methods!
+
+You can import them using the syntax package in cats, like this:
+
+```scala mdoc
+import cats.syntax.all.*
+```
+
+For instance, you may seen something like this:
+
+```scala mdoc:compile-only
+IO("The result is: 42") >>= IO.println
+```
+That is just an alias for `flatMap`, it's like writing `IO("The result is: 42").flatMap(IO.println(_))`, but without the added boilerplate. This use is more common in languages like Haskell, but we'll use it in the documentation to simplify things a bit!
+
+
+The `>>` is even simpler:
+```scala mdoc:compile-only
+IO.println("Loggin here... ") >> IO("Returning this string!")
+```
+This is used for concatenating monads that you do not care about the result of the computation, just like doing `IO.println("Loggin here...").flatMap( _ => IO("Returning this string!"))`. When to use it? In the example from above, `IO.println` computes a Unit (), so you can't do much with it anyway, so the `>>` operator comes in handy!
