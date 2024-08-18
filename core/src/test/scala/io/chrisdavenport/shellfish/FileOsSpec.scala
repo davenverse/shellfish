@@ -350,7 +350,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
       Gen.size.flatMap(size => Gen.listOfN(size, Gen.alphaNumStr))
 
     forall(contentGenerator) { contentsList =>
-      tempFile.use { path =>
+      withTempFile { path =>
         for {
           _       <- path.writeLines(contentsList)
           readlns <- path.readLines
