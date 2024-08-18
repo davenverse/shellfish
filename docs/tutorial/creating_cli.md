@@ -341,13 +341,13 @@ def addCommand: IO[Unit] =
 
     contact = Contact(username, firstName, lastName, phoneNumber, email)
     
-    _ <- cm.addContact(contact).handleErrorWith:
-      
-      case ContactFound(username) =>
-        IO.println(s"Contact $username already exists")
-      
-      case e =>
-        IO.println(s"An error occurred: \n${e.printStackTrace()}")
+    _ <- cm.addContact(contact)
+      .flatMap(username => IO.println(s"Contact $username added"))
+      .handleErrorWith:
+        case ContactFound(username) =>
+          IO.println(s"Contact $username already exists")
+        case e =>
+          IO.println(s"An error occurred: \n${e.printStackTrace()}")
     
   yield ()
 ```
@@ -400,10 +400,12 @@ def updateCommand(username: Username, options: List[Flag]): IO[Unit] =
         case EmailFlag(email)        => acc.copy(email = email)
         case UnknownFlag(_)          => acc
     
-  .flatMap(c => IO.println(s"Updated contact ${c.username}"))
-    .handleErrorWith: // (3)
-      case ContactNotFound(username) =>
-        IO.println(s"Contact $username not found")
+  .flatMap(c => IO.println(s"Updated contact ${c.username}")) // (3)
+  .handleErrorWith:
+    case ContactNotFound(username) =>
+      IO.println(s"Contact $username not found")
+    case e =>
+      IO.println(s"An error occurred: \n${e.printStackTrace()}")
 ```
 This is also quite a bit of code, but let's break it down: 
 First, we call the `updateContact` method of the `ContactManager` and pass the function that will modify the contact. To do this, we're going to reduce the list of flags using foldLeft. This function takes an initial value (the contact we want to update) and a function describing how to update the initial value (`acc`) with each one of the flags in turn (`flag`) (1). Where, we just use the `copy` methods and pattern match the flags to update the contact (2). After that, we print a message to the user saying that the contact was updated successfully (3). If the contact is not found, we print a message to the user saying that. 

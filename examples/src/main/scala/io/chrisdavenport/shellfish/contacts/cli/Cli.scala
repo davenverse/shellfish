@@ -40,12 +40,15 @@ class Cli private (cm: ContactManager) {
 
       contact = Contact(username, firstName, lastName, phoneNumber, email)
 
-      _ <- cm.addContact(contact).handleErrorWith {
-        case ContactFound(username) =>
-          IO.println(s"Contact $username already exists")
-        case e =>
-          IO.println(s"An error occurred: \n${e.printStackTrace()}")
-      }
+      _ <- cm
+        .addContact(contact)
+        .flatMap(username => IO.println(s"Contact $username added"))
+        .handleErrorWith {
+          case ContactFound(username) =>
+            IO.println(s"Contact $username already exists")
+          case e =>
+            IO.println(s"An error occurred: \n${e.printStackTrace()}")
+        }
     } yield ()
 
   def removeCommand(username: Username): IO[Unit] =
@@ -96,8 +99,11 @@ class Cli private (cm: ContactManager) {
         }
       }
     }.flatMap(c => IO.println(s"Updated contact ${c.username}"))
-      .handleErrorWith { case ContactNotFound(username) =>
-        IO.println(s"Contact $username not found")
+      .handleErrorWith {
+        case ContactNotFound(username) =>
+          IO.println(s"Contact $username not found")
+        case e =>
+          IO.println(s"An error occurred: \n${e.printStackTrace()}")
       }
 
   def helpCommand: IO[Unit] =
