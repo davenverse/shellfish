@@ -221,8 +221,8 @@ override def addContact(contact: Contact): IO[Username] =
         lines.isEmpty
           .pure[IO]
           .ifM( // (3)
-            bookPath.write(showPersisted(contact)).as(contact.username),  // (4)
-            bookPath.appendLine(showPersisted(contact)).as(contact.username)
+            bookPath.write(encodeContact(contact)).as(contact.username),  // (4)
+            bookPath.appendLine(encodeContact(contact)).as(contact.username)
           )
           
 end addContact
@@ -299,7 +299,7 @@ override def updateContact(
         case Some((contact, index)) =>
           val updated = modify(contact)
           bookPath.writeLines(                                         // (3)              
-            contacts.updated(index, updated).map(showPersisted)        // (4)
+            contacts.updated(index, updated).map(encodeContact)        // (4)
           ) *> IO.pure(updated)
         case None =>
           new Exception(s"Contact $username nor found")

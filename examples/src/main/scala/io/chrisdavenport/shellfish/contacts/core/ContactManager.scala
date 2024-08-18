@@ -55,7 +55,7 @@ object ContactManager {
         case _ => new Exception(s"Invalid contact format: $contact").asLeft
       }
 
-    private def showPersisted(contact: Contact): String =
+    private def encodeContact(contact: Contact): String =
       s"${contact.username}|${contact.firstName}|${contact.lastName}|${contact.phoneNumber}|${contact.email}"
 
     override def addContact(contact: Contact): IO[Username] = {
@@ -68,8 +68,8 @@ object ContactManager {
             lines.isEmpty
               .pure[IO]
               .ifM(
-                bookPath.write(showPersisted(contact)).as(contact.username),
-                bookPath.appendLine(showPersisted(contact)).as(contact.username)
+                bookPath.write(encodeContact(contact)).as(contact.username),
+                bookPath.appendLine(encodeContact(contact)).as(contact.username)
               )
         }
       }
@@ -132,7 +132,7 @@ object ContactManager {
             case Some((contact, index)) =>
               val updated = modify(contact)
               bookPath.writeLines(
-                contacts.updated(index, updated).map(showPersisted)
+                contacts.updated(index, updated).map(encodeContact)
               ) *> IO.pure(updated)
             case None =>
               ContactNotFound(username).raiseError[IO, Contact]
