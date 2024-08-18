@@ -46,7 +46,7 @@ lazy val examples = project
   .settings(
     name                 := "shellfish-examples",
     Compile / run / fork := true,
-    run / connectInput   := true,
+    run / connectInput   := true
   )
 
 import Site.SiteConfig
