@@ -1,6 +1,6 @@
 # Reading, writing, and appending 
 
-This library comes with three different functions for reading and writing operations, `read`, `write` and `append`, each with four different variants: Standalone, `Bytes`, `Lines` and `As`, with these variants you will be able to work with the file and/or its contents as a UTF-8 string or with a custom `java.nio.charset.Charset`, as bytes, line by line, and with a custom codec respectively. 
+Shellfish comes with three different functions for reading and writing operations, `read`, `write` and `append`, each with four different variants: Standalone, `Bytes`, `Lines` and `As`, with these variants you will be able to work with the file and/or its contents as a UTF-8 string or with a custom `java.nio.charset.Charset`, as bytes, line by line, and with a custom codec respectively. 
 
 ```scala mdoc:invisible
 // This section adds every import to the code snippets
@@ -64,7 +64,7 @@ Files[IO].readUtf8(path).evalMap(IO.println).compile.drain
 
 @:@
 
-If UTF-8 is not your favorite flavour, you can also use a custom `java.nio.charset.Charset` to decode your file:
+If you need to handle non UTF-8 files, you can also use a custom `java.nio.charset.Charset`:  
 
 @:select(api-style)
 
@@ -100,7 +100,7 @@ Files[IO].readAll(path)
 
 ### `readBytes`
 
-Reads the file as a `ByteVector`, useful when working with binary data:
+Reads the file as a [`ByteVector`](https://scodec.org/guide/scodec-bits.html#ByteVector), useful when working with binary data:
 
 @:select(api-style)
 
@@ -126,10 +126,13 @@ Files[IO].readAll(path).compile.to(ByteVector).map(_.rotateLeft(2))
 
 @:@
 
+If you are not used to working with bytes and bits in general, `rotateLeft(N)` will shift bits N number of places to the left! For example, if we rotate to the left 11100101 three times, we will get 00101111.
+
+
 
 ### `readLines`
 
-Similar to `read` as it reads the file as a UTF-8 string, but stores each line of the file on a `List`:
+Similar to `read` as it reads the file as a UTF-8 string, but stores each line of the file in a `List`:  
 
 @:select(api-style)
 
@@ -138,7 +141,7 @@ Similar to `read` as it reads the file as a UTF-8 string, but stores each line o
 ```scala mdoc:compile-only
 for
   lines <- path.readLines
-  _     <- IO(lines.foreach(println))
+  _     <- lines.traverse_(IO.println)  
 yield ()
 ```
 
@@ -162,7 +165,7 @@ Files[IO].readUtf8Lines(path).evalMap(IO.println).compile.drain
 
 ### `readAs`
 
-This method reads the contents of the file given a `Codec[A]` in scope, useful when you want to convert a file into a custom type `A`:
+This method reads the contents of the file given a `Codec[A]`. Useful when you want to convert a binary file into a custom type `A`:  
 
 @:select(api-style)
 
@@ -282,7 +285,7 @@ The default charset can also be changed for encoding when writing strings:
 ```scala 3 mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
-val message = "Imagine writing Java 😭"
+val message = "Java? No thanks, I'm allergic to coffee λ"
 
 path.write(message, StandardCharsets.US_ASCII)
 ```
@@ -292,7 +295,7 @@ path.write(message, StandardCharsets.US_ASCII)
 ```scala 3 mdoc:compile-only
 import java.nio.charset.StandardCharsets
 
-val message = "Imagine writing Java 😭"
+val message = "Java? No thanks, I'm allergic to coffee λ"
 
 FilesOs.write(path, message, StandardCharsets.US_ASCII)
 ```
@@ -303,7 +306,7 @@ FilesOs.write(path, message, StandardCharsets.US_ASCII)
 import fs2.text.encode
 import java.nio.charset.StandardCharsets
 
-val message = "Imagine writing Java 😭"
+val message = "Java? No thanks, I'm allergic to coffee λ"
 
 Stream.emit(message)
   .through(encode(StandardCharsets.US_ASCII))
@@ -324,7 +327,7 @@ With this method you can write bytes directly to a binary file. The contents of 
 
 ```scala mdoc:compile-only
 import scodec.bits.*
-val niceBytes = hex"BadBabe"
+val niceBytes = hex"DeadC0de"
 
 path.writeBytes(niceBytes)
 ```
@@ -333,7 +336,7 @@ path.writeBytes(niceBytes)
 
 ```scala mdoc:compile-only
 import scodec.bits.*
-val niceBytes = hex"BadBabe"
+val niceBytes = hex"DeadC0de"
 
 FilesOs.writeBytes(path, niceBytes)
 ```
@@ -344,7 +347,7 @@ FilesOs.writeBytes(path, niceBytes)
 
 
 import scodec.bits.*
-val niceBytes = hex"BadBabe"
+val niceBytes = hex"DeadC0de"
 
 Stream.chunk(fs2.Chunk.byteVector(niceBytes))
   .covary[IO]

@@ -1,6 +1,6 @@
 # Handling files and doing operations
 
-Beyond simple read and write operations, this section allows you to interact directly with the file system. There are functions for creating and deleting files and directories, creating temporary files for short-term use, and managing file and directory permissions for added control, among other useful methods.
+Beyond simple file reading and writing operations, Shellfish allows you to interact directly with the file system. There are functions for creating and deleting files and directories, creating temporary files for short-term use and managing file and directory permissions for added control, among other useful methods.
 
 ## Creating files and directories
 
@@ -8,7 +8,7 @@ In this section, you will see how to create new files and directories, as well a
 
 ### `createFile`    
 
-Creates a new file in the specified path, failing if the parent directory does not exist. You can also specify some permissions if you wish. To see what the `exists` function does, see [the reference](#exists):
+Creates a new file in the specified path, failing if the parent directory does not exist. It optionally accepts file permissions. To see what the `exists` function does, see [the reference](#exists):  
 
 ```scala mdoc:invisible
 // This section adds every import to the code snippets
@@ -97,7 +97,8 @@ Files[IO].createDirectories(directories) >> Files[IO].createFile(path)
 
 ### `createTempFile`
 
-This function creates a temporary file that gets automatically deleted by the operating system. It optionally accepts multiple parameters such as a directory, a prefix (the name of the file), a suffix (the extension of the file) and permissions. It returns the path of the newly created file:
+This function creates a temporary file that gets automatically deleted. It optionally accepts multiple parameters such as a directory, a prefix (to the name of the file), a suffix (like the extension of the file) and permissions. It returns the path of the newly created file:  
+
 
 @:select(api-style)
 
@@ -343,9 +344,7 @@ Files[IO].deleteIfExists(path) >>=
 
 ### `deleteRecursively`
 
-With the previous functions, the directory had to be empty to be deleted. The difference with this method is that it recursively deletes all files or folders contained inside it, optionally following symbolic links if specified: 
-
-Recursively deletes all files or folders, following symbolic links if specified. 
+With the previous functions, the directory had to be empty to be deleted. The difference with this method is that it recursively deletes all files or folders contained inside it, optionally following symbolic links if specified.
 
 Note that, unlike the previous functions, this one will not fail if the directories are empty or do not exist:
 
@@ -394,7 +393,8 @@ Working directly with files is a common need in many scripting scenarios. This l
 
 ### `copy`
 
-Copies a file from a source path to a target path. The method will fail if the destination path already exists; to avoid this behaviour, you can pass flags to e.g., replace the contents in the destination:
+Copies a file from a source path to a target path. The method will fail if the destination path already exists; to avoid this behaviour, you can, for example, pass flags to replace the contents at destination:  
+
 
 @:select(api-style)
 
