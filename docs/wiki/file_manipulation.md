@@ -389,7 +389,7 @@ yield ()
 
 ## File operations
 
-Working directly with files is a common need in many scripting scenarios. This library provides essential functions for renaming, moving, and copying files, allowing you to efficiently manage and organise your data. 
+Shellfish provides essential functions for renaming, moving, and copying files, allowing you to efficiently manage your data. These are especially useful in scripting scenarios.  
 
 ### `copy`
 

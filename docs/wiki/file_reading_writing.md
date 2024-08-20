@@ -209,7 +209,7 @@ Files[IO].readAll(path)
 
 ## Writing
 
-You can also overwrite the contents of a file using the `write` method and any of its variants. Just to note, if the file does not exist, the file will be created automatically:
+You can also overwrite the contents of a file using the `write` method and any of its variants. If the the file does not exist, it will be created automatically:  
 
 ### `write`
 
