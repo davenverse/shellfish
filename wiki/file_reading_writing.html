@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>Reading, writing, and appending</title>
+  
+  <meta name="author" content="Christopher Davenport"/>
+  
+  
+  <meta name="description" content="site"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="https://typelevel.org/img/favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../helium/site/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/site/laika-helium.css" />
+  <script src="../helium/site/laika-helium.js"></script>
+  
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    
+  </div>
+
+  <a class="image-link" href="https://typelevel.org"><img src="https://typelevel.org/img/logo.svg"></a>
+
+  <div class="row links">
+    
+    <a class="icon-link svg-link" href="https://github.com/davenverse/shellfish"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+    <a class="icon-link svg-link" href="https://fosstodon.org/@typelevel"><span class="mastodon" title="Mastodon"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g class="svg-shape">
+    <path d="M11.19 12.195c2.016-.24 3.77-1.475 3.99-2.603.348-1.778.32-4.339.32-4.339 0-3.47-2.286-4.488-2.286-4.488C12.062.238 10.083.017 8.027 0h-.05C5.92.017 3.942.238 2.79.765c0 0-2.285 1.017-2.285 4.488l-.002.662c-.004.64-.007 1.35.011 2.091.083 3.394.626 6.74 3.78 7.57 1.454.383 2.703.463 3.709.408 1.823-.1 2.847-.647 2.847-.647l-.06-1.317s-1.303.41-2.767.36c-1.45-.05-2.98-.156-3.215-1.928a3.614 3.614 0 0 1-.033-.496s1.424.346 3.228.428c1.103.05 2.137-.064 3.188-.189zm1.613-2.47H11.13v-4.08c0-.859-.364-1.295-1.091-1.295-.804 0-1.207.517-1.207 1.541v2.233H7.168V5.89c0-1.024-.403-1.541-1.207-1.541-.727 0-1.091.436-1.091 1.296v4.079H3.197V5.522c0-.859.22-1.541.66-2.046.456-.505 1.052-.764 1.793-.764.856 0 1.504.328 1.933.983L8 4.39l.417-.695c.429-.655 1.077-.983 1.934-.983.74 0 1.336.259 1.791.764.442.505.661 1.187.661 2.046v4.203z"/>
+  </g>
+</svg></span></a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="icon-link svg-link" href="https://github.com/davenverse/shellfish"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+    <a class="icon-link svg-link" href="https://fosstodon.org/@typelevel"><span class="mastodon" title="Mastodon"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g class="svg-shape">
+    <path d="M11.19 12.195c2.016-.24 3.77-1.475 3.99-2.603.348-1.778.32-4.339.32-4.339 0-3.47-2.286-4.488-2.286-4.488C12.062.238 10.083.017 8.027 0h-.05C5.92.017 3.942.238 2.79.765c0 0-2.285 1.017-2.285 4.488l-.002.662c-.004.64-.007 1.35.011 2.091.083 3.394.626 6.74 3.78 7.57 1.454.383 2.703.463 3.709.408 1.823-.1 2.847-.647 2.847-.647l-.06-1.317s-1.303.41-2.767.36c-1.45-.05-2.98-.156-3.215-1.928a3.614 3.614 0 0 1-.033-.496s1.424.346 3.228.428c1.103.05 2.137-.064 3.188-.189zm1.613-2.47H11.13v-4.08c0-.859-.364-1.295-1.091-1.295-.804 0-1.207.517-1.207 1.541v2.233H7.168V5.89c0-1.024-.403-1.541-1.207-1.541-.727 0-1.091.436-1.091 1.296v4.079H3.197V5.522c0-.859.22-1.541.66-2.046.456-.505 1.052-.764 1.793-.764.856 0 1.504.328 1.933.983L8 4.39l.417-.695c.429-.655 1.077-.983 1.934-.983.74 0 1.336.259 1.791.764.442.505.661 1.187.661 2.046v4.203z"/>
+  </g>
+</svg></span></a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../">shellfish — Shell Scripting for Cats-Effect</a></li>
+    <li class="level1 nav-header">Files</li>
+    <li class="level2 active nav-leaf"><a href="#">Reading, writing, and appending</a></li>
+    <li class="level2 nav-leaf"><a href="file_manipulation.html">Handling files and doing operations</a></li>
+    <li class="level1 nav-header">Working with Processes</li>
+    <li class="level2 nav-leaf"><a href="../processes/">Processes</a></li>
+    <li class="level1 nav-header">Examples</li>
+    <li class="level2 nav-leaf"><a href="../examples/">Working with Files</a></li>
+    <li class="level1 nav-header">Working with Files</li>
+    <li class="level2 nav-leaf"><a href="../files/">Files</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Reading, writing, and appending</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-node"><a href="#reading">Reading</a></li>
+    <li class="level2 nav-leaf"><a href="#read"><code>read</code></a></li>
+    <li class="level2 nav-leaf"><a href="#readbytes"><code>readBytes</code></a></li>
+    <li class="level2 nav-leaf"><a href="#readlines"><code>readLines</code></a></li>
+    <li class="level2 nav-leaf"><a href="#readas"><code>readAs</code></a></li>
+    <li class="level1 nav-node"><a href="#writing">Writing</a></li>
+    <li class="level2 nav-leaf"><a href="#write"><code>write</code></a></li>
+    <li class="level2 nav-leaf"><a href="#writebytes"><code>writeBytes</code></a></li>
+    <li class="level2 nav-leaf"><a href="#writelines"><code>writeLines</code></a></li>
+    <li class="level2 nav-leaf"><a href="#writeas"><code>writeAs</code></a></li>
+    <li class="level1 nav-node"><a href="#appending">Appending</a></li>
+    <li class="level2 nav-leaf"><a href="#append"><code>append</code></a></li>
+    <li class="level2 nav-leaf"><a href="#appendline"><code>appendLine</code></a></li>
+    <li class="level2 nav-leaf"><a href="#appendbytes"><code>appendBytes</code></a></li>
+    <li class="level2 nav-leaf"><a href="#appendlines"><code>appendLines</code></a></li>
+    <li class="level2 nav-leaf"><a href="#appendas"><code>appendAs</code></a></li>
+  </ul>
+
+  <p class="footer"></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="reading-writing-and-appending" class="title">Reading, writing, and appending</h1>
+        <p>Shellfish comes with three different functions for reading and writing operations, <code>read</code>, <code>write</code> and <code>append</code>, each with four different variants: Standalone, <code>Bytes</code>, <code>Lines</code> and <code>As</code>, with these variants you will be able to work with the file and/or its contents as a UTF-8 string or with a custom <code>java.nio.charset.Charset</code>, as bytes, line by line, and with a custom codec respectively. </p>
+        
+        <h2 id="reading" class="section"><a class="anchor-link left" href="#reading"><i class="icofont-laika link">&#xef71;</i></a>Reading</h2>
+        <p>One of the most common operations in scripting is reading a file, that is why you can read a file in different ways: </p>
+        
+        <h3 id="read" class="section"><a class="anchor-link left" href="#read"><i class="icofont-laika link">&#xef71;</i></a><code>read</code></h3>
+        <p>This function loads the whole file as a string in memory using UTF-8 encoding.</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">all</span><span>.*
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;link/to/your/file.txt&quot;</span><span>)
+
+</span><span class="identifier">path</span><span>.</span><span class="identifier">read</span><span> &gt;&gt;= </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">all</span><span>.* 
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.</span><span class="type-name">FilesOs</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;link/to/your/file.txt&quot;</span><span>)
+
+</span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">read</span><span>(</span><span class="identifier">path</span><span>) &gt;&gt;= </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Files</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;link/to/your/file.txt&quot;</span><span>)
+
+</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">readUtf8</span><span>(</span><span class="identifier">path</span><span>).</span><span class="identifier">evalMap</span><span>(</span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>).</span><span class="identifier">compile</span><span>.</span><span class="identifier">drain</span></code></pre>
+          </div>
+        </div>
+        <p>If you need to handle non UTF-8 files, you can also use a custom <code>java.nio.charset.Charset</code>:<br></p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">nio</span><span>.</span><span class="identifier">charset</span><span>.</span><span class="type-name">StandardCharsets</span><span>
+
+</span><span class="identifier">path</span><span>.</span><span class="identifier">read</span><span>(</span><span class="type-name">StandardCharsets</span><span>.</span><span class="type-name">UTF_16</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">nio</span><span>.</span><span class="identifier">charset</span><span>.</span><span class="type-name">StandardCharsets</span><span>
+
+</span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">read</span><span>(</span><span class="identifier">path</span><span>, </span><span class="type-name">StandardCharsets</span><span>.</span><span class="type-name">UTF_16</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">text</span><span>.</span><span class="identifier">decodeWithCharset</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">nio</span><span>.</span><span class="identifier">charset</span><span>.</span><span class="type-name">StandardCharsets</span><span>
+
+</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">readAll</span><span>(</span><span class="identifier">path</span><span>)
+  .</span><span class="identifier">through</span><span>(</span><span class="identifier">decodeWithCharset</span><span>(</span><span class="type-name">StandardCharsets</span><span>.</span><span class="type-name">UTF_16</span><span>))
+  .</span><span class="identifier">compile</span><span>
+  .</span><span class="identifier">string</span></code></pre>
+          </div>
+        </div>
+        
+        <h3 id="readbytes" class="section"><a class="anchor-link left" href="#readbytes"><i class="icofont-laika link">&#xef71;</i></a><code>readBytes</code></h3>
+        <p>Reads the file as a <a href="https://scodec.org/guide/scodec-bits.html#ByteVector"><code>ByteVector</code></a>, useful when working with binary data:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">path</span><span>.</span><span class="identifier">readBytes</span><span>.</span><span class="identifier">map</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">rotateLeft</span><span>(</span><span class="number-literal">2</span><span>))</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">FilesOs</span><span>.</span><span class="identifier">readBytes</span><span>(</span><span class="identifier">path</span><span>).</span><span class="identifier">map</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">rotateLeft</span><span>(</span><span class="number-literal">2</span><span>))</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="identifier">bits</span><span>.</span><span class="type-name">ByteVector</span><span>
+
+</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">readAll</span><span>(</span><span class="identifier">path</span><span>).</span><span class="identifier">compile</span><span>.</span><span class="identifier">to</span><span>(</span><span class="type-name">ByteVector</span><span>).</span><span class="identifier">map</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">rotateLeft</span><span>(</span><span class="number-literal">2</span><span>))</span></code></pre>
+          </div>
+        </div>
+        <p>If you are not used to working with bytes and bits in general, <code>rotateLeft(N)</code> will shift bits N number of places to the left! For example, if we rotate to the left 11100101 three times, we will get 00101111.</p>
+        
+        <h3 id="readlines" class="section"><a class="anchor-link left" href="#readlines"><i class="icofont-laika link">&#xef71;</i></a><code>readLines</code></h3>
+        <p>Similar to <code>read</code> as it reads the file as a UTF-8 string, but stores each line of the file in a <code>List</code>:<br></p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">for</span><span>
+  </span><span class="identifier">lines</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">readLines</span><span>
+  </span><span class="identifier">_</span><span>     &lt;- </span><span class="identifier">lines</span><span>.</span><span class="identifier">traverse_</span><span>(</span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>)  
+</span><span class="keyword">yield</span><span> ()</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">for</span><span>
+  </span><span class="identifier">lines</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">readLines</span><span>(</span><span class="identifier">path</span><span>)
+  </span><span class="identifier">_</span><span>     &lt;- </span><span class="type-name">IO</span><span>(</span><span class="identifier">lines</span><span>.</span><span class="identifier">foreach</span><span>(</span><span class="identifier">println</span><span>))
+</span><span class="keyword">yield</span><span> ()</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">readUtf8Lines</span><span>(</span><span class="identifier">path</span><span>).</span><span class="identifier">evalMap</span><span>(</span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>).</span><span class="identifier">compile</span><span>.</span><span class="identifier">drain</span></code></pre>
+          </div>
+        </div>
+        
+        <h3 id="readas" class="section"><a class="anchor-link left" href="#readas"><i class="icofont-laika link">&#xef71;</i></a><code>readAs</code></h3>
+        <p>This method reads the contents of the file given a <code>Codec[A]</code>. Useful when you want to convert a binary file into a custom type <code>A</code>:<br></p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="type-name">Codec</span><span>
+
+</span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Coordinates</span><span>(</span><span class="identifier">x</span><span>: </span><span class="type-name">Double</span><span>, </span><span class="identifier">y</span><span>: </span><span class="type-name">Double</span><span>) </span><span class="keyword">derives</span><span> </span><span class="type-name">Codec</span><span>
+
+</span><span class="identifier">path</span><span>.</span><span class="identifier">readAs</span><span>[</span><span class="type-name">Coordinates</span><span>].</span><span class="identifier">map</span><span>(</span><span class="identifier">coord</span><span> =&gt; </span><span class="identifier">coord</span><span>.</span><span class="identifier">x</span><span> + </span><span class="identifier">coord</span><span>.</span><span class="identifier">y</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="type-name">Codec</span><span>
+
+</span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Coordinates</span><span>(</span><span class="identifier">x</span><span>: </span><span class="type-name">Double</span><span>, </span><span class="identifier">y</span><span>: </span><span class="type-name">Double</span><span>) </span><span class="keyword">derives</span><span> </span><span class="type-name">Codec</span><span>
+
+</span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">readAs</span><span>[</span><span class="type-name">Coordinates</span><span>](</span><span class="identifier">path</span><span>).</span><span class="identifier">map</span><span>(</span><span class="identifier">coord</span><span> =&gt; </span><span class="identifier">coord</span><span>.</span><span class="identifier">x</span><span> + </span><span class="identifier">coord</span><span>.</span><span class="identifier">y</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="type-name">Codec</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">interop</span><span>.</span><span class="identifier">scodec</span><span>.</span><span class="type-name">StreamDecoder</span><span>
+
+</span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Coordinates</span><span>(</span><span class="identifier">x</span><span>: </span><span class="type-name">Double</span><span>, </span><span class="identifier">y</span><span>: </span><span class="type-name">Double</span><span>) </span><span class="keyword">derives</span><span> </span><span class="type-name">Codec</span><span>
+
+</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">readAll</span><span>(</span><span class="identifier">path</span><span>)
+  .</span><span class="identifier">through</span><span>(</span><span class="type-name">StreamDecoder</span><span>.</span><span class="identifier">many</span><span>(</span><span class="identifier">summon</span><span>[</span><span class="type-name">Codec</span><span>[</span><span class="type-name">Coordinates</span><span>]]).</span><span class="identifier">toPipeByte</span><span>)
+  .</span><span class="identifier">map</span><span>(</span><span class="identifier">coord</span><span> =&gt; </span><span class="identifier">coord</span><span>.</span><span class="identifier">x</span><span> + </span><span class="identifier">coord</span><span>.</span><span class="identifier">y</span><span>)
+  .</span><span class="identifier">compile</span><span>
+  .</span><span class="identifier">drain</span></code></pre>
+          </div>
+        </div>
+        
+        <h2 id="writing" class="section"><a class="anchor-link left" href="#writing"><i class="icofont-laika link">&#xef71;</i></a>Writing</h2>
+        <p>You can also overwrite the contents of a file using the <code>write</code> method and any of its variants. If the the file does not exist, it will be created automatically:<br></p>
+        
+        <h3 id="write" class="section"><a class="anchor-link left" href="#write"><i class="icofont-laika link">&#xef71;</i></a><code>write</code></h3>
+        <p>Writes to the desired file in the path. The contents of the file will be written as a UTF-8 string:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;path/to/write.txt&quot;</span><span>)
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">poem</span><span> = 
+  </span><span class="string-literal">&quot;&quot;&quot;Music, thou queen of heaven, care-charming spell,
+    |That strik&#39;st a stillness into hell;
+    |Thou that tam&#39;st tigers, and fierce storms, that rise,
+    |With thy soul-melting lullabies;
+    |Fall down, down, down, from those thy chiming spheres
+    |To charm our souls, as thou enchant&#39;st our ears.
+    |
+    |— Robert Herrick&quot;&quot;&quot;</span><span>.</span><span class="identifier">stripMargin</span><span>
+
+</span><span class="identifier">path</span><span>.</span><span class="identifier">write</span><span>(</span><span class="identifier">poem</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;path/to/write.txt&quot;</span><span>)
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">poem</span><span> = 
+  </span><span class="string-literal">&quot;&quot;&quot;Music, thou queen of heaven, care-charming spell,
+    |That strik&#39;st a stillness into hell;
+    |Thou that tam&#39;st tigers, and fierce storms, that rise,
+    |With thy soul-melting lullabies;
+    |Fall down, down, down, from those thy chiming spheres
+    |To charm our souls, as thou enchant&#39;st our ears.
+    |
+    |— Robert Herrick&quot;&quot;&quot;</span><span>.</span><span class="identifier">stripMargin</span><span>
+
+</span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">write</span><span>(</span><span class="identifier">path</span><span>, </span><span class="identifier">poem</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;path/to/write.txt&quot;</span><span>)
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">poem</span><span> = 
+  </span><span class="string-literal">&quot;&quot;&quot;Music, thou queen of heaven, care-charming spell,
+    |That strik&#39;st a stillness into hell;
+    |Thou that tam&#39;st tigers, and fierce storms, that rise,
+    |With thy soul-melting lullabies;
+    |Fall down, down, down, from those thy chiming spheres
+    |To charm our souls, as thou enchant&#39;st our ears.
+    |
+    |— Robert Herrick&quot;&quot;&quot;</span><span>.</span><span class="identifier">stripMargin</span><span>
+
+</span><span class="type-name">Stream</span><span>.</span><span class="identifier">emit</span><span>(</span><span class="identifier">poem</span><span>)
+  .</span><span class="identifier">through</span><span>(</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">writeUtf8</span><span>(</span><span class="identifier">path</span><span>))
+  .</span><span class="identifier">compile</span><span>
+  .</span><span class="identifier">drain</span></code></pre>
+          </div>
+        </div>
+        <p>The default charset can also be changed for encoding when writing strings:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">nio</span><span>.</span><span class="identifier">charset</span><span>.</span><span class="type-name">StandardCharsets</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">message</span><span> = </span><span class="string-literal">&quot;Java? No thanks, I&#39;m allergic to coffee λ&quot;</span><span>
+
+</span><span class="identifier">path</span><span>.</span><span class="identifier">write</span><span>(</span><span class="identifier">message</span><span>, </span><span class="type-name">StandardCharsets</span><span>.</span><span class="type-name">US_ASCII</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">nio</span><span>.</span><span class="identifier">charset</span><span>.</span><span class="type-name">StandardCharsets</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">message</span><span> = </span><span class="string-literal">&quot;Java? No thanks, I&#39;m allergic to coffee λ&quot;</span><span>
+
+</span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">write</span><span>(</span><span class="identifier">path</span><span>, </span><span class="identifier">message</span><span>, </span><span class="type-name">StandardCharsets</span><span>.</span><span class="type-name">US_ASCII</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">text</span><span>.</span><span class="identifier">encode</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">nio</span><span>.</span><span class="identifier">charset</span><span>.</span><span class="type-name">StandardCharsets</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">message</span><span> = </span><span class="string-literal">&quot;Java? No thanks, I&#39;m allergic to coffee λ&quot;</span><span>
+
+</span><span class="type-name">Stream</span><span>.</span><span class="identifier">emit</span><span>(</span><span class="identifier">message</span><span>)
+  .</span><span class="identifier">through</span><span>(</span><span class="identifier">encode</span><span>(</span><span class="type-name">StandardCharsets</span><span>.</span><span class="type-name">US_ASCII</span><span>))
+  .</span><span class="identifier">through</span><span>(</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">writeAll</span><span>(</span><span class="identifier">path</span><span>))
+  .</span><span class="identifier">compile</span><span>
+  .</span><span class="identifier">drain</span></code></pre>
+          </div>
+        </div>
+        
+        <h3 id="writebytes" class="section"><a class="anchor-link left" href="#writebytes"><i class="icofont-laika link">&#xef71;</i></a><code>writeBytes</code></h3>
+        <p>With this method you can write bytes directly to a binary file. The contents of the file require to be in form of a <code>scodec.bits.ByteVector</code>:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="identifier">bits</span><span>.*
+</span><span class="keyword">val</span><span> </span><span class="identifier">niceBytes</span><span> = </span><span class="string-literal">hex&quot;DeadC0de&quot;</span><span>
+
+</span><span class="identifier">path</span><span>.</span><span class="identifier">writeBytes</span><span>(</span><span class="identifier">niceBytes</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="identifier">bits</span><span>.*
+</span><span class="keyword">val</span><span> </span><span class="identifier">niceBytes</span><span> = </span><span class="string-literal">hex&quot;DeadC0de&quot;</span><span>
+
+</span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">writeBytes</span><span>(</span><span class="identifier">path</span><span>, </span><span class="identifier">niceBytes</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="identifier">bits</span><span>.*
+</span><span class="keyword">val</span><span> </span><span class="identifier">niceBytes</span><span> = </span><span class="string-literal">hex&quot;DeadC0de&quot;</span><span>
+
+</span><span class="type-name">Stream</span><span>.</span><span class="identifier">chunk</span><span>(</span><span class="identifier">fs2</span><span>.</span><span class="type-name">Chunk</span><span>.</span><span class="identifier">byteVector</span><span>(</span><span class="identifier">niceBytes</span><span>))
+  .</span><span class="identifier">covary</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">through</span><span>(</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">writeAll</span><span>(</span><span class="identifier">path</span><span>))
+  .</span><span class="identifier">compile</span><span>
+  .</span><span class="identifier">drain</span></code></pre>
+          </div>
+        </div>
+        
+        <h3 id="writelines" class="section"><a class="anchor-link left" href="#writelines"><i class="icofont-laika link">&#xef71;</i></a><code>writeLines</code></h3>
+        <p>If you want to write many lines to a file, you can provide the contents as a collection of strings, and this function will write each element as a new line:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">todoList</span><span> = </span><span class="type-name">List</span><span>(
+  </span><span class="string-literal">&quot;Buy Milk&quot;</span><span>,
+  </span><span class="string-literal">&quot;Finish the pending work&quot;</span><span>,
+  </span><span class="string-literal">&quot;Close the bank account&quot;</span><span>,
+  </span><span class="string-literal">&quot;Mow the yard&quot;</span><span>,
+  </span><span class="string-literal">&quot;Take the dog for a walk&quot;</span><span>
+)
+
+</span><span class="identifier">path</span><span>.</span><span class="identifier">writeLines</span><span>(</span><span class="identifier">todoList</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">todoList</span><span> = </span><span class="type-name">List</span><span>(
+  </span><span class="string-literal">&quot;Buy Milk&quot;</span><span>,
+  </span><span class="string-literal">&quot;Finish the pending work&quot;</span><span>,
+  </span><span class="string-literal">&quot;Close the bank account&quot;</span><span>,
+  </span><span class="string-literal">&quot;Mow the yard&quot;</span><span>,
+  </span><span class="string-literal">&quot;Take the dog for a walk&quot;</span><span>
+)
+
+</span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">writeLines</span><span>(</span><span class="identifier">path</span><span>, </span><span class="identifier">todoList</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">todoList</span><span> = </span><span class="type-name">List</span><span>(
+  </span><span class="string-literal">&quot;Buy Milk&quot;</span><span>,
+  </span><span class="string-literal">&quot;Finish the pending work&quot;</span><span>,
+  </span><span class="string-literal">&quot;Close the bank account&quot;</span><span>,
+  </span><span class="string-literal">&quot;Mow the lawn&quot;</span><span>,
+  </span><span class="string-literal">&quot;Take the dog for a walk&quot;</span><span>
+)
+
+</span><span class="type-name">Stream</span><span>.</span><span class="identifier">emits</span><span>(</span><span class="identifier">todoList</span><span>)
+  .</span><span class="identifier">through</span><span>(</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">writeUtf8Lines</span><span>(</span><span class="identifier">path</span><span>))
+  .</span><span class="identifier">compile</span><span>
+  .</span><span class="identifier">drain</span></code></pre>
+          </div>
+        </div>
+        
+        <h3 id="writeas" class="section"><a class="anchor-link left" href="#writeas"><i class="icofont-laika link">&#xef71;</i></a><code>writeAs</code></h3>
+        <p>This method allows you to write a custom type <code>A</code> to a file, given a <code>Codec[A]</code> in scope:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="type-name">Codec</span><span>
+
+</span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Rectangle</span><span>(</span><span class="identifier">base</span><span>: </span><span class="type-name">Float</span><span>, </span><span class="identifier">height</span><span>: </span><span class="type-name">Float</span><span>) </span><span class="keyword">derives</span><span> </span><span class="type-name">Codec</span><span>
+
+</span><span class="identifier">path</span><span>.</span><span class="identifier">writeAs</span><span>[</span><span class="type-name">Rectangle</span><span>]( </span><span class="type-name">Rectangle</span><span>(</span><span class="number-literal">2.4</span><span>, </span><span class="number-literal">6.0</span><span>) )</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="type-name">Codec</span><span>
+
+</span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Rectangle</span><span>(</span><span class="identifier">base</span><span>: </span><span class="type-name">Float</span><span>, </span><span class="identifier">height</span><span>: </span><span class="type-name">Float</span><span>) </span><span class="keyword">derives</span><span> </span><span class="type-name">Codec</span><span>
+
+</span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">writeAs</span><span>[</span><span class="type-name">Rectangle</span><span>](</span><span class="identifier">path</span><span>, </span><span class="type-name">Rectangle</span><span>(</span><span class="number-literal">2.4</span><span>, </span><span class="number-literal">6.0</span><span>))</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="type-name">Codec</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">interop</span><span>.</span><span class="identifier">scodec</span><span>.</span><span class="type-name">StreamEncoder</span><span>
+
+</span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Rectangle</span><span>(</span><span class="identifier">base</span><span>: </span><span class="type-name">Float</span><span>, </span><span class="identifier">height</span><span>: </span><span class="type-name">Float</span><span>) </span><span class="keyword">derives</span><span> </span><span class="type-name">Codec</span><span>
+
+</span><span class="type-name">Stream</span><span>.</span><span class="identifier">emit</span><span>( </span><span class="type-name">Rectangle</span><span>(</span><span class="number-literal">2.4</span><span>, </span><span class="number-literal">6.0</span><span>) )
+  .</span><span class="identifier">covary</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">through</span><span>(</span><span class="type-name">StreamEncoder</span><span>.</span><span class="identifier">many</span><span>(</span><span class="identifier">summon</span><span>[</span><span class="type-name">Codec</span><span>[</span><span class="type-name">Rectangle</span><span>]]).</span><span class="identifier">toPipeByte</span><span>)
+  .</span><span class="identifier">through</span><span>(</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">writeAll</span><span>(</span><span class="identifier">path</span><span>))
+  .</span><span class="identifier">compile</span><span>
+  .</span><span class="identifier">drain</span></code></pre>
+          </div>
+        </div>
+        
+        <h2 id="appending" class="section"><a class="anchor-link left" href="#appending"><i class="icofont-laika link">&#xef71;</i></a>Appending</h2>
+        <p>Appending is very similar to writing, except that, instead of overwriting the contents of the file, it writes them to the very end of the existing file without deleting the previous contents.</p>
+        
+        <h3 id="append" class="section"><a class="anchor-link left" href="#append"><i class="icofont-laika link">&#xef71;</i></a><code>append</code></h3>
+        <p>Similar to <code>write</code>, but adds the content to the end of the file instead of overwriting it. The function will append the contents to the last line of the file if you want to append the contents as a new line, see <a href="#appendline"><code>appendLine</code></a>.</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;path/to/append.txt&quot;</span><span>)
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">secretFormula</span><span> = </span><span class="string-literal">&quot;And the dish&#39;s final secret ingredient is &quot;</span><span>
+
+</span><span class="keyword">for</span><span> 
+  </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">write</span><span>(</span><span class="identifier">secretFormula</span><span>)
+  </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">append</span><span>(</span><span class="string-literal">&quot;Rustacean legs! 🦀&quot;</span><span>)
+</span><span class="keyword">yield</span><span> ()</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;path/to/append.txt&quot;</span><span>)
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">secretFormula</span><span> = </span><span class="string-literal">&quot;And the dish&#39;s final secret ingredient is &quot;</span><span>
+
+</span><span class="keyword">for</span><span> 
+  </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">write</span><span>(</span><span class="identifier">path</span><span>, </span><span class="identifier">secretFormula</span><span>)
+  </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">append</span><span>(</span><span class="identifier">path</span><span>, </span><span class="string-literal">&quot;Rustacean legs! 🦀&quot;</span><span>)
+</span><span class="keyword">yield</span><span> ()</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Flags</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;path/to/append.txt&quot;</span><span>)
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">secretFormula</span><span> = </span><span class="string-literal">&quot;And the dish&#39;s final secret ingredient is &quot;</span><span>
+
+</span><span class="type-name">Stream</span><span>.</span><span class="identifier">emit</span><span>(</span><span class="identifier">secretFormula</span><span>)
+  .</span><span class="identifier">covary</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">through</span><span>(</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">writeUtf8</span><span>(</span><span class="identifier">path</span><span>))
+  .</span><span class="identifier">map</span><span>( </span><span class="identifier">_</span><span> =&gt; </span><span class="string-literal">&quot;Rustacean legs! 🦀&quot;</span><span>)
+  .</span><span class="identifier">through</span><span>(</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">writeUtf8</span><span>(</span><span class="identifier">path</span><span>, </span><span class="type-name">Flags</span><span>.</span><span class="type-name">Append</span><span>))
+  .</span><span class="identifier">compile</span><span>
+  .</span><span class="identifier">drain</span></code></pre>
+          </div>
+        </div>
+        <p>Like in the other variants, you can also use a custom charset to encode strings:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">nio</span><span>.</span><span class="identifier">charset</span><span>.</span><span class="type-name">StandardCharsets</span><span>
+
+</span><span class="identifier">path</span><span>.</span><span class="identifier">append</span><span>(</span><span class="string-literal">&quot;Which encoding I&#39;m I?&quot;</span><span>, </span><span class="type-name">StandardCharsets</span><span>.</span><span class="type-name">ISO_8859_1</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">nio</span><span>.</span><span class="identifier">charset</span><span>.</span><span class="type-name">StandardCharsets</span><span>
+
+</span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">append</span><span>(</span><span class="identifier">path</span><span>, </span><span class="string-literal">&quot;Which encoding I&#39;m I?&quot;</span><span>, </span><span class="type-name">StandardCharsets</span><span>.</span><span class="type-name">ISO_8859_1</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">text</span><span>.</span><span class="identifier">encode</span><span>
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">java</span><span>.</span><span class="identifier">nio</span><span>.</span><span class="identifier">charset</span><span>.</span><span class="type-name">StandardCharsets</span><span>
+
+</span><span class="type-name">Stream</span><span>.</span><span class="identifier">emit</span><span>(</span><span class="string-literal">&quot;Which encoding I&#39;m I?&quot;</span><span>)
+  .</span><span class="identifier">through</span><span>(</span><span class="identifier">encode</span><span>(</span><span class="type-name">StandardCharsets</span><span>.</span><span class="type-name">ISO_8859_1</span><span>))
+  .</span><span class="identifier">through</span><span>(</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">writeAll</span><span>(</span><span class="identifier">path</span><span>))
+  .</span><span class="identifier">compile</span><span>
+  .</span><span class="identifier">drain</span></code></pre>
+          </div>
+        </div>
+        
+        <h3 id="appendline" class="section"><a class="anchor-link left" href="#appendline"><i class="icofont-laika link">&#xef71;</i></a><code>appendLine</code></h3>
+        <p>Very similar to <code>append</code>, with the difference that appends the contents as a new line (equivalent to prepending a <code>\n</code> to the contents): </p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">for</span><span> 
+  </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">write</span><span>(</span><span class="string-literal">&quot;I&#39;m at the top!&quot;</span><span>)
+  </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">appendLine</span><span>(</span><span class="string-literal">&quot;I&#39;m at the bottom 😞&quot;</span><span>)
+</span><span class="keyword">yield</span><span> ()</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">for</span><span> 
+  </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">write</span><span>(</span><span class="identifier">path</span><span>, </span><span class="string-literal">&quot;I&#39;m at the top!&quot;</span><span>)
+  </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">appendLine</span><span>(</span><span class="identifier">path</span><span>, </span><span class="string-literal">&quot;I&#39;m at the bottom 😞&quot;</span><span>)
+</span><span class="keyword">yield</span><span> ()</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Flags</span><span>
+
+</span><span class="type-name">Stream</span><span>.</span><span class="identifier">emit</span><span>(</span><span class="string-literal">&quot;I&#39;m at the top!&quot;</span><span>)
+  .</span><span class="identifier">through</span><span>(</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">writeUtf8</span><span>(</span><span class="identifier">path</span><span>))
+  .</span><span class="identifier">map</span><span>(</span><span class="identifier">_</span><span> =&gt; </span><span class="string-literal">&quot;</span><span class="escape-sequence">\n</span><span class="string-literal">I&#39;m at the bottom 😞&quot;</span><span>)
+  .</span><span class="identifier">through</span><span>(</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">writeUtf8</span><span>(</span><span class="identifier">path</span><span>, </span><span class="type-name">Flags</span><span>.</span><span class="type-name">Append</span><span>))
+  .</span><span class="identifier">compile</span><span>
+  .</span><span class="identifier">drain</span></code></pre>
+          </div>
+        </div>
+        
+        <h3 id="appendbytes" class="section"><a class="anchor-link left" href="#appendbytes"><i class="icofont-laika link">&#xef71;</i></a><code>appendBytes</code></h3>
+        <p>This function can be used to append bytes to the end of a binary file:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="identifier">bits</span><span>.</span><span class="type-name">ByteVector</span><span>
+
+</span><span class="keyword">for</span><span> 
+  </span><span class="identifier">document</span><span>  &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">read</span><span>
+  </span><span class="identifier">signature</span><span> &lt;- </span><span class="type-name">IO</span><span>(</span><span class="identifier">document</span><span>.</span><span class="identifier">hashCode</span><span>().</span><span class="identifier">toByte</span><span>)
+  </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">appendBytes</span><span>(</span><span class="type-name">ByteVector</span><span>(</span><span class="identifier">signature</span><span>))
+</span><span class="keyword">yield</span><span> ()</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="identifier">bits</span><span>.</span><span class="type-name">ByteVector</span><span>
+
+</span><span class="keyword">for</span><span> 
+  </span><span class="identifier">document</span><span>  &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">read</span><span>(</span><span class="identifier">path</span><span>)
+  </span><span class="identifier">signature</span><span> &lt;- </span><span class="type-name">IO</span><span>(</span><span class="identifier">document</span><span>.</span><span class="identifier">hashCode</span><span>().</span><span class="identifier">toByte</span><span>)
+  </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">appendBytes</span><span>(</span><span class="identifier">path</span><span>, </span><span class="type-name">ByteVector</span><span>(</span><span class="identifier">signature</span><span>))
+</span><span class="keyword">yield</span><span> ()</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Flags</span><span>
+
+</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">readUtf8</span><span>(</span><span class="identifier">path</span><span>)
+  .</span><span class="identifier">evalMap</span><span>(</span><span class="identifier">document</span><span> =&gt; </span><span class="type-name">IO</span><span>(</span><span class="identifier">document</span><span>.</span><span class="identifier">hashCode</span><span>().</span><span class="identifier">toByte</span><span>))
+  .</span><span class="identifier">through</span><span>(</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">writeAll</span><span>(</span><span class="identifier">path</span><span>, </span><span class="type-name">Flags</span><span>.</span><span class="type-name">Append</span><span>))
+  .</span><span class="identifier">compile</span><span>
+  .</span><span class="identifier">drain</span></code></pre>
+          </div>
+        </div>
+        
+        <h3 id="appendlines" class="section"><a class="anchor-link left" href="#appendlines"><i class="icofont-laika link">&#xef71;</i></a><code>appendLines</code></h3>
+        <p>You can also append multiple lines at the end of the file in the following way:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">missingIngredients</span><span> = </span><span class="type-name">Vector</span><span>(
+  </span><span class="string-literal">&quot;40 ladyfingers.&quot;</span><span>,
+  </span><span class="string-literal">&quot;6 egg yolks&quot;</span><span>,
+  </span><span class="string-literal">&quot;3/4 cup granulated sugar.&quot;</span><span>,
+  </span><span class="string-literal">&quot;500 ml mascarpone, cold.&quot;</span><span>
+)
+
+</span><span class="identifier">path</span><span>.</span><span class="identifier">appendLines</span><span>(</span><span class="identifier">missingIngredients</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">missingIngredients</span><span> = </span><span class="type-name">Vector</span><span>(
+  </span><span class="string-literal">&quot;40 ladyfingers.&quot;</span><span>,
+  </span><span class="string-literal">&quot;6 egg yolks&quot;</span><span>,
+  </span><span class="string-literal">&quot;3/4 cup granulated sugar.&quot;</span><span>,
+  </span><span class="string-literal">&quot;500 ml mascarpone, cold.&quot;</span><span>
+)
+
+</span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">appendLines</span><span>(</span><span class="identifier">path</span><span>, </span><span class="identifier">missingIngredients</span><span>)</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Flags</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">missingIngredients</span><span> = </span><span class="type-name">Vector</span><span>(
+  </span><span class="string-literal">&quot;40 ladyfingers.&quot;</span><span>,
+  </span><span class="string-literal">&quot;6 egg yolks&quot;</span><span>,
+  </span><span class="string-literal">&quot;3/4 cup granulated sugar.&quot;</span><span>,
+  </span><span class="string-literal">&quot;500 ml mascarpone, cold.&quot;</span><span>
+)
+
+</span><span class="type-name">Stream</span><span>.</span><span class="identifier">emits</span><span>(</span><span class="identifier">missingIngredients</span><span>)
+ .</span><span class="identifier">through</span><span>(</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">writeUtf8Lines</span><span>(</span><span class="identifier">path</span><span>, </span><span class="type-name">Flags</span><span>.</span><span class="type-name">Append</span><span>))
+ .</span><span class="identifier">compile</span><span>
+ .</span><span class="identifier">drain</span></code></pre>
+          </div>
+        </div>
+        
+        <h3 id="appendas" class="section"><a class="anchor-link left" href="#appendas"><i class="icofont-laika link">&#xef71;</i></a><code>appendAs</code></h3>
+        <p>Finally, given a <code>Codec[A]</code> in the scope, this method will append a custom type <code>A</code> to the end of a file:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="type-name">Codec</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="identifier">codecs</span><span>.*
+
+</span><span class="keyword">opaque</span><span> </span><span class="keyword">type</span><span> </span><span class="type-name">Ranking</span><span> = (</span><span class="type-name">Int</span><span>, </span><span class="type-name">Long</span><span>)
+</span><span class="keyword">given</span><span> </span><span class="identifier">rankingCodec</span><span>: </span><span class="type-name">Codec</span><span>[</span><span class="type-name">Ranking</span><span>] = </span><span class="identifier">uint8</span><span> :: </span><span class="identifier">int64</span><span>
+
+</span><span class="identifier">path</span><span>.</span><span class="identifier">appendAs</span><span>[</span><span class="type-name">Ranking</span><span>]( (</span><span class="number-literal">2</span><span>, </span><span class="number-literal">3120948123123L</span><span>) )</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="type-name">Codec</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="identifier">codecs</span><span>.*
+
+</span><span class="keyword">opaque</span><span> </span><span class="keyword">type</span><span> </span><span class="type-name">Ranking</span><span> = (</span><span class="type-name">Int</span><span>, </span><span class="type-name">Long</span><span>)
+</span><span class="keyword">given</span><span> </span><span class="identifier">rankingCodec</span><span>: </span><span class="type-name">Codec</span><span>[</span><span class="type-name">Ranking</span><span>] = </span><span class="identifier">uint8</span><span> :: </span><span class="identifier">int64</span><span>
+
+</span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">appendAs</span><span>[</span><span class="type-name">Ranking</span><span>](</span><span class="identifier">path</span><span>, (</span><span class="number-literal">2</span><span>, </span><span class="number-literal">3120948123123L</span><span>))</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="type-name">Codec</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="identifier">codecs</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">interop</span><span>.</span><span class="identifier">scodec</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Flags</span><span>
+
+</span><span class="keyword">opaque</span><span> </span><span class="keyword">type</span><span> </span><span class="type-name">Ranking</span><span> = (</span><span class="type-name">Int</span><span>, </span><span class="type-name">Long</span><span>)
+</span><span class="keyword">given</span><span> </span><span class="identifier">rankingCodec</span><span>: </span><span class="type-name">Codec</span><span>[</span><span class="type-name">Ranking</span><span>] = </span><span class="identifier">uint8</span><span> :: </span><span class="identifier">int64</span><span>
+
+</span><span class="type-name">Stream</span><span>.</span><span class="identifier">emit</span><span>( (</span><span class="number-literal">2</span><span>, </span><span class="number-literal">3120948123123L</span><span>) )
+  .</span><span class="identifier">covary</span><span>[</span><span class="type-name">IO</span><span>]
+  .</span><span class="identifier">through</span><span>(</span><span class="type-name">StreamEncoder</span><span>.</span><span class="identifier">many</span><span>(</span><span class="identifier">summon</span><span>[</span><span class="type-name">Codec</span><span>[</span><span class="type-name">Ranking</span><span>]]).</span><span class="identifier">toPipeByte</span><span>)
+  .</span><span class="identifier">through</span><span>(</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">writeAll</span><span>(</span><span class="identifier">path</span><span>, </span><span class="type-name">Flags</span><span>.</span><span class="type-name">Append</span><span>))
+  .</span><span class="identifier">compile</span><span>
+  .</span><span class="identifier">drain</span></code></pre>
+          </div>
+        </div>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  shellfish is a <a href="https://typelevel.org/">Typelevel</a> project distributed under the <a href="https://opensource.org/licenses/MIT">MIT</a> license.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>
