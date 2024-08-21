@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="generator" content="Typelevel Laika + Helium Theme" />
-  <title>Examples</title>
+  <title>Working with Files</title>
   
   <meta name="author" content="Christopher Davenport"/>
   
@@ -91,7 +91,7 @@
     <li class="level1 nav-header">Working with Processes</li>
     <li class="level2 nav-leaf"><a href="../processes/">Processes</a></li>
     <li class="level1 nav-header">Examples</li>
-    <li class="level2 active nav-leaf"><a href="#">Examples</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Working with Files</a></li>
   </ul>
 
 </nav>
@@ -100,7 +100,7 @@
 
       
 <nav id="page-nav">
-  <p class="header"><a href="#">Examples</a></p>
+  <p class="header"><a href="#">Working with Files</a></p>
 
   <ul class="nav-list">
     <li class="level1 nav-leaf"><a href="#scores">Scores</a></li>
@@ -114,12 +114,53 @@
 
       <main class="content">
 
-        <h1 id="examples" class="title">Examples</h1>
-        <p>Here you&#39;ll find a curated collection of code examples that show the library in action. </p>
+        <h1 id="working-with-files" class="title">Working with Files</h1>
+        <p>Here you will find a curated collection of code examples that show the library in action.</p>
         
         <h2 id="scores" class="section"><a class="anchor-link left" href="#scores"><i class="icofont-laika link">&#xef71;</i></a>Scores</h2>
-        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">all</span><span>.*
+        <p>Imagine we have a file with scores in the following format (<code>&lt;name&gt;:&lt;score&gt;</code>):</p>
+        <pre class="keep-together pdf epub"><code class="text">michel:21839
+zeta:9929
+thanh:20933
+tonio:12340
+arman:6969
+gabriel:32123</code></pre>
+        <p>We want to read the file, parse the scores, print them to the console and also append new scores to the file.<br></p>
+        <p>In order to perform these operations we first need to create a representation of the score in Scala:<br></p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Score</span><span>(</span><span class="identifier">name</span><span>: </span><span class="type-name">String</span><span>, </span><span class="identifier">score</span><span>: </span><span class="type-name">Int</span><span>):
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">show</span><span>: </span><span class="type-name">String</span><span> = </span><span class="string-literal">s&quot;</span><span class="substitution">$name</span><span class="string-literal">:</span><span class="substitution">$score</span><span class="string-literal">&quot;</span></code></pre>
+        <p>And then a function that parses a string into a <code>Either[Throwable, Score]</code>:<br></p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">parseScore</span><span>(</span><span class="identifier">strScore</span><span>: </span><span class="type-name">String</span><span>): </span><span class="type-name">Either</span><span>[</span><span class="type-name">Throwable</span><span>, </span><span class="type-name">Score</span><span>] =
+  </span><span class="type-name">Either</span><span>.</span><span class="identifier">catchNonFatal</span><span>(                                               </span><span class="comment">// (1)
+</span><span>    </span><span class="identifier">strScore</span><span>.</span><span class="identifier">split</span><span>(</span><span class="char-literal">&#39;:&#39;</span><span>) </span><span class="keyword">match</span><span>
+      </span><span class="keyword">case</span><span> </span><span class="type-name">Array</span><span>(</span><span class="identifier">name</span><span>, </span><span class="identifier">score</span><span>) =&gt; </span><span class="type-name">Score</span><span>(</span><span class="identifier">name</span><span>, </span><span class="identifier">score</span><span>.</span><span class="identifier">toInt</span><span>)   
+      </span><span class="keyword">case</span><span> </span><span class="identifier">_</span><span>                  =&gt; </span><span class="type-name">Score</span><span>(</span><span class="string-literal">&quot;Cant parse this score&quot;</span><span>, -</span><span class="number-literal">1</span><span>)   </span><span class="comment">// (2)
+</span><span>  )</span></code></pre>
+        <p>The method is going to return a <code>Left</code> or a <code>Right</code> according to to the outcome of the score parsing. The function consists in two steps:<br>
+        1. <code>Either.catchNonFatal</code> is a function that catches exceptions and wraps them in a <code>Left</code> value.
+        2. If the score cannot be parsed, we return a default score.</p>
+        <p>We can now create our script: </p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">for</span><span> 
+    </span><span class="identifier">lines</span><span>  &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">readLines</span><span>                                     </span><span class="comment">// (1)               
+</span><span>    </span><span class="identifier">scores</span><span> &lt;- </span><span class="identifier">lines</span><span>.</span><span class="identifier">traverse</span><span>(</span><span class="identifier">parseScore</span><span>(</span><span class="identifier">_</span><span>).</span><span class="identifier">liftTo</span><span>[</span><span class="type-name">IO</span><span>])           </span><span class="comment">// (2)
+</span><span>    </span><span class="identifier">_</span><span>      &lt;- </span><span class="type-name">IO</span><span>(</span><span class="identifier">scores</span><span>.</span><span class="identifier">foreach</span><span>(</span><span class="identifier">score</span><span> =&gt; </span><span class="identifier">println</span><span>(</span><span class="identifier">score</span><span>.</span><span class="identifier">show</span><span>)))   </span><span class="comment">// (3)
+</span><span>    </span><span class="identifier">_</span><span>      &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">appendLine</span><span>(</span><span class="type-name">Score</span><span>(</span><span class="string-literal">&quot;daniela&quot;</span><span>, </span><span class="number-literal">100</span><span>).</span><span class="identifier">show</span><span>)        </span><span class="comment">// (4)
+</span><span class="keyword">yield</span><span> ()</span></code></pre>
+        <p>(1) We first read every line of the file as part of a list of strings. 
+        (2) Then, we use the <code>traverse</code> method to apply an effectfull function to every element in the list and then turn the type inside the list, inside out (like a pure <code>foreach</code>). We are parsing the scores and converting the <code>Either</code> type to an <code>IO</code> type (<code>List[String] =&gt; List[Either[Throwable, Score]] =&gt; List[IO[Score]] =&gt; IO[List[Score]</code>).<br>
+        (3) After that, we print every score to the console. </p>
+        <p>Finally, we append a new score to the file (4) via the <code>appendLine</code> method.</p>
+        <p>Here is the complete example of the Scores example:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">all</span><span>.*
 </span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
 </span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
 
 </span><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.</span><span class="identifier">os</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*
@@ -131,7 +172,6 @@
 
   </span><span class="keyword">def</span><span> </span><span class="declaration-name">parseScore</span><span>(</span><span class="identifier">strScore</span><span>: </span><span class="type-name">String</span><span>): </span><span class="type-name">Either</span><span>[</span><span class="type-name">Throwable</span><span>, </span><span class="type-name">Score</span><span>] =
     </span><span class="type-name">Either</span><span>.</span><span class="identifier">catchNonFatal</span><span>(
-      </span><span class="identifier">strScore</span><span>.</span><span class="identifier">split</span><span>(</span><span class="char-literal">&#39;:&#39;</span><span>) </span><span class="keyword">match</span><span> 
         </span><span class="keyword">case</span><span> </span><span class="type-name">Array</span><span>(</span><span class="identifier">name</span><span>, </span><span class="identifier">score</span><span>) =&gt; </span><span class="type-name">Score</span><span>(</span><span class="identifier">name</span><span>, </span><span class="identifier">score</span><span>.</span><span class="identifier">toInt</span><span>)
         </span><span class="keyword">case</span><span> </span><span class="identifier">_</span><span>                  =&gt; </span><span class="type-name">Score</span><span>(</span><span class="string-literal">&quot;Cant parse this score&quot;</span><span>, -</span><span class="number-literal">1</span><span>)
     )
@@ -147,9 +187,98 @@
     </span><span class="keyword">yield</span><span> ()
 
 </span><span class="identifier">end</span><span> </span><span class="type-name">Scores</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">all</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.</span><span class="identifier">os</span><span>.</span><span class="type-name">FilesOs</span><span>
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Scores</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Score</span><span>(</span><span class="identifier">name</span><span>: </span><span class="type-name">String</span><span>, </span><span class="identifier">score</span><span>: </span><span class="type-name">Int</span><span>):
+    </span><span class="keyword">def</span><span> </span><span class="declaration-name">show</span><span>: </span><span class="type-name">String</span><span> = </span><span class="string-literal">s&quot;</span><span class="substitution">$name</span><span class="string-literal">:</span><span class="substitution">$score</span><span class="string-literal">&quot;</span><span>
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">parseScore</span><span>(</span><span class="identifier">strScore</span><span>: </span><span class="type-name">String</span><span>): </span><span class="type-name">Either</span><span>[</span><span class="type-name">Throwable</span><span>, </span><span class="type-name">Score</span><span>] =
+    </span><span class="type-name">Either</span><span>.</span><span class="identifier">catchNonFatal</span><span>(
+      </span><span class="identifier">strScore</span><span>.</span><span class="identifier">split</span><span>(</span><span class="char-literal">&#39;:&#39;</span><span>) </span><span class="keyword">match</span><span>
+        </span><span class="keyword">case</span><span> </span><span class="type-name">Array</span><span>(</span><span class="identifier">name</span><span>, </span><span class="identifier">score</span><span>) =&gt; </span><span class="type-name">Score</span><span>(</span><span class="identifier">name</span><span>, </span><span class="identifier">score</span><span>.</span><span class="identifier">toInt</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="identifier">_</span><span>                  =&gt; </span><span class="type-name">Score</span><span>(</span><span class="string-literal">&quot;Cant parse this score&quot;</span><span>, -</span><span class="number-literal">1</span><span>)
+    )
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;src/main/resources/scores.txt&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">lines</span><span>  &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">readLines</span><span>(</span><span class="identifier">path</span><span>)
+      </span><span class="identifier">scores</span><span> &lt;- </span><span class="identifier">lines</span><span>.</span><span class="identifier">traverse</span><span>(</span><span class="identifier">parseScore</span><span>(</span><span class="identifier">_</span><span>).</span><span class="identifier">liftTo</span><span>[</span><span class="type-name">IO</span><span>])
+      </span><span class="identifier">_</span><span>      &lt;- </span><span class="type-name">IO</span><span>(</span><span class="identifier">scores</span><span>.</span><span class="identifier">foreach</span><span>(</span><span class="identifier">score</span><span> =&gt; </span><span class="identifier">println</span><span>(</span><span class="identifier">score</span><span>.</span><span class="identifier">show</span><span>)))
+      </span><span class="identifier">_</span><span>      &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">appendLine</span><span>(</span><span class="identifier">path</span><span>, </span><span class="type-name">Score</span><span>(</span><span class="string-literal">&quot;daniela&quot;</span><span>, </span><span class="number-literal">100</span><span>).</span><span class="identifier">show</span><span>)
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Scores</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">all</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="type-name">Stream</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.{</span><span class="type-name">Files</span><span>, </span><span class="type-name">Path</span><span>, </span><span class="type-name">Flags</span><span>}
+
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Scores</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Score</span><span>(</span><span class="identifier">name</span><span>: </span><span class="type-name">String</span><span>, </span><span class="identifier">score</span><span>: </span><span class="type-name">Int</span><span>):
+    </span><span class="keyword">def</span><span> </span><span class="declaration-name">show</span><span>: </span><span class="type-name">String</span><span> = </span><span class="string-literal">s&quot;</span><span class="substitution">$name</span><span class="string-literal">:</span><span class="substitution">$score</span><span class="string-literal">&quot;</span><span>
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">parseScore</span><span>(</span><span class="identifier">strScore</span><span>: </span><span class="type-name">String</span><span>): </span><span class="type-name">Either</span><span>[</span><span class="type-name">Throwable</span><span>, </span><span class="type-name">Score</span><span>] =
+    </span><span class="type-name">Either</span><span>.</span><span class="identifier">catchNonFatal</span><span>(
+      </span><span class="identifier">strScore</span><span>.</span><span class="identifier">split</span><span>(</span><span class="char-literal">&#39;:&#39;</span><span>) </span><span class="keyword">match</span><span>
+        </span><span class="keyword">case</span><span> </span><span class="type-name">Array</span><span>(</span><span class="identifier">name</span><span>, </span><span class="identifier">score</span><span>) =&gt; </span><span class="type-name">Score</span><span>(</span><span class="identifier">name</span><span>, </span><span class="identifier">score</span><span>.</span><span class="identifier">toInt</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="identifier">_</span><span>                  =&gt; </span><span class="type-name">Score</span><span>(</span><span class="string-literal">&quot;Cant parse this score&quot;</span><span>, -</span><span class="number-literal">1</span><span>)
+    )
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;src/main/resources/scores.txt&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">readUtf8Lines</span><span>(</span><span class="identifier">path</span><span>)
+      .</span><span class="identifier">evalMap</span><span>(</span><span class="identifier">parseScore</span><span>(</span><span class="identifier">_</span><span>).</span><span class="identifier">liftTo</span><span>[</span><span class="type-name">IO</span><span>])
+      .</span><span class="identifier">evalTap</span><span>(</span><span class="identifier">scores</span><span> =&gt; </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="identifier">scores</span><span>.</span><span class="identifier">show</span><span>))
+      .</span><span class="identifier">last</span><span>
+      .</span><span class="identifier">flatMap</span><span>( </span><span class="identifier">_</span><span> =&gt;
+        </span><span class="type-name">Stream</span><span>.</span><span class="identifier">emit</span><span>(</span><span class="string-literal">s&quot;</span><span class="escape-sequence">\n</span><span class="substitution">${Score(&quot;daniela&quot;, 100).show}</span><span class="string-literal">&quot;</span><span>)
+          .</span><span class="identifier">through</span><span>(</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">writeUtf8</span><span>(</span><span class="identifier">path</span><span>, </span><span class="type-name">Flags</span><span>.</span><span class="type-name">Append</span><span>))
+      )
+      .</span><span class="identifier">compile</span><span>
+      .</span><span class="identifier">drain</span><span>
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Scores</span></code></pre>
+          </div>
+        </div>
         
         <h2 id="uppercase" class="section"><a class="anchor-link left" href="#uppercase"><i class="icofont-laika link">&#xef71;</i></a>Uppercase</h2>
-        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+        <p>You can also manipule entire files in one go. In this example, we are going to read a file, convert it to uppercase, and write it to another file.</p>
+        <p>As the first thing, we are going to define the locations of the original file and the new file:<br></p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">path</span><span>      = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;src/main/resources/quijote.txt&quot;</span><span>)
+</span><span class="keyword">val</span><span> </span><span class="identifier">upperPath</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;src/main/resources/quijote_screaming.txt&quot;</span><span>)</span></code></pre>
+        <p>We are going to use El Quijote for this example.<br></p>
+        <p>Then, we can easily read the file, perform the transformation, and write it to a new file (we can also overwrite if we use the same path):</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">for</span><span>
+    </span><span class="identifier">file</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">read</span><span>
+    </span><span class="identifier">_</span><span>    &lt;- </span><span class="identifier">upperPath</span><span>.</span><span class="identifier">write</span><span>(</span><span class="identifier">file</span><span>.</span><span class="identifier">toUpperCase</span><span>)
+</span><span class="keyword">yield</span><span> ()</span></code></pre>
+        <p>Note that we loaded the whole file as a string, converted it to uppercase, and finally, wrote it to the new file.<br></p>
+        <p>Here, the complete script:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
 </span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
 
 </span><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.</span><span class="identifier">os</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*
@@ -166,10 +295,79 @@
     </span><span class="keyword">yield</span><span> ()
 
 </span><span class="identifier">end</span><span> </span><span class="type-name">Uppercase</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.</span><span class="identifier">os</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="type-name">FilesOs</span><span>
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Uppercase</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span>      = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;src/main/resources/quijote.txt&quot;</span><span>)
+  </span><span class="keyword">val</span><span> </span><span class="identifier">upperPath</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;src/main/resources/quijote_screaming.txt&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">file</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">read</span><span>(</span><span class="identifier">path</span><span>)
+      </span><span class="identifier">_</span><span>    &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">write</span><span>(</span><span class="identifier">upperPath</span><span>, </span><span class="identifier">file</span><span>.</span><span class="identifier">toUpperCase</span><span>)
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Uppercase</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.{</span><span class="type-name">Path</span><span>, </span><span class="type-name">Files</span><span>}
+
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Uppercase</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span>      = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;src/main/resources/quijote.txt&quot;</span><span>)
+  </span><span class="keyword">val</span><span> </span><span class="identifier">upperPath</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;src/main/resources/quijote_screaming.txt&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">readUtf8</span><span>(</span><span class="identifier">path</span><span>)
+      .</span><span class="identifier">map</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">toUpperCase</span><span>)
+      .</span><span class="identifier">through</span><span>(</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">writeUtf8</span><span>(</span><span class="identifier">upperPath</span><span>))
+      .</span><span class="identifier">compile</span><span>
+      .</span><span class="identifier">drain</span><span>
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Uppercase</span></code></pre>
+          </div>
+        </div>
         
         <h2 id="places" class="section"><a class="anchor-link left" href="#places"><i class="icofont-laika link">&#xef71;</i></a>Places</h2>
-        <p>Shellfish OS has compatibility for working with <a href="https://scodec.org/">scodec</a>!</p>
-        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">applicative</span><span>.*
+        <p>Shellfish can handle binary files in custom serde formats since it includes <a href="https://scodec.org/">scodec</a>. In this example, we are going to create a binary file with a list of places.<br></p>
+        <p>We start by defining type representations of the data we are going to work with:<br></p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Place</span><span>(</span><span class="identifier">position</span><span>: </span><span class="type-name">Int</span><span>, </span><span class="identifier">contestant</span><span>: </span><span class="type-name">String</span><span>)</span></code></pre>
+        <p>Then we are going to use the <code>scodec</code> library to create a codec for the <code>Place</code> type.</p>
+        <p>A first approach would be to create your own custom codec using the combinators of scodec:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="identifier">codecs</span><span>.*
+
+</span><span class="keyword">given</span><span> </span><span class="identifier">placeCodec</span><span>: </span><span class="type-name">Codec</span><span>[</span><span class="type-name">Place</span><span>] = (</span><span class="identifier">uint8</span><span> :: </span><span class="identifier">utf8</span><span>).</span><span class="identifier">as</span><span>[</span><span class="type-name">Place</span><span>]</span></code></pre>
+        <p>But since Scala 3, you can also use the <code>derives</code> feature of Scala 3 to automatically derive a codec for your data types:<br></p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Place</span><span>(</span><span class="identifier">position</span><span>: </span><span class="type-name">Int</span><span>, </span><span class="identifier">contestant</span><span>: </span><span class="type-name">String</span><span>) </span><span class="keyword">derives</span><span> </span><span class="type-name">Codec</span></code></pre>
+        <p>That will automatically create a given instance of <code>Codec[Place]</code> for you!</p>
+        <p>We can now create a file with a list of places, read it, and print it to the console:<br></p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">for</span><span>
+    </span><span class="identifier">exists</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">exists</span><span>                                       </span><span class="comment">// (1)
+</span><span>    </span><span class="identifier">_</span><span>      &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">createFile</span><span>.</span><span class="identifier">unlessA</span><span>(</span><span class="identifier">exists</span><span>)                   </span><span class="comment">// (2)
+</span><span>    </span><span class="identifier">_</span><span>      &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">writeAs</span><span>[</span><span class="type-name">Place</span><span>](</span><span class="type-name">Place</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="string-literal">&quot;Michael Phelps&quot;</span><span>))   </span><span class="comment">// (3)
+</span><span>    </span><span class="identifier">place</span><span>  &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">readAs</span><span>[</span><span class="type-name">Place</span><span>]                                </span><span class="comment">// (4)
+</span><span>    </span><span class="identifier">_</span><span>      &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="identifier">place</span><span>)                                 
+</span><span class="keyword">yield</span><span> ()</span></code></pre>
+        <p>The scripts starts by checking the file in the path value exists (1). If it does, we create the file (2) using the <code>unlessA</code> combinator. It executes the effect if the condition is false, similar of doing a <code>if exists then IO.unit else path.createFile</code>.</p>
+        <p>Then, when can automatically read and write the <code>Place</code> type to the file using the <code>writeAs</code> and <code>readAs</code> methods (3 and 4). That is thanks to the given codec in scope we created before! It handles the encoding and decoding of the binary file automatically. </p>
+        <p>Here is the complete script of the Places example:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+            <li class="tab" data-choice-name="fs2"><a href="#">Fs2</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">applicative</span><span>.*
 </span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
 
 </span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
@@ -181,23 +379,92 @@
 
 </span><span class="keyword">object</span><span> </span><span class="type-name">Place</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
 
-  </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Place</span><span>(</span><span class="identifier">number</span><span>: </span><span class="type-name">Int</span><span>, </span><span class="identifier">name</span><span>: </span><span class="type-name">String</span><span>) </span><span class="keyword">derives</span><span> </span><span class="type-name">Codec</span><span>
+  </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Place</span><span>(</span><span class="identifier">position</span><span>: </span><span class="type-name">Int</span><span>, </span><span class="identifier">contestant</span><span>: </span><span class="type-name">String</span><span>) </span><span class="keyword">derives</span><span> </span><span class="type-name">Codec</span><span>
 
-  </span><span class="comment">// Only in Scala 2:
-</span><span>  </span><span class="comment">// implicit val placeCodec: Codec[Place] = (int32 :: utf8).as[Place]
-</span><span>
   </span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;src/main/resources/place.data&quot;</span><span>)
 
   </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
     </span><span class="keyword">for</span><span>
       </span><span class="identifier">exists</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">exists</span><span>
            </span><span class="comment">// Equivalent of doing `if (exists) IO.unit else path.createFile`
-</span><span>      </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">createFile</span><span>.</span><span class="identifier">whenA</span><span>(</span><span class="identifier">exists</span><span>)
-      </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">writeAs</span><span>[</span><span class="type-name">Place</span><span>](</span><span class="type-name">Place</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="string-literal">&quot;Michael Phelps&quot;</span><span>))
-      </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">readAs</span><span>[</span><span class="type-name">Place</span><span>].</span><span class="identifier">flatMap</span><span>(</span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>)
+</span><span>      </span><span class="identifier">_</span><span>      &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">createFile</span><span>.</span><span class="identifier">unlessA</span><span>(</span><span class="identifier">exists</span><span>)
+      </span><span class="identifier">_</span><span>      &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">writeAs</span><span>[</span><span class="type-name">Place</span><span>](</span><span class="type-name">Place</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="string-literal">&quot;Michael Phelps&quot;</span><span>))
+      </span><span class="identifier">place</span><span>  &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">readAs</span><span>[</span><span class="type-name">Place</span><span>]                                
+      </span><span class="identifier">_</span><span>      &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="identifier">place</span><span>) 
     </span><span class="keyword">yield</span><span> ()
 
 </span><span class="identifier">end</span><span> </span><span class="type-name">Place</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">applicative</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="identifier">codecs</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="type-name">Codec</span><span>
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.</span><span class="identifier">os</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="type-name">FilesOs</span><span>
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Place</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Place</span><span>(</span><span class="identifier">position</span><span>: </span><span class="type-name">Int</span><span>, </span><span class="identifier">contestant</span><span>: </span><span class="type-name">String</span><span>) </span><span class="keyword">derives</span><span> </span><span class="type-name">Codec</span><span>
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;src/main/resources/place.data&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">exists</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">exists</span><span>(</span><span class="identifier">path</span><span>)
+             </span><span class="comment">// Equivalent of doing `if (exists) IO.unit else path.createFile`
+</span><span>      </span><span class="identifier">_</span><span>      &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">createFile</span><span>(</span><span class="identifier">path</span><span>).</span><span class="identifier">unlessA</span><span>(</span><span class="identifier">exists</span><span>)
+      </span><span class="identifier">_</span><span>      &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">writeAs</span><span>[</span><span class="type-name">Place</span><span>](</span><span class="identifier">path</span><span>, </span><span class="type-name">Place</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="string-literal">&quot;Michael Phelps&quot;</span><span>))
+      </span><span class="identifier">place</span><span>  &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">readAs</span><span>[</span><span class="type-name">Place</span><span>](</span><span class="identifier">path</span><span>)                                
+      </span><span class="identifier">_</span><span>      &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="identifier">place</span><span>)
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Place</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="fs2">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">applicative</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="type-name">Stream</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">interop</span><span>.</span><span class="identifier">scodec</span><span>.*
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="identifier">codecs</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">scodec</span><span>.</span><span class="type-name">Codec</span><span>
+
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Place</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Place</span><span>(</span><span class="identifier">position</span><span>: </span><span class="type-name">Int</span><span>, </span><span class="identifier">contestant</span><span>: </span><span class="type-name">String</span><span>) </span><span class="keyword">derives</span><span> </span><span class="type-name">Codec</span><span>
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;src/main/resources/place.data&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">exists</span><span> &lt;- </span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">exists</span><span>(</span><span class="identifier">path</span><span>)
+      </span><span class="comment">// Equivalent of doing `if (exists) IO.unit else path.createFile`
+</span><span>      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">createFile</span><span>(</span><span class="identifier">path</span><span>).</span><span class="identifier">whenA</span><span>(</span><span class="identifier">exists</span><span>)
+
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">Stream</span><span>.</span><span class="identifier">emit</span><span>(</span><span class="type-name">Place</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="string-literal">&quot;Michael Phelps&quot;</span><span>))
+        .</span><span class="identifier">covary</span><span>[</span><span class="type-name">IO</span><span>]
+        .</span><span class="identifier">through</span><span>(</span><span class="type-name">StreamEncoder</span><span>.</span><span class="identifier">many</span><span>(</span><span class="identifier">placeCodec</span><span>).</span><span class="identifier">toPipeByte</span><span>)
+        .</span><span class="identifier">through</span><span>(</span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">writeAll</span><span>(</span><span class="identifier">path</span><span>))
+        .</span><span class="identifier">compile</span><span>
+        .</span><span class="identifier">drain</span><span>
+
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">Files</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">readAll</span><span>(</span><span class="identifier">path</span><span>)
+        .</span><span class="identifier">through</span><span>(</span><span class="type-name">StreamDecoder</span><span>.</span><span class="identifier">many</span><span>(</span><span class="identifier">placeCodec</span><span>).</span><span class="identifier">toPipeByte</span><span>)
+        .</span><span class="identifier">evalTap</span><span>(</span><span class="identifier">place</span><span> =&gt; </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="identifier">place</span><span>))
+        .</span><span class="identifier">compile</span><span>
+        .</span><span class="identifier">drain</span><span>
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Place</span></code></pre>
+          </div>
+        </div>
 
         
 <hr class="footer-rule"/>
