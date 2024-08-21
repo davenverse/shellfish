@@ -175,7 +175,7 @@ Another benefit is gaining explicit control over code execution. By encapsulatin
 
 ## Weird `>>` and `>>=` methods, what are these?
 
-While reading the documentation of this library, you may come across some strange like `>>`, don't worry, this is convenience syntax sugar for some fairly common methods!
+While reading the documentation of this library, you may come across some strange operator like `>>`. This is convenient syntax sugar for some fairly common methods!
 
 You can import them using the syntax package in cats, like this:
 
