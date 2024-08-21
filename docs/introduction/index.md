@@ -188,7 +188,7 @@ For instance, you may seen something like this:
 ```scala mdoc:compile-only
 IO("The result is: 42") >>= IO.println
 ```
-That is just an alias for `flatMap`, it's like writing `IO("The result is: 42").flatMap(IO.println(_))`, but without the added boilerplate. This use is more common in languages like Haskell, but we'll use it in the documentation to simplify things a bit!
+That is just an alias for `flatMap`, so it's like writing `IO("The result is: 42").flatMap(IO.println(_))`, but without the added boilerplate. This use is more common in languages like Haskell, but we'll use it in the documentation to simplify things a bit!
 
 
 The `>>` is even simpler:
