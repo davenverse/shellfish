@@ -86,6 +86,10 @@
 
   <ul class="nav-list">
     <li class="level1 active nav-leaf"><a href="#">shellfish — Shell Scripting for Cats-Effect</a></li>
+    <li class="level1 nav-header">Introduction</li>
+    <li class="level2 nav-leaf"><a href="introduction/">First steps</a></li>
+    <li class="level1 nav-header">Working with Files</li>
+    <li class="level2 nav-leaf"><a href="files/">Files</a></li>
     <li class="level1 nav-header">Files</li>
     <li class="level2 nav-leaf"><a href="wiki/file_reading_writing.html">Reading, writing, and appending</a></li>
     <li class="level2 nav-leaf"><a href="wiki/file_manipulation.html">Handling files and doing operations</a></li>
@@ -93,8 +97,6 @@
     <li class="level2 nav-leaf"><a href="processes/">Processes</a></li>
     <li class="level1 nav-header">Examples</li>
     <li class="level2 nav-leaf"><a href="examples/">Working with Files</a></li>
-    <li class="level1 nav-header">Working with Files</li>
-    <li class="level2 nav-leaf"><a href="files/">Files</a></li>
   </ul>
 
 </nav>
@@ -127,18 +129,21 @@
         
         <h2 id="example" class="section"><a class="anchor-link left" href="#example"><i class="icofont-laika link">&#xef71;</i></a>Example</h2>
         <p>Shellfish is a library to perform common script operations such as working with processes and files while maintaining referential transparency! </p>
-        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>, </span><span class="type-name">ExitCode</span><span>}
 
-</span><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.</span><span class="identifier">os</span><span>.* 
+</span><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*
 
 </span><span class="keyword">object</span><span> </span><span class="type-name">Main</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>: 
 
   </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>(</span><span class="identifier">args</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">String</span><span>]): </span><span class="type-name">IO</span><span>[</span><span class="type-name">ExitCode</span><span>] = 
-    </span><span class="keyword">import</span><span> </span><span class="type-name">Shell</span><span>.</span><span class="identifier">io</span><span>.*
     </span><span class="keyword">for</span><span>
-      </span><span class="identifier">_</span><span>   &lt;- </span><span class="identifier">cd</span><span>(</span><span class="string-literal">&quot;..&quot;</span><span>)
-      </span><span class="identifier">got</span><span> &lt;- </span><span class="identifier">ls</span><span>.</span><span class="identifier">compile</span><span>.</span><span class="identifier">toList</span><span>
-      </span><span class="identifier">_</span><span>   &lt;- </span><span class="identifier">echo</span><span>(</span><span class="identifier">got</span><span>.</span><span class="identifier">toString</span><span>)
+      </span><span class="identifier">home</span><span>   &lt;- </span><span class="identifier">userHome</span><span>
+      </span><span class="identifier">config</span><span> = </span><span class="identifier">home</span><span> / </span><span class="string-literal">&quot;.shellfish&quot;</span><span> / </span><span class="string-literal">&quot;config.conf&quot;</span><span>
+      </span><span class="identifier">_</span><span>         &lt;- </span><span class="identifier">config</span><span>.</span><span class="identifier">createFile</span><span>
+      </span><span class="identifier">_</span><span>         &lt;- </span><span class="identifier">config</span><span>.</span><span class="identifier">write</span><span>(</span><span class="string-literal">&quot;scripting.made.easy = true&quot;</span><span>)
+      </span><span class="identifier">newconfig</span><span> &lt;- </span><span class="identifier">config</span><span>.</span><span class="identifier">read</span><span>
+      </span><span class="identifier">_</span><span>         &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">s&quot;Loading config: </span><span class="substitution">$newconfig</span><span class="string-literal">&quot;</span><span>)
     </span><span class="keyword">yield</span><span> </span><span class="type-name">ExitCode</span><span>.</span><span class="type-name">Success</span><span>
     
 </span><span class="identifier">end</span><span> </span><span class="type-name">Main</span></code></pre>
