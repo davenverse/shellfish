@@ -173,7 +173,7 @@ Here's a [good explanation](https://blog.rockthejvm.com/referential-transparency
 Another benefit is gaining explicit control over code execution. By encapsulating computations within the `IO` monad, your programs become blueprints rather than direct statements. This gives you the ability to decide precisely when to execute those statements.
 
 
-## Weird `>>` and `>>=` methods, what are these?
+## Weird `>>` and `>>=` operators, what are those?
 
 While reading the documentation of this library, you may come across some strange operator like `>>`. This is convenient syntax sugar for some fairly common methods!
 
