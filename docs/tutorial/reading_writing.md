@@ -81,7 +81,7 @@ end App
 
 @:@
 
-Oops! We got an error saying that the `run` function accepts an `IO[Unit]`, but the `read` function returns an `IO[String]`. This happens because we are not doing anything with the string loaded and therefore not returning `IO[Unit]`. Fortunately, because `IO` is a monad, we can sequence the value obtained by evaluating the `read` computation with another that prints things to the console (and thus returns `IO[Unit]`!). This is achieved by using the `flatMap` function as follows:
+Oops! We got an error saying that the `run` function accepts an `IO[Unit]`, but the `read` function returns an `IO[String]`. This happens because we are not doing anything with the string and therefore not returning `IO[Unit]`. Let's fix that by sequencing the value obtained from `read` with another that prints it to the console (and thus returns `IO[Unit]`). This can be achieved using the `flatMap` function as follows:  
 
 @:select(api-style)
 
@@ -99,7 +99,7 @@ FilesOs.read(path).flatMap(file => IO(println(file)))
 
 @:@
 
-As you might know, what is happening above is that we are calling the `flatMap` method and passing as parameter a function describing what we want to do with the `file` inside the `IO`, in this case, passing it to the computation `IO(println(file))`.
+What is happening above is that we are calling the `flatMap` method and passing as parameter a function describing what we want to do with the `file` inside the `IO`, in this case, passing it to the computation `IO(println(file))`.  
 
 Now pass the program to the `run` method and everything should go nicely:
 
@@ -144,7 +144,7 @@ Congratulations! You have just loaded the contents of a file in pure Scala 🎉.
 
 ### Exercise
 
-You may not like to keep using the `flatMap` function over and over again to sequence computations. This is why there is the [macro keyword `for`](https://docs.scala-lang.org/scala3/book/control-structures.html#for-expressions) to automatically let the compiler write the `flatMap`s for you. Why don't you try rewriting the program we just did using for-comprehensions? 
+You may not like to keep using the `flatMap` function over and over again to sequence computations. This is why there is the [`for` construct](https://docs.scala-lang.org/scala3/book/control-structures.html#for-expressions) to automatically let the compiler write the `flatMap`s for you. Why don't you try rewriting the program we just did using for-comprehensions? 
 
 ```scala
 def run: IO[Unit] =
@@ -159,7 +159,7 @@ def run: IO[Unit] =
 
 Now that you know how to load a file, you might also want to modify it and save it.
 
-To write to a file, use the `write` function with one of its variants so that you can save it to a completely different file. Here, we reverse the file so it reads backwards (if that is something you want to do):
+To write to a file, use the `write` function to save the contents to a new file. Here, we reverse the file so it reads backwards:  
 
 @:select(api-style)
 
@@ -217,7 +217,7 @@ Try loading the contents of two different files, concatenating them, and saving 
 
 ## Working line by line
 
-There is a useful variant of the standalone methods called `Lines` (e.g. `readLines`), which reads the file line by line and stores them on a `List[String]`. This comes handy when you are working with a list of things that you want to convert:
+Shellfish provides a method called `readLines`, which reads the file line by line and stores them on a `List[String]`. This comes handy when you are working with a list of things that you want to convert:  
 
 `testdata/names.data`
 
@@ -281,11 +281,16 @@ end Names
 
 @:@
 
-In the example from above, we first load the list of names as a `List` of `String` (1), then we map over this list and convert the strings to a `List` of `Name` (2), and finally we print each of one the elements recently mapped to the console (3). Note that using `println` with `foreach` creates side effects, that's why we wrap the computation on an `IO`.
+Here is what's happening:
+
+(1) Load the list of names as `List`  
+(2) Convert it to `Name`  
+(3) Print the list to the console
+
 
 ### Exercise
 
-Imagine we want to add some spacing between lines on a text and save the result in a different file:
+Write a function that reads a file into lines, adds a blank line between the lines and saves the result in a different file. For example given the following input:  
 
 _`testdata/edgar_allan_poe/no_spaced_dream.txt`_
 
@@ -303,7 +308,7 @@ All that we see or seem
 Is but a dream within a dream.
 ```
 
-Convert it to:
+Your program should output the following:  
 
 _`testdata/edgar_allan_poe/spaced_dream.txt`_
 
