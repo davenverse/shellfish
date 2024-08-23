@@ -89,11 +89,7 @@ object FilesOs {
    *   The file loaded in memory as a collection of lines of Strings
    */
   def readLines(path: Path): IO[List[String]] =
-    files
-      .readUtf8Lines(path)
-      .dropLastIf(_.isEmpty)
-      .compile
-      .toList
+    files.readUtf8Lines(path).compile.toList
 
   /**
    * Reads the contents of the file and deserializes its contents as `A` using
