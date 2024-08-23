@@ -1,12 +1,12 @@
 # File Handling
 
-A scripting library does not only contain reading and writing operations, that is why we also include methods for manipulating files such as creations, deletions, permissions, and other nice stuff in the library.
+A scripting library does not only contain reading and writing operations, that is why we also include methods for manipulating files such as creations, deletions, permissions and others.  
 
 ## Create a file
 
 You may want to create a file without immediately writing on it. For example, when you want to modify the permissions first or let another process/fiber handle it instead. For such and more reasons, you can create a file or directory using the `createFile` and `createDirectory` functions.
 
-This is how you can create a file in Shellfish:
+It is generally possible to create empty files and directories using the `createFile` and `createDirectory` functions:  
 
 @:select(api-style)
 
@@ -56,7 +56,7 @@ end Creating
 
 Here, we are first creating the file using the `createFile` method and then checking its existent with the `exists` method.
 
-**Important:** The `createFile` and `createDirectory` methods will only work if the parent directory already exists, otherwise it will fail so be careful with that. Because of that, if you want to create the parent directories, as well you should use the `createDirectories` method like this:
+**Important:** The `createFile` and `createDirectory` methods will only work if the parent directory already exists, and fail otherwise. The `createDirectories` method will recursively create the directories instead:  
 
 @:select(api-style)
 
@@ -99,7 +99,7 @@ end Creating
 
 ### Exercise
 
-Imagine that you need to create a lot of nested files in a directory that also needs the creation of the subsequent folders. For that reason, you need to implement a function that creates both the file and the parent directories. Can you implement it? How?
+For this exercise, write a function that creates a file in a (deeply) nested directory. The directories should be created if they don't exist.  
 
 @:select(api-style)
 
@@ -119,11 +119,13 @@ def createFileAndDirectories(path: Path): IO[Unit] = ???
 
 [See possible implementation](https://gist.github.com/00c59408740e8b52838ff07fc9154c12.git)
 
+
 ## Deleting here and there
 
 Creating is just the first part. Because memory is not infinite, you may also want to delete a file on your system.
 
-Here, you can use the `delete` method:
+Deleting a file is as easy as using the `delete` method:  
+
 
 @:select(api-style)
 
@@ -171,7 +173,7 @@ end Deleting
 
 @:@
 
-Note that we first check if the file exists before deleting it, this is because trying to delete a file with `delete` that does not exist will result in an error. If that is not your style, you have two options. One is using the `whenA` combinator from `cats.syntax.applicative.*`:
+Note that we are first checking if the file exists before deleting it, this is because trying to delete a file that does not exist will result in an error. To avoid this error, you have two options. One is using the [`whenA` combinator](https://github.com/typelevel/cats/blob/main/core/src/main/scala/cats/Applicative.scala#L263) from [Applicative](https://typelevel.org/cats/typeclasses/applicative.html) importing `cats.syntax.applicative.*`:  
 
 @:select(api-style)
 
@@ -265,9 +267,9 @@ end Deleting
 
 @:@
 
-It will return a boolean indicating whether the file has been deleted (also deletes directories).
+This will return a boolean indicating whether the file and directories have been deleted.  
 
-Lastly, you may want to delete not one but multiple files and directories, here is when the `deleteDirectorires` comes handy, as it will delete all the files and directories recursively (similar to `rm -r`):
+Finally, you may want to delete not one but multiple files and directories, here is when the `deleteDirectorires` comes handy, as it will delete all the files and directories recursively (similar to `rm -r`):  
 
 **Before:**
 
@@ -334,7 +336,8 @@ end Deleting
 
 ### Exercise
 
-You are tired of people abusing the FTP server to upload long pirated movies. So you decide to implement a method that checks if a file exceeds a certain size, and if so, automatically deletes it (hint: check out the `size` method!). Return `true` if the file was deleted, `false` otherwise:
+You are tired of people abusing the FTP server to upload enormous files, so you decide to implement a method that checks if a file exceeds a certain size, and if so, automatically delete it (hint: check the `size` method). The method must return `true` if the file has been deleted, `false` otherwise.  
+
 
 @:select(api-style)
 
@@ -378,7 +381,6 @@ object Temporary extends IOApp.Simple:
       _ <- path.writeLines(LazyList.from('a').map(_.toChar.toString).take(26))
       alphabet <- path.read
       _ <- IO.println("ASCII took hispanics into account!").whenA(alphabet.contains('ñ'))
-      // Not gonna be printed, sadly
     yield ()
 
 end Temporary
@@ -398,7 +400,6 @@ object Temporary extends IOApp.Simple:
       _ <- FilesOs.writeLines(path, LazyList.from('a').map(_.toChar.toString).take(26))
       alphabet <- FilesOs.read(path)
       _ <- IO.println("ASCII took hispanics into account!").whenA(alphabet.contains('ñ'))
-      // Not gonna be printed, sadly
     yield ()
 
 end Temporary
@@ -408,7 +409,7 @@ end Temporary
 
 You will see that the `use` function goes from `Path => IO[A]`, and that `use` basically describes a path that will be used to compute an `A`, with some side effects along the way. When the computation is finished, the file will no longer exist.
 
-The last alternative is with `createTempFile` or `createTempDirectory`. The difference to the one without `create` is that it returns the path where the file was created, something like this:
+The last alternative is with `createTempFile` or `createTempDirectory`. The difference between `createTempFile` and `withTempFile` is that the `create` functions return the path of the file, for example:  
 
 @:select(api-style)
 
@@ -458,7 +459,8 @@ end Temporary
 
 ### Exercise
 
-Another really nice way to handle resource lifecycle [is with a `Resource`](https://typelevel.org/cats-effect/docs/std/resource#resource) from Cats Effect. Would you try to be adventurous and implement a third way of handling temporary files with a new function that returns a Cats Effect `Resource`?
+Another really nice way to handle resource lifecycle [is with a `Resource`](https://typelevel.org/cats-effect/docs/std/resource#resource) from Cats Effect. Be adventurous and implement a third way of handling temporary files with a new function that returns a `Resource`.  
+
 
 ```scala
 import cats.effect.Resource
