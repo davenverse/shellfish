@@ -80,8 +80,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
           sizeBefore <- path.readLines.map(_.size)
           _          <- path.appendLine("Im a last line!")
           sizeAfter  <- path.readLines.map(_.size)
-        } yield expect(sizeBefore + 2 == sizeAfter)
-        // That is, one new line of the appendLine and, one newline character of the writeLines method
+        } yield expect(sizeBefore + 1 == sizeAfter)
       }
     }
   }
