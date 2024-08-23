@@ -1,6 +1,6 @@
 # Using Paths
 
-One of the main types that use this library is [`Path`](https://www.javadoc.io/static/co.fs2/fs2-docs_3/3.8.0/fs2/io/file/Path.html). It represents a path to a file or a directory.
+Shellfish is implemented with [fs2-io](https://fs2.io/#/io), and one of the abstraction it provides is [`Path`](https://www.javadoc.io/static/co.fs2/fs2-docs_3/3.8.0/fs2/io/file/Path.html). It represents a path to a file or a directory.  
 
 You can start using `Path`s by importing the domain from the library: 
 
@@ -8,9 +8,9 @@ You can start using `Path`s by importing the domain from the library:
 import shellfish.Path
 ```
 
-## How to create a `Path`
+## Creating a `Path` 
 
-You have many ways to do that, the most common is using the `apply` method of the companion object:
+The recommended way for creating a `Path` is using the `apply` method of the companion object:  
 
 ```scala mdoc
 import fs2.io.file.Path // TODO: Change this to the import of the library itself
@@ -28,5 +28,4 @@ val child = Path("child/dir")
 parent / child / "some/more/locations"
 ```
 
-Now you can start using paths around the library! Note that these paths are compatible with the Java NIO paths, so you can use them interchangeably by calling the `toNioPath` value.
-
+Note that these paths are compatible with the Java NIO paths, so you can use them interchangeably by calling the `toNioPath` value.  
