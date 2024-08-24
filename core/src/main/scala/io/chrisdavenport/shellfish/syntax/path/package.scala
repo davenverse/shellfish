@@ -75,7 +75,8 @@ package object path {
 
     /**
      * Reads the contents of the file at the path using UTF-8 decoding and
-     * returns it line by line as a List of Strings.
+     * returns it line by line as a List of Strings. It will ignore any empty
+     * characters after the last newline (similar to `wc -l`).
      *
      * @param path
      *   The path to read from

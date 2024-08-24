@@ -81,7 +81,8 @@ object FilesOs {
 
   /**
    * Reads the contents of the file at the path using UTF-8 decoding and returns
-   * it line by line as a List of Strings.
+   * it line by line as a List of Strings. It will ignore any empty characters
+   * after the last newline (similar to `wc -l`).
    *
    * @param path
    *   The path to read from
@@ -89,7 +90,11 @@ object FilesOs {
    *   The file loaded in memory as a collection of lines of Strings
    */
   def readLines(path: Path): IO[List[String]] =
-    files.readUtf8Lines(path).compile.toList
+    files
+      .readUtf8Lines(path)
+      .dropLastIf(_.isEmpty)
+      .compile
+      .toList
 
   /**
    * Reads the contents of the file and deserializes its contents as `A` using
