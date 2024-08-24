@@ -117,7 +117,7 @@ def createFileAndDirectories(path: Path): IO[Unit] = ???
 
 @:@
 
-[See possible implementation](https://gist.github.com/00c59408740e8b52838ff07fc9154c12.git)
+[See possible implementation](../examples/solutions.md#create-a-file)
 
 
 ## Deleting here and there
@@ -355,7 +355,7 @@ def deleteIfChubby(path: Path, threshold: Long): IO[Boolean] = ???
 
 @:@
 
-[See possible implementation](https://gist.github.com/a4f2ef825f8b3425f41a6069b13a08c0.git)
+[See possible implementation](../examples/solutions.md#deleting-here-and-there)
 
 ## Using temporary files
 
@@ -470,4 +470,4 @@ def makeTempFile: Resource[IO, Path] = ???
 def makeTempDirectory: Resource[IO, Path] = ???
 ```
 
-[See possible implementations](https://gist.github.com/17aa677269ff0f94af0bd2a557f548e1.git)
+[See possible implementations](../examples/solutions.md#using-temporary-files)

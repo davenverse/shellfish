@@ -2,7 +2,6 @@
 
 In this section, we will guide you through the process of opening and extracting information from files using our simple, intuitive API. Whether you are working with text, binary, or other formats, you will find the tools you need to seamlessly integrate file reading into your Scala project. Let us dive in and unlock the power of data stored in files!
 
-**Important:** To avoid tutorial hell, we recommend doing a really small project while you read this tutorial to place acquired knowledge into practice. It does not have to be fancy, but it should tap into your curiosity and challenge you just a little.
 
 ## Reading and printing a file
 
@@ -153,7 +152,7 @@ def run: IO[Unit] =
     ...
   yield ()
 ```
-[See solution](https://gist.github.com/f8cf952fd5f7341ef698dfe825cfca93.git)
+[See solution](../examples/solutions.md#reading-and-printing-a-file)
 
 ## Writing and modifying the contents of a file
 
@@ -213,7 +212,7 @@ Be aware that this will overwrite the contents of the file. So be careful not to
 
 Try loading the contents of two different files, concatenating them, and saving the result to a third location. How would you do it?
 
-[See possible solution](https://gist.github.com/99880af9b051b15f8adace7fe7aee2e3.git)
+[See possible solution](../examples/solutions.md#writing-and-modifying-the-contents-of-a-file)
 
 ## Working line by line
 
@@ -338,4 +337,4 @@ Is but a dream within a dream.
 
 How would you do this? (hint: use `writeLines`).
 
-[See possible solution](https://gist.github.com/eaf4e550a90c355b9698f51c8311eeff.git)
+[See possible solution](../examples/solutions.md#working-line-by-line)
