@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>File Handling</title>
+  
+  <meta name="author" content="Christopher Davenport"/>
+  
+  
+  <meta name="description" content="site"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="https://typelevel.org/img/favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../helium/site/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/site/laika-helium.css" />
+  <script src="../helium/site/laika-helium.js"></script>
+  
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    
+  </div>
+
+  <a class="image-link" href="https://typelevel.org"><img src="https://typelevel.org/img/logo.svg"></a>
+
+  <div class="row links">
+    
+    <a class="icon-link svg-link" href="https://github.com/davenverse/shellfish"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+    <a class="icon-link svg-link" href="https://fosstodon.org/@typelevel"><span class="mastodon" title="Mastodon"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g class="svg-shape">
+    <path d="M11.19 12.195c2.016-.24 3.77-1.475 3.99-2.603.348-1.778.32-4.339.32-4.339 0-3.47-2.286-4.488-2.286-4.488C12.062.238 10.083.017 8.027 0h-.05C5.92.017 3.942.238 2.79.765c0 0-2.285 1.017-2.285 4.488l-.002.662c-.004.64-.007 1.35.011 2.091.083 3.394.626 6.74 3.78 7.57 1.454.383 2.703.463 3.709.408 1.823-.1 2.847-.647 2.847-.647l-.06-1.317s-1.303.41-2.767.36c-1.45-.05-2.98-.156-3.215-1.928a3.614 3.614 0 0 1-.033-.496s1.424.346 3.228.428c1.103.05 2.137-.064 3.188-.189zm1.613-2.47H11.13v-4.08c0-.859-.364-1.295-1.091-1.295-.804 0-1.207.517-1.207 1.541v2.233H7.168V5.89c0-1.024-.403-1.541-1.207-1.541-.727 0-1.091.436-1.091 1.296v4.079H3.197V5.522c0-.859.22-1.541.66-2.046.456-.505 1.052-.764 1.793-.764.856 0 1.504.328 1.933.983L8 4.39l.417-.695c.429-.655 1.077-.983 1.934-.983.74 0 1.336.259 1.791.764.442.505.661 1.187.661 2.046v4.203z"/>
+  </g>
+</svg></span></a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="icon-link svg-link" href="https://github.com/davenverse/shellfish"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+    <a class="icon-link svg-link" href="https://fosstodon.org/@typelevel"><span class="mastodon" title="Mastodon"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g class="svg-shape">
+    <path d="M11.19 12.195c2.016-.24 3.77-1.475 3.99-2.603.348-1.778.32-4.339.32-4.339 0-3.47-2.286-4.488-2.286-4.488C12.062.238 10.083.017 8.027 0h-.05C5.92.017 3.942.238 2.79.765c0 0-2.285 1.017-2.285 4.488l-.002.662c-.004.64-.007 1.35.011 2.091.083 3.394.626 6.74 3.78 7.57 1.454.383 2.703.463 3.709.408 1.823-.1 2.847-.647 2.847-.647l-.06-1.317s-1.303.41-2.767.36c-1.45-.05-2.98-.156-3.215-1.928a3.614 3.614 0 0 1-.033-.496s1.424.346 3.228.428c1.103.05 2.137-.064 3.188-.189zm1.613-2.47H11.13v-4.08c0-.859-.364-1.295-1.091-1.295-.804 0-1.207.517-1.207 1.541v2.233H7.168V5.89c0-1.024-.403-1.541-1.207-1.541-.727 0-1.091.436-1.091 1.296v4.079H3.197V5.522c0-.859.22-1.541.66-2.046.456-.505 1.052-.764 1.793-.764.856 0 1.504.328 1.933.983L8 4.39l.417-.695c.429-.655 1.077-.983 1.934-.983.74 0 1.336.259 1.791.764.442.505.661 1.187.661 2.046v4.203z"/>
+  </g>
+</svg></span></a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../">shellfish — Shell Scripting for Cats-Effect</a></li>
+    <li class="level1 nav-header">Introduction</li>
+    <li class="level2 nav-leaf"><a href="../introduction/">First steps</a></li>
+    <li class="level1 nav-header">Working with Files</li>
+    <li class="level2 nav-leaf"><a href="../files/">Files</a></li>
+    <li class="level1 nav-header">Files</li>
+    <li class="level2 nav-leaf"><a href="../wiki/file_reading_writing.html">Reading, writing, and appending</a></li>
+    <li class="level2 nav-leaf"><a href="../wiki/file_manipulation.html">Handling files and doing operations</a></li>
+    <li class="level1 nav-header">Working with Processes</li>
+    <li class="level2 nav-leaf"><a href="../processes/">Processes</a></li>
+    <li class="level1 nav-header">Tutorial</li>
+    <li class="level2 nav-leaf"><a href="path.html">Using Paths</a></li>
+    <li class="level2 nav-leaf"><a href="reading_writing.html">Reading and writing</a></li>
+    <li class="level2 active nav-leaf"><a href="#">File Handling</a></li>
+    <li class="level1 nav-header">Examples</li>
+    <li class="level2 nav-leaf"><a href="../examples/">Working with Files</a></li>
+    <li class="level2 nav-leaf"><a href="../examples/solutions.html">Solutions</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">File Handling</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-node"><a href="#create-a-file">Create a file</a></li>
+    <li class="level2 nav-leaf"><a href="#exercise-1">Exercise</a></li>
+    <li class="level1 nav-node"><a href="#deleting-here-and-there">Deleting here and there</a></li>
+    <li class="level2 nav-leaf"><a href="#exercise-2">Exercise</a></li>
+    <li class="level1 nav-node"><a href="#using-temporary-files">Using temporary files</a></li>
+    <li class="level2 nav-leaf"><a href="#exercise-3">Exercise</a></li>
+  </ul>
+
+  <p class="footer"></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="file-handling" class="title">File Handling</h1>
+        <p>A scripting library does not only contain reading and writing operations, that is why we also include methods for manipulating files such as creations, deletions, permissions and others.<br></p>
+        
+        <h2 id="create-a-file" class="section"><a class="anchor-link left" href="#create-a-file"><i class="icofont-laika link">&#xef71;</i></a>Create a file</h2>
+        <p>You may want to create a file without immediately writing on it. For example, when you want to modify the permissions first or let another process/fiber handle it instead. For such and more reasons, you can create a file or directory using the <code>createFile</code> and <code>createDirectory</code> functions.</p>
+        <p>It is generally possible to create empty files and directories using the <code>createFile</code> and <code>createDirectory</code> functions:<br></p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Creating</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">filePath</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;path/to/your/desired/creation/NiceScript.scala&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">filePath</span><span>.</span><span class="identifier">createFile</span><span>
+      </span><span class="identifier">created</span><span> &lt;- </span><span class="identifier">filePath</span><span>.</span><span class="identifier">exists</span><span>
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">s&quot;File created? </span><span class="substitution">$created</span><span class="string-literal">&quot;</span><span>)
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Creating</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="type-name">FilesOs</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Creating</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">filePath</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;path/to/your/desired/creation/NiceScript.scala&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">createFile</span><span>(</span><span class="identifier">filePath</span><span>)
+      </span><span class="identifier">created</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">exists</span><span>(</span><span class="identifier">filePath</span><span>)
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">s&quot;File created? </span><span class="substitution">$created</span><span class="string-literal">&quot;</span><span>)
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Creating</span></code></pre>
+          </div>
+        </div>
+        <p>Here, we are first creating the file using the <code>createFile</code> method and then checking its existent with the <code>exists</code> method.</p>
+        <p><strong>Important:</strong> The <code>createFile</code> and <code>createDirectory</code> methods will only work if the parent directory already exists, and fail otherwise. The <code>createDirectories</code> method will recursively create the directories instead:<br></p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Creating</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">emptyDirectories</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;create/me/first&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="identifier">emptyDirectories</span><span>.</span><span class="identifier">createDirectories</span><span> &gt;&gt; </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;now_i_can_be_created.fs&quot;</span><span>).</span><span class="identifier">createFile</span><span>
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Creating</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="type-name">FilesOs</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Creating</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">emptyDirectories</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;create/me/first&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">createDirectories</span><span>(</span><span class="identifier">emptyDirectories</span><span>) &gt;&gt; 
+      </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">createFile</span><span>(</span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;now_i_can_be_created.fs&quot;</span><span>))
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Creating</span></code></pre>
+          </div>
+        </div>
+        
+        <h3 id="exercise-1" class="section"><a class="anchor-link left" href="#exercise-1"><i class="icofont-laika link">&#xef71;</i></a>Exercise</h3>
+        <p>For this exercise, write a function that creates a file in a (deeply) nested directory. The directories should be created if they don&#39;t exist.<br></p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">extension</span><span> (</span><span class="identifier">path</span><span>: </span><span class="type-name">Path</span><span>) </span><span class="keyword">def</span><span> </span><span class="declaration-name">createFileAndDirectories</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = ???</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">createFileAndDirectories</span><span>(</span><span class="identifier">path</span><span>: </span><span class="type-name">Path</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = ???</span></code></pre>
+          </div>
+        </div>
+        <p><a href="../examples/solutions.html#create-a-file">See possible implementation</a></p>
+        
+        <h2 id="deleting-here-and-there" class="section"><a class="anchor-link left" href="#deleting-here-and-there"><i class="icofont-laika link">&#xef71;</i></a>Deleting here and there</h2>
+        <p>Creating is just the first part. Because memory is not infinite, you may also want to delete a file on your system.</p>
+        <p>Deleting a file is as easy as using the <code>delete</code> method:<br></p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Deleting</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">annoyingFile</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;desktop/extend_your_car_warranty_now.ad&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">exists</span><span> &lt;- </span><span class="identifier">annoyingFile</span><span>.</span><span class="identifier">exists</span><span>
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="keyword">if</span><span> </span><span class="identifier">exists</span><span> </span><span class="keyword">then</span><span> </span><span class="identifier">annoyingFile</span><span>.</span><span class="identifier">delete</span><span>
+           </span><span class="keyword">else</span><span> </span><span class="type-name">IO</span><span>.</span><span class="identifier">unit</span><span>
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Deleting</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="type-name">FilesOs</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Deleting</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">annoyingFile</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;desktop/extend_your_car_warranty_now.ad&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">exists</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">exists</span><span>(</span><span class="identifier">annoyingFile</span><span>)
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="keyword">if</span><span> </span><span class="identifier">exists</span><span> </span><span class="keyword">then</span><span> </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">delete</span><span>(</span><span class="identifier">annoyingFile</span><span>)
+           </span><span class="keyword">else</span><span> </span><span class="type-name">IO</span><span>.</span><span class="identifier">unit</span><span>
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Deleting</span></code></pre>
+          </div>
+        </div>
+        <p>Note that we are first checking if the file exists before deleting it, this is because trying to delete a file that does not exist will result in an error. To avoid this error, you have two options. One is using the <a href="https://github.com/typelevel/cats/blob/main/core/src/main/scala/cats/Applicative.scala#L263"><code>whenA</code> combinator</a> from <a href="https://typelevel.org/cats/typeclasses/applicative.html">Applicative</a> importing <code>cats.syntax.applicative.*</code>:<br></p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">applicative</span><span>.* </span><span class="comment">// You can instead import cats.syntax.all.* !
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Deleting</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">annoyingFile</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;desktop/extend_your_car_warranty_now.ad&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">exists</span><span> &lt;- </span><span class="identifier">annoyingFile</span><span>.</span><span class="identifier">exists</span><span>
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">annoyingFile</span><span>.</span><span class="identifier">delete</span><span>.</span><span class="identifier">whenA</span><span>(</span><span class="identifier">exists</span><span>)
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Deleting</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="type-name">FilesOs</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">applicative</span><span>.* </span><span class="comment">// You can instead import cats.syntax.all.* !
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Deleting</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">annoyingFile</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;desktop/extend_your_car_warranty_now.ad&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">exists</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">exists</span><span>(</span><span class="identifier">annoyingFile</span><span>)
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">delete</span><span>(</span><span class="identifier">annoyingFile</span><span>).</span><span class="identifier">whenA</span><span>(</span><span class="identifier">exists</span><span>)
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Deleting</span></code></pre>
+          </div>
+        </div>
+        <p>Or even better, use the convenience method <code>deleteIfExists</code>:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Deleting</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">annoyingFile</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;desktop/extend_your_car_warranty_now.ad&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">deleted</span><span> &lt;- </span><span class="identifier">annoyingFile</span><span>.</span><span class="identifier">deleteIfExists</span><span>
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">s&quot;Are they reaching out? </span><span class="substitution">$deleted</span><span class="string-literal">&quot;</span><span>)
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Deleting</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="type-name">FilesOs</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Deleting</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">annoyingFile</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;desktop/extend_your_car_warranty_now.ad&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">deleted</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">deleteIfExists</span><span>(</span><span class="identifier">annoyingFile</span><span>)
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">s&quot;Are they reaching out? </span><span class="substitution">$deleted</span><span class="string-literal">&quot;</span><span>)
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Deleting</span></code></pre>
+          </div>
+        </div>
+        <p>This will return a boolean indicating whether the file and directories have been deleted.<br></p>
+        <p>Finally, you may want to delete not one but multiple files and directories, here is when the <code>deleteDirectorires</code> comes handy, as it will delete all the files and directories recursively (similar to <code>rm -r</code>):<br></p>
+        <p><strong>Before:</strong></p>
+        <pre><code>/My files
+├── /non empty folder
+│&nbsp;&nbsp; ├── 3751c91b_2024-06-16_7.csv
+│&nbsp;&nbsp; ├── Screenshot 2024-06-16 210523.png
+│&nbsp;&nbsp; ├── /downloaded
+│&nbsp;&nbsp; │&nbsp;&nbsp; ├── /on_internet
+│&nbsp;&nbsp; │&nbsp;&nbsp; │&nbsp;&nbsp; └── Unconfirmed 379466.crdownload
+│&nbsp;&nbsp; │&nbsp;&nbsp; └── ubuntu-24.04-desktop-amd64.iso
+│&nbsp;&nbsp; └── /spark
+│&nbsp;&nbsp;     ├── output0-part-r-00000.nodes
+│&nbsp;&nbsp;     └── output1-part-r-00000.nodes
+│&nbsp;
+├── /dont delete
+│&nbsp;</code></pre>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Deleting</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">nonEmptyFolder</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;downloads/non empty folder&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="identifier">nonEmptyFolder</span><span>.</span><span class="identifier">deleteRecursively</span><span>
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Deleting</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="type-name">FilesOs</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Deleting</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">nonEmptyFolder</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;downloads/non empty folder&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">deleteRecursively</span><span>(</span><span class="identifier">nonEmptyFolder</span><span>)
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Deleting</span></code></pre>
+          </div>
+        </div>
+        <p><strong>After:</strong></p>
+        <pre><code>/My files
+├── /dont delete
+│&nbsp;&nbsp;</code></pre>
+        
+        <h3 id="exercise-2" class="section"><a class="anchor-link left" href="#exercise-2"><i class="icofont-laika link">&#xef71;</i></a>Exercise</h3>
+        <p>You are tired of people abusing the FTP server to upload enormous files, so you decide to implement a method that checks if a file exceeds a certain size, and if so, automatically delete it (hint: check the <code>size</code> method). The method must return <code>true</code> if the file has been deleted, <code>false</code> otherwise.<br></p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">extension</span><span> (</span><span class="identifier">path</span><span>: </span><span class="type-name">Path</span><span>) </span><span class="keyword">def</span><span> </span><span class="declaration-name">deleteIfChubby</span><span>(</span><span class="identifier">threshold</span><span>: </span><span class="type-name">Long</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Boolean</span><span>] = ???</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">deleteIfChubby</span><span>(</span><span class="identifier">path</span><span>: </span><span class="type-name">Path</span><span>, </span><span class="identifier">threshold</span><span>: </span><span class="type-name">Long</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Boolean</span><span>] = ???</span></code></pre>
+          </div>
+        </div>
+        <p><a href="../examples/solutions.html#deleting-here-and-there">See possible implementation</a></p>
+        
+        <h2 id="using-temporary-files" class="section"><a class="anchor-link left" href="#using-temporary-files"><i class="icofont-laika link">&#xef71;</i></a>Using temporary files</h2>
+        <p>Maybe you do not want to manually delete a file after its use. This is where temporary files come in to play, as they are deleted automatically.</p>
+        <p>To create temporary files, you have two options, one is to make Cats Effect automatically handle their lifecycle with the <code>withTempFile</code> and <code>withTempDirectory</code> methods (useful when you want the files deleted right away), or, if you rather prefer the operating system to take hands in its lifecycle, you can use the <code>createTempFile</code> and <code>createTempDirectory</code> variants (suitable if you do not care if the files are deleted immediately).</p>
+        <p>The former takes as a parameter a function that describes how you want to use the file, like this:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">all</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Temporary</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="identifier">withTempFile</span><span>: </span><span class="identifier">path</span><span> =&gt;
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">writeLines</span><span>(</span><span class="type-name">LazyList</span><span>.</span><span class="identifier">from</span><span>(</span><span class="char-literal">&#39;a&#39;</span><span>).</span><span class="identifier">map</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">toChar</span><span>.</span><span class="identifier">toString</span><span>).</span><span class="identifier">take</span><span>(</span><span class="number-literal">26</span><span>))
+      </span><span class="identifier">alphabet</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">read</span><span>
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">&quot;ASCII took hispanics into account!&quot;</span><span>).</span><span class="identifier">whenA</span><span>(</span><span class="identifier">alphabet</span><span>.</span><span class="identifier">contains</span><span>(</span><span class="char-literal">&#39;ñ&#39;</span><span>))
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Temporary</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="type-name">FilesOs</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">all</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Temporary</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">withTempFile</span><span>: </span><span class="identifier">path</span><span> =&gt;
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">writeLines</span><span>(</span><span class="identifier">path</span><span>, </span><span class="type-name">LazyList</span><span>.</span><span class="identifier">from</span><span>(</span><span class="char-literal">&#39;a&#39;</span><span>).</span><span class="identifier">map</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">toChar</span><span>.</span><span class="identifier">toString</span><span>).</span><span class="identifier">take</span><span>(</span><span class="number-literal">26</span><span>))
+      </span><span class="identifier">alphabet</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">read</span><span>(</span><span class="identifier">path</span><span>)
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">&quot;ASCII took hispanics into account!&quot;</span><span>).</span><span class="identifier">whenA</span><span>(</span><span class="identifier">alphabet</span><span>.</span><span class="identifier">contains</span><span>(</span><span class="char-literal">&#39;ñ&#39;</span><span>))
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Temporary</span></code></pre>
+          </div>
+        </div>
+        <p>You will see that the <code>use</code> function goes from <code>Path =&gt; IO[A]</code>, and that <code>use</code> basically describes a path that will be used to compute an <code>A</code>, with some side effects along the way. When the computation is finished, the file will no longer exist.</p>
+        <p>The last alternative is with <code>createTempFile</code> or <code>createTempDirectory</code>. The difference between <code>createTempFile</code> and <code>withTempFile</code> is that the <code>create</code> functions return the path of the file, for example:<br></p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Temporary</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">secretPath</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;.secrets/to_my_secret_lover.txt&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="identifier">createTempFile</span><span>.</span><span class="identifier">flatMap</span><span>: </span><span class="identifier">path</span><span> =&gt;
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">write</span><span>(</span><span class="string-literal">&quot;A confession to my lover: &quot;</span><span>)
+      </span><span class="identifier">letter</span><span> &lt;- </span><span class="identifier">secretPath</span><span>.</span><span class="identifier">read</span><span>
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">appendLine</span><span>(</span><span class="identifier">letter</span><span>)
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Temporary</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="type-name">FilesOs</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Temporary</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">secretPath</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;.secrets/to_my_secret_lover.txt&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">createTempFile</span><span>.</span><span class="identifier">flatMap</span><span>: </span><span class="identifier">path</span><span> =&gt;
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">write</span><span>(</span><span class="identifier">path</span><span>,</span><span class="string-literal">&quot;A confession to my lover: &quot;</span><span>)
+      </span><span class="identifier">letter</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">read</span><span>(</span><span class="identifier">secretPath</span><span>)
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">appendLine</span><span>(</span><span class="identifier">path</span><span>, </span><span class="identifier">letter</span><span>)
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Temporary</span></code></pre>
+          </div>
+        </div>
+        
+        <h3 id="exercise-3" class="section"><a class="anchor-link left" href="#exercise-3"><i class="icofont-laika link">&#xef71;</i></a>Exercise</h3>
+        <p>Another really nice way to handle resource lifecycle <a href="https://typelevel.org/cats-effect/docs/std/resource#resource">is with a <code>Resource</code></a> from Cats Effect. Be adventurous and implement a third way of handling temporary files with a new function that returns a <code>Resource</code>.<br></p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="type-name">Resource</span><span>
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">makeTempFile</span><span>: </span><span class="type-name">Resource</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Path</span><span>] = ???
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">makeTempDirectory</span><span>: </span><span class="type-name">Resource</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Path</span><span>] = ???</span></code></pre>
+        <p><a href="../examples/solutions.html#using-temporary-files">See possible implementations</a></p>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  shellfish is a <a href="https://typelevel.org/">Typelevel</a> project distributed under the <a href="https://opensource.org/licenses/MIT">MIT</a> license.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>

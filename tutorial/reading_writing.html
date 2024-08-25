@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>Reading and writing</title>
+  
+  <meta name="author" content="Christopher Davenport"/>
+  
+  
+  <meta name="description" content="site"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="https://typelevel.org/img/favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../helium/site/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/site/laika-helium.css" />
+  <script src="../helium/site/laika-helium.js"></script>
+  
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    
+  </div>
+
+  <a class="image-link" href="https://typelevel.org"><img src="https://typelevel.org/img/logo.svg"></a>
+
+  <div class="row links">
+    
+    <a class="icon-link svg-link" href="https://github.com/davenverse/shellfish"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+    <a class="icon-link svg-link" href="https://fosstodon.org/@typelevel"><span class="mastodon" title="Mastodon"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g class="svg-shape">
+    <path d="M11.19 12.195c2.016-.24 3.77-1.475 3.99-2.603.348-1.778.32-4.339.32-4.339 0-3.47-2.286-4.488-2.286-4.488C12.062.238 10.083.017 8.027 0h-.05C5.92.017 3.942.238 2.79.765c0 0-2.285 1.017-2.285 4.488l-.002.662c-.004.64-.007 1.35.011 2.091.083 3.394.626 6.74 3.78 7.57 1.454.383 2.703.463 3.709.408 1.823-.1 2.847-.647 2.847-.647l-.06-1.317s-1.303.41-2.767.36c-1.45-.05-2.98-.156-3.215-1.928a3.614 3.614 0 0 1-.033-.496s1.424.346 3.228.428c1.103.05 2.137-.064 3.188-.189zm1.613-2.47H11.13v-4.08c0-.859-.364-1.295-1.091-1.295-.804 0-1.207.517-1.207 1.541v2.233H7.168V5.89c0-1.024-.403-1.541-1.207-1.541-.727 0-1.091.436-1.091 1.296v4.079H3.197V5.522c0-.859.22-1.541.66-2.046.456-.505 1.052-.764 1.793-.764.856 0 1.504.328 1.933.983L8 4.39l.417-.695c.429-.655 1.077-.983 1.934-.983.74 0 1.336.259 1.791.764.442.505.661 1.187.661 2.046v4.203z"/>
+  </g>
+</svg></span></a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="icon-link svg-link" href="https://github.com/davenverse/shellfish"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+    <a class="icon-link svg-link" href="https://fosstodon.org/@typelevel"><span class="mastodon" title="Mastodon"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g class="svg-shape">
+    <path d="M11.19 12.195c2.016-.24 3.77-1.475 3.99-2.603.348-1.778.32-4.339.32-4.339 0-3.47-2.286-4.488-2.286-4.488C12.062.238 10.083.017 8.027 0h-.05C5.92.017 3.942.238 2.79.765c0 0-2.285 1.017-2.285 4.488l-.002.662c-.004.64-.007 1.35.011 2.091.083 3.394.626 6.74 3.78 7.57 1.454.383 2.703.463 3.709.408 1.823-.1 2.847-.647 2.847-.647l-.06-1.317s-1.303.41-2.767.36c-1.45-.05-2.98-.156-3.215-1.928a3.614 3.614 0 0 1-.033-.496s1.424.346 3.228.428c1.103.05 2.137-.064 3.188-.189zm1.613-2.47H11.13v-4.08c0-.859-.364-1.295-1.091-1.295-.804 0-1.207.517-1.207 1.541v2.233H7.168V5.89c0-1.024-.403-1.541-1.207-1.541-.727 0-1.091.436-1.091 1.296v4.079H3.197V5.522c0-.859.22-1.541.66-2.046.456-.505 1.052-.764 1.793-.764.856 0 1.504.328 1.933.983L8 4.39l.417-.695c.429-.655 1.077-.983 1.934-.983.74 0 1.336.259 1.791.764.442.505.661 1.187.661 2.046v4.203z"/>
+  </g>
+</svg></span></a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../">shellfish — Shell Scripting for Cats-Effect</a></li>
+    <li class="level1 nav-header">Introduction</li>
+    <li class="level2 nav-leaf"><a href="../introduction/">First steps</a></li>
+    <li class="level1 nav-header">Working with Files</li>
+    <li class="level2 nav-leaf"><a href="../files/">Files</a></li>
+    <li class="level1 nav-header">Files</li>
+    <li class="level2 nav-leaf"><a href="../wiki/file_reading_writing.html">Reading, writing, and appending</a></li>
+    <li class="level2 nav-leaf"><a href="../wiki/file_manipulation.html">Handling files and doing operations</a></li>
+    <li class="level1 nav-header">Working with Processes</li>
+    <li class="level2 nav-leaf"><a href="../processes/">Processes</a></li>
+    <li class="level1 nav-header">Tutorial</li>
+    <li class="level2 nav-leaf"><a href="path.html">Using Paths</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Reading and writing</a></li>
+    <li class="level2 nav-leaf"><a href="file_handling.html">File Handling</a></li>
+    <li class="level1 nav-header">Examples</li>
+    <li class="level2 nav-leaf"><a href="../examples/">Working with Files</a></li>
+    <li class="level2 nav-leaf"><a href="../examples/solutions.html">Solutions</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Reading and writing</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-node"><a href="#reading-and-printing-a-file">Reading and printing a file</a></li>
+    <li class="level2 nav-leaf"><a href="#exercise-1">Exercise</a></li>
+    <li class="level1 nav-node"><a href="#writing-and-modifying-the-contents-of-a-file">Writing and modifying the contents of a file</a></li>
+    <li class="level2 nav-leaf"><a href="#exercise-2">Exercise</a></li>
+    <li class="level1 nav-node"><a href="#working-line-by-line">Working line by line</a></li>
+    <li class="level2 nav-leaf"><a href="#exercise-3">Exercise</a></li>
+  </ul>
+
+  <p class="footer"></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="reading-and-writing" class="title">Reading and writing</h1>
+        <p>In this section, we will guide you through the process of opening and extracting information from files using our simple, intuitive API. Whether you are working with text, binary, or other formats, you will find the tools you need to seamlessly integrate file reading into your Scala project. Let us dive in and unlock the power of data stored in files!</p>
+        
+        <h2 id="reading-and-printing-a-file" class="section"><a class="anchor-link left" href="#reading-and-printing-a-file"><i class="icofont-laika link">&#xef71;</i></a>Reading and printing a file</h2>
+        <p>Let&#39;s say you want to load the contents of a file in memory...</p>
+        <p>The first thing you need to do is import the <code>read</code> method and the <code>Path</code> type:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.</span><span class="type-name">FilesOs</span></code></pre>
+          </div>
+        </div>
+        <p>Next, define the <code>run</code> function to execute the <code>IO</code>. To do that, you need to extend your application with a <code>cats.effect.IOApp</code>, let us name it <code>App</code>:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">App</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = ???
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">App</span></code></pre>
+        <p>Now we can start using the library! First, create a <code>Path</code> containing the path to the file you want to read:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span> </span><span class="comment">// TODO: delete this and use the Shellfish&#39;s one
+</span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;testdata/readme.txt&quot;</span><span>)</span></code></pre>
+        <p>And use the <code>read</code> function to load the file in memory as a string:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">App</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;testdata/readme.txt&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="identifier">path</span><span>.</span><span class="identifier">read</span><span>
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">App</span><span>
+</span><span class="comment">// error:
+// App is already defined as object App
+// object App extends IOApp.Simple:
+// ^</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">App</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;testdata/readme.txt&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">read</span><span>(</span><span class="identifier">path</span><span>)
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">App</span><span>
+</span><span class="comment">// error:
+// App is already defined as object App
+// object App extends IOApp.Simple:
+// ^</span></code></pre>
+          </div>
+        </div>
+        <p>Oops! We got an error saying that the <code>run</code> function accepts an <code>IO[Unit]</code>, but the <code>read</code> function returns an <code>IO[String]</code>. This happens because we are not doing anything with the string and therefore not returning <code>IO[Unit]</code>. Let&#39;s fix that by sequencing the value obtained from <code>read</code> with another that prints it to the console (and thus returns <code>IO[Unit]</code>). This can be achieved using the <code>flatMap</code> function as follows:<br></p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">path</span><span>.</span><span class="identifier">read</span><span>.</span><span class="identifier">flatMap</span><span>(</span><span class="identifier">file</span><span> =&gt; </span><span class="type-name">IO</span><span>(</span><span class="identifier">println</span><span>(</span><span class="identifier">file</span><span>)))</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">FilesOs</span><span>.</span><span class="identifier">read</span><span>(</span><span class="identifier">path</span><span>).</span><span class="identifier">flatMap</span><span>(</span><span class="identifier">file</span><span> =&gt; </span><span class="type-name">IO</span><span>(</span><span class="identifier">println</span><span>(</span><span class="identifier">file</span><span>)))</span></code></pre>
+          </div>
+        </div>
+        <p>What is happening above is that we are calling the <code>flatMap</code> method and passing as parameter a function describing what we want to do with the <code>file</code> inside the <code>IO</code>, in this case, passing it to the computation <code>IO(println(file))</code>.<br></p>
+        <p>Now pass the program to the <code>run</code> method and everything should go nicely:</p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">App</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;testdata/readme.txt&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="identifier">path</span><span>.</span><span class="identifier">read</span><span>.</span><span class="identifier">flatMap</span><span>(</span><span class="identifier">file</span><span> =&gt; </span><span class="type-name">IO</span><span>(</span><span class="identifier">println</span><span>(</span><span class="identifier">file</span><span>)))
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">App</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="type-name">FilesOs</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">App</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;testdata/readme.txt&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">read</span><span>(</span><span class="identifier">path</span><span>).</span><span class="identifier">flatMap</span><span>(</span><span class="identifier">file</span><span> =&gt; </span><span class="type-name">IO</span><span>(</span><span class="identifier">println</span><span>(</span><span class="identifier">file</span><span>)))
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">App</span></code></pre>
+          </div>
+        </div>
+        <p>Congratulations! You have just loaded the contents of a file in pure Scala 🎉.</p>
+        
+        <h3 id="exercise-1" class="section"><a class="anchor-link left" href="#exercise-1"><i class="icofont-laika link">&#xef71;</i></a>Exercise</h3>
+        <p>You may not like to keep using the <code>flatMap</code> function over and over again to sequence computations. This is why there is the <a href="https://docs.scala-lang.org/scala3/book/control-structures.html#for-expressions"><code>for</code> construct</a> to automatically let the compiler write the <code>flatMap</code>s for you. Why don&#39;t you try rewriting the program we just did using for-comprehensions? </p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+  </span><span class="keyword">for</span><span>
+    </span><span class="comment">// Complete your code here!
+</span><span>    ...
+  </span><span class="keyword">yield</span><span> ()</span></code></pre>
+        <p><a href="../examples/solutions.html#reading-and-printing-a-file">See solution</a></p>
+        
+        <h2 id="writing-and-modifying-the-contents-of-a-file" class="section"><a class="anchor-link left" href="#writing-and-modifying-the-contents-of-a-file"><i class="icofont-laika link">&#xef71;</i></a>Writing and modifying the contents of a file</h2>
+        <p>Now that you know how to load a file, you might also want to modify it and save it.</p>
+        <p>To write to a file, use the <code>write</code> function to save the contents to a new file. Here, we reverse the file so it reads backwards:<br></p>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">App</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;testdata/change_me.txt&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">file</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">read</span><span>
+      </span><span class="identifier">reversedFile</span><span> = </span><span class="identifier">file</span><span>.</span><span class="identifier">reverse</span><span>
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">write</span><span>(</span><span class="identifier">reversedFile</span><span>)
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">App</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="type-name">FilesOs</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">App</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;testdata/change_me.txt&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">file</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">read</span><span>(</span><span class="identifier">path</span><span>)
+      </span><span class="identifier">reversedFile</span><span> = </span><span class="identifier">file</span><span>.</span><span class="identifier">reverse</span><span>
+      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">write</span><span>(</span><span class="identifier">path</span><span>, </span><span class="identifier">reversedFile</span><span>)
+    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">App</span></code></pre>
+          </div>
+        </div>
+        <p>Be aware that this will overwrite the contents of the file. So be careful not to change important files while you are learning!</p>
+        
+        <h3 id="exercise-2" class="section"><a class="anchor-link left" href="#exercise-2"><i class="icofont-laika link">&#xef71;</i></a>Exercise</h3>
+        <p>Try loading the contents of two different files, concatenating them, and saving the result to a third location. How would you do it?</p>
+        <p><a href="../examples/solutions.html#writing-and-modifying-the-contents-of-a-file">See possible solution</a></p>
+        
+        <h2 id="working-line-by-line" class="section"><a class="anchor-link left" href="#working-line-by-line"><i class="icofont-laika link">&#xef71;</i></a>Working line by line</h2>
+        <p>Shellfish provides a method called <code>readLines</code>, which reads the file line by line and stores them on a <code>List[String]</code>. This comes handy when you are working with a list of things that you want to convert:<br></p>
+        <p><code>testdata/names.data</code></p>
+        <pre><code>Alex
+Jamie
+Morgan
+Riley
+Taylor
+Casey
+River</code></pre>
+        <div class="tab-container" data-tab-group="api-style">
+          <ul class="tab-group">
+            <li class="tab active" data-choice-name="syntax"><a href="#">Syntax</a></li>
+            <li class="tab" data-choice-name="static"><a href="#">Static</a></li>
+          </ul>
+          <div class="tab-content active" data-choice-name="syntax">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Names</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Name</span><span>(</span><span class="identifier">value</span><span>: </span><span class="type-name">String</span><span>)
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">namesPath</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;testdata/names.data&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">lines</span><span> &lt;- </span><span class="identifier">namesPath</span><span>.</span><span class="identifier">readLines</span><span>      </span><span class="comment">// (1)
+</span><span>      </span><span class="identifier">names</span><span> = </span><span class="identifier">lines</span><span>.</span><span class="identifier">map</span><span>(</span><span class="type-name">Name</span><span>(</span><span class="identifier">_</span><span>))        </span><span class="comment">// (2)
+</span><span>      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">IO</span><span>(</span><span class="identifier">names</span><span>.</span><span class="identifier">foreach</span><span>(</span><span class="identifier">println</span><span>))   </span><span class="comment">// (3)
+</span><span>    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Names</span></code></pre>
+          </div>
+          <div class="tab-content" data-choice-name="static">
+            <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">io</span><span>.</span><span class="identifier">chrisdavenport</span><span>.</span><span class="identifier">shellfish</span><span>.</span><span class="type-name">FilesOs</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>}
+
+</span><span class="keyword">object</span><span> </span><span class="type-name">Names</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>.</span><span class="type-name">Simple</span><span>:
+
+  </span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Name</span><span>(</span><span class="identifier">value</span><span>: </span><span class="type-name">String</span><span>)
+
+  </span><span class="keyword">val</span><span> </span><span class="identifier">namesPath</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;testdata/names.data&quot;</span><span>)
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">lines</span><span> &lt;- </span><span class="type-name">FilesOs</span><span>.</span><span class="identifier">readLines</span><span>(</span><span class="identifier">namesPath</span><span>)   </span><span class="comment">// (1)
+</span><span>      </span><span class="identifier">names</span><span> = </span><span class="identifier">lines</span><span>.</span><span class="identifier">map</span><span>(</span><span class="type-name">Name</span><span>(</span><span class="identifier">_</span><span>))              </span><span class="comment">// (2)
+</span><span>      </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">IO</span><span>(</span><span class="identifier">names</span><span>.</span><span class="identifier">foreach</span><span>(</span><span class="identifier">println</span><span>))         </span><span class="comment">// (3)
+</span><span>    </span><span class="keyword">yield</span><span> ()
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">Names</span></code></pre>
+          </div>
+        </div>
+        <p>Here is what&#39;s happening:</p>
+        <p>(1) Load the list of names as <code>List</code><br>
+        (2) Convert it to <code>Name</code><br>
+        (3) Print the list to the console</p>
+        
+        <h3 id="exercise-3" class="section"><a class="anchor-link left" href="#exercise-3"><i class="icofont-laika link">&#xef71;</i></a>Exercise</h3>
+        <p>Write a function that reads a file into lines, adds a blank line between the lines and saves the result in a different file. For example given the following input:<br></p>
+        <p><em><code>testdata/edgar_allan_poe/no_spaced_dream.txt</code></em></p>
+        <pre><code>Take this kiss upon the brow!
+And, in parting from you now,
+Thus much let me avow —
+You are not wrong, who deem
+That my days have been a dream;
+Yet if hope has flown away
+In a night, or in a day,
+In a vision, or in none,
+Is it therefore the less gone?
+All that we see or seem
+Is but a dream within a dream.</code></pre>
+        <p>Your program should output the following:<br></p>
+        <p><em><code>testdata/edgar_allan_poe/spaced_dream.txt</code></em></p>
+        <pre><code>Take this kiss upon the brow!
+
+And, in parting from you now,
+
+Thus much let me avow —
+
+You are not wrong, who deem
+
+That my days have been a dream;
+
+Yet if hope has flown away
+
+In a night, or in a day,
+
+In a vision, or in none,
+
+Is it therefore the less gone?
+
+All that we see or seem
+
+Is but a dream within a dream.</code></pre>
+        <p>How would you do this? (hint: use <code>writeLines</code>).</p>
+        <p><a href="../examples/solutions.html#working-line-by-line">See possible solution</a></p>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  shellfish is a <a href="https://typelevel.org/">Typelevel</a> project distributed under the <a href="https://opensource.org/licenses/MIT">MIT</a> license.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>

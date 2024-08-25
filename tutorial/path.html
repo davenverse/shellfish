@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="generator" content="Typelevel Laika + Helium Theme" />
-  <title>shellfish — Shell Scripting for Cats-Effect</title>
+  <title>Using Paths</title>
   
   <meta name="author" content="Christopher Davenport"/>
   
@@ -22,9 +22,9 @@
   
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
   
-  <link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
-    <link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
-  <script src="helium/site/laika-helium.js"></script>
+  <link rel="stylesheet" type="text/css" href="../helium/site/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/site/laika-helium.css" />
+  <script src="../helium/site/laika-helium.js"></script>
   
   
   <script> /* for avoiding page load transitions */ </script>
@@ -85,23 +85,23 @@
   </div>
 
   <ul class="nav-list">
-    <li class="level1 active nav-leaf"><a href="#">shellfish — Shell Scripting for Cats-Effect</a></li>
+    <li class="level1 nav-leaf"><a href="../">shellfish — Shell Scripting for Cats-Effect</a></li>
     <li class="level1 nav-header">Introduction</li>
-    <li class="level2 nav-leaf"><a href="introduction/">First steps</a></li>
+    <li class="level2 nav-leaf"><a href="../introduction/">First steps</a></li>
     <li class="level1 nav-header">Working with Files</li>
-    <li class="level2 nav-leaf"><a href="files/">Files</a></li>
+    <li class="level2 nav-leaf"><a href="../files/">Files</a></li>
     <li class="level1 nav-header">Files</li>
-    <li class="level2 nav-leaf"><a href="wiki/file_reading_writing.html">Reading, writing, and appending</a></li>
-    <li class="level2 nav-leaf"><a href="wiki/file_manipulation.html">Handling files and doing operations</a></li>
+    <li class="level2 nav-leaf"><a href="../wiki/file_reading_writing.html">Reading, writing, and appending</a></li>
+    <li class="level2 nav-leaf"><a href="../wiki/file_manipulation.html">Handling files and doing operations</a></li>
     <li class="level1 nav-header">Working with Processes</li>
-    <li class="level2 nav-leaf"><a href="processes/">Processes</a></li>
+    <li class="level2 nav-leaf"><a href="../processes/">Processes</a></li>
     <li class="level1 nav-header">Tutorial</li>
-    <li class="level2 nav-leaf"><a href="tutorial/path.html">Using Paths</a></li>
-    <li class="level2 nav-leaf"><a href="tutorial/reading_writing.html">Reading and writing</a></li>
-    <li class="level2 nav-leaf"><a href="tutorial/file_handling.html">File Handling</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Using Paths</a></li>
+    <li class="level2 nav-leaf"><a href="reading_writing.html">Reading and writing</a></li>
+    <li class="level2 nav-leaf"><a href="file_handling.html">File Handling</a></li>
     <li class="level1 nav-header">Examples</li>
-    <li class="level2 nav-leaf"><a href="examples/">Working with Files</a></li>
-    <li class="level2 nav-leaf"><a href="examples/solutions.html">Solutions</a></li>
+    <li class="level2 nav-leaf"><a href="../examples/">Working with Files</a></li>
+    <li class="level2 nav-leaf"><a href="../examples/solutions.html">Solutions</a></li>
   </ul>
 
 </nav>
@@ -110,11 +110,10 @@
 
       
 <nav id="page-nav">
-  <p class="header"><a href="#">shellfish — Shell Scripting for Cats-Effect</a></p>
+  <p class="header"><a href="#">Using Paths</a></p>
 
   <ul class="nav-list">
-    <li class="level1 nav-leaf"><a href="#getting-started">Getting Started</a></li>
-    <li class="level1 nav-leaf"><a href="#example">Example</a></li>
+    <li class="level1 nav-leaf"><a href="#creating-a-path">Creating a <code>Path</code></a></li>
   </ul>
 
   <p class="footer"></p>
@@ -123,35 +122,27 @@
 
       <main class="content">
 
-        <h1 id="shellfish-shell-scripting-for-cats-effect" class="title">shellfish — Shell Scripting for Cats-Effect</h1>
+        <h1 id="using-paths" class="title">Using Paths</h1>
+        <p>Shellfish is implemented with <a href="https://fs2.io/#/io">fs2-io</a>, and one of the abstraction it provides is <a href="https://www.javadoc.io/static/co.fs2/fs2-docs_3/3.8.0/fs2/io/file/Path.html"><code>Path</code></a>. It represents a path to a file or a directory.<br></p>
+        <p>You can start using <code>Path</code>s by importing the domain from the library: </p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.</span><span class="type-name">Path</span></code></pre>
         
-        <h2 id="getting-started" class="section"><a class="anchor-link left" href="#getting-started"><i class="icofont-laika link">&#xef71;</i></a>Getting Started</h2>
-        <p>To use shellfish in an existing SBT project with Scala 2.11 or a later version, add the following dependencies to your
-        <code>build.sbt</code> depending on your needs:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> ++= </span><span class="type-name">Seq</span><span>(
-  </span><span class="string-literal">&quot;io.chrisdavenport&quot;</span><span> %% </span><span class="string-literal">&quot;shellfish&quot;</span><span> % </span><span class="string-literal">&quot;&lt;version&gt;&quot;</span><span>
-)</span></code></pre>
-        
-        <h2 id="example" class="section"><a class="anchor-link left" href="#example"><i class="icofont-laika link">&#xef71;</i></a>Example</h2>
-        <p>Shellfish is a library to perform common script operations such as working with processes and files while maintaining referential transparency! </p>
-        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.{</span><span class="type-name">IO</span><span>, </span><span class="type-name">IOApp</span><span>, </span><span class="type-name">ExitCode</span><span>}
-
-</span><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.*
-</span><span class="keyword">import</span><span> </span><span class="identifier">shellfish</span><span>.</span><span class="identifier">syntax</span><span>.</span><span class="identifier">path</span><span>.*
-
-</span><span class="keyword">object</span><span> </span><span class="type-name">Main</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>: 
-
-  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>(</span><span class="identifier">args</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">String</span><span>]): </span><span class="type-name">IO</span><span>[</span><span class="type-name">ExitCode</span><span>] = 
-    </span><span class="keyword">for</span><span>
-      </span><span class="identifier">home</span><span>   &lt;- </span><span class="identifier">userHome</span><span>
-      </span><span class="identifier">config</span><span> = </span><span class="identifier">home</span><span> / </span><span class="string-literal">&quot;.shellfish&quot;</span><span> / </span><span class="string-literal">&quot;config.conf&quot;</span><span>
-      </span><span class="identifier">_</span><span>         &lt;- </span><span class="identifier">config</span><span>.</span><span class="identifier">createFile</span><span>
-      </span><span class="identifier">_</span><span>         &lt;- </span><span class="identifier">config</span><span>.</span><span class="identifier">write</span><span>(</span><span class="string-literal">&quot;scripting.made.easy = true&quot;</span><span>)
-      </span><span class="identifier">newconfig</span><span> &lt;- </span><span class="identifier">config</span><span>.</span><span class="identifier">read</span><span>
-      </span><span class="identifier">_</span><span>         &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">s&quot;Loading config: </span><span class="substitution">$newconfig</span><span class="string-literal">&quot;</span><span>)
-    </span><span class="keyword">yield</span><span> </span><span class="type-name">ExitCode</span><span>.</span><span class="type-name">Success</span><span>
-    
-</span><span class="identifier">end</span><span> </span><span class="type-name">Main</span></code></pre>
+        <h2 id="creating-a-path" class="section"><a class="anchor-link left" href="#creating-a-path"><i class="icofont-laika link">&#xef71;</i></a>Creating a <code>Path</code></h2>
+        <p>The recommended way for creating a <code>Path</code> is using the <code>apply</code> method of the companion object:<br></p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">fs2</span><span>.</span><span class="identifier">io</span><span>.</span><span class="identifier">file</span><span>.</span><span class="type-name">Path</span><span> </span><span class="comment">// TODO: Change this to the import of the library itself
+</span><span>
+</span><span class="keyword">val</span><span> </span><span class="identifier">path</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;path/to/a/file/or/directory&quot;</span><span>)
+</span><span class="comment">// path: Path = path/to/a/file/or/directory</span></code></pre>
+        <p>Once you did that, you can combine paths using some convenience methods:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">val</span><span> </span><span class="identifier">parent</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;parent/dir&quot;</span><span>)
+</span><span class="comment">// parent: Path = parent/dir
+</span><span>
+</span><span class="keyword">val</span><span> </span><span class="identifier">child</span><span> = </span><span class="type-name">Path</span><span>(</span><span class="string-literal">&quot;child/dir&quot;</span><span>)
+</span><span class="comment">// child: Path = child/dir
+</span><span>
+</span><span class="identifier">parent</span><span> / </span><span class="identifier">child</span><span> / </span><span class="string-literal">&quot;some/more/locations&quot;</span><span>
+</span><span class="comment">// res0: Path = parent/dir/child/dir/some/more/locations</span></code></pre>
+        <p>Note that these paths are compatible with the Java NIO paths, so you can use them interchangeably by calling the <code>toNioPath</code> value.<br></p>
 
         
 <hr class="footer-rule"/>
