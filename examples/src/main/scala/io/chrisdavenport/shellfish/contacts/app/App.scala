@@ -42,8 +42,7 @@ object App extends IOApp {
 
   def run(args: List[String]): IO[ExitCode] = createBookPath
     .map(ContactManager(_))
-    .flatMap { cm =>
-      given ContactManager = cm
+    .flatMap { implicit cm =>
       Prompt.parsePrompt(args) match {
         case Help                    => Cli.helpCommand
         case AddContact              => Cli.addCommand
