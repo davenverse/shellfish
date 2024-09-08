@@ -39,11 +39,11 @@ object contact {
   ) {
     def show: String =
       s"""|------ $username ------
-         |
-         |First Name:   $firstName
-         |Last Name:    $lastName
-         |Phone Number: $phoneNumber
-         |Email:        $email
+          |
+          |First Name:   $firstName
+          |Last Name:    $lastName
+          |Phone Number: $phoneNumber
+          |Email:        $email
           """.stripMargin
   }
 

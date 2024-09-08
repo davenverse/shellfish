@@ -28,9 +28,9 @@ import io.chrisdavenport.shellfish.contacts.core.ContactManager
 import io.chrisdavenport.shellfish.contacts.domain.flag.*
 import io.chrisdavenport.shellfish.contacts.domain.contact.*
 
-class Cli private (cm: ContactManager) {
+object Cli {
 
-  def addCommand: IO[Unit] =
+  def addCommand(implicit cm: ContactManager): IO[Unit] =
     for {
       username    <- IO.println("Enter the username: ") >> IO.readLine
       firstName   <- IO.println("Enter the first name: ") >> IO.readLine
@@ -51,44 +51,46 @@ class Cli private (cm: ContactManager) {
         }
     } yield ()
 
-  def removeCommand(username: Username): IO[Unit] =
+  def removeCommand(username: Username)(implicit cm: ContactManager): IO[Unit] =
     cm.removeContact(username) >> IO.println(s"Contact $username removed")
 
-  def searchIdCommand(username: Username): IO[Unit] =
-    for {
-      contact <- cm.searchId(username)
-      _ <- contact match {
-        case Some(c) => IO.println(c.show)
-        case None    => IO.println(s"Contact $username not found")
-      }
-    } yield ()
+  def searchUsernameCommand(
+      username: Username
+  )(implicit cm: ContactManager): IO[Unit] =
+    cm.searchUsername(username).flatMap {
+      case Some(c) => IO.println(c.show)
+      case None    => IO.println(s"Contact $username not found")
+    }
 
-  def searchNameCommand(name: Name): IO[Unit] =
+  def searchNameCommand(name: Name)(implicit cm: ContactManager): IO[Unit] =
     for {
       contacts <- cm.searchName(name)
       _        <- contacts.traverse_(c => IO.println(c.show))
     } yield ()
 
-  def searchEmailCommand(email: Email): IO[Unit] =
+  def searchEmailCommand(email: Email)(implicit cm: ContactManager): IO[Unit] =
     for {
       contacts <- cm.searchEmail(email)
       _        <- contacts.traverse_(c => IO.println(c.show))
     } yield ()
 
-  def searchNumberCommand(number: PhoneNumber): IO[Unit] =
+  def searchNumberCommand(
+      number: PhoneNumber
+  )(implicit cm: ContactManager): IO[Unit] =
     for {
       contacts <- cm.searchNumber(number)
       _        <- contacts.traverse_(c => IO.println(c.show))
     } yield ()
 
-  def viewAllCommand: IO[Unit] =
-    for {
-      contacts <- cm.getAll
-      _        <- contacts.traverse_(c => IO.println(c.show))
-    } yield ()
+  def viewAllCommand(implicit cm: ContactManager): IO[Unit] = for {
+    contacts <- cm.getAll
+    _        <- contacts.traverse_(c => IO.println(c.show))
+  } yield ()
 
-  def updateCommand(username: Username, options: List[Flag]): IO[Unit] =
-    cm.updateContact(username) { prev =>
+  def updateCommand(username: Username, options: List[Flag])(implicit
+      cm: ContactManager
+  ): IO[Unit] = cm
+    .updateContact(username) { prev =>
       options.foldLeft(prev) { (acc, flag) =>
         flag match {
           case FirstNameFlag(name)     => acc.copy(firstName = name)
@@ -98,17 +100,17 @@ class Cli private (cm: ContactManager) {
           case UnknownFlag(_)          => acc
         }
       }
-    }.flatMap(c => IO.println(s"Updated contact ${c.username}"))
-      .handleErrorWith {
-        case ContactNotFound(username) =>
-          IO.println(s"Contact $username not found")
-        case e =>
-          IO.println(s"An error occurred: \n${e.printStackTrace()}")
-      }
+    }
+    .flatMap(c => IO.println(s"Updated contact ${c.username}"))
+    .handleErrorWith {
+      case ContactNotFound(username) =>
+        IO.println(s"Contact $username not found")
+      case e =>
+        IO.println(s"An error occurred: \n${e.printStackTrace()}")
+    }
 
-  def helpCommand: IO[Unit] =
-    IO.println(
-      s"""
+  def helpCommand: IO[Unit] = IO.println(
+    s"""
         |Usage: contacts [command]
         |
         |Commands:
@@ -129,9 +131,5 @@ class Cli private (cm: ContactManager) {
         |  --email <email>
         |
         |""".stripMargin
-    )
-}
-
-object Cli {
-  def make(cm: ContactManager): Cli = new Cli(cm)
+  )
 }
