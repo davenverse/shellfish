@@ -80,7 +80,8 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
           sizeBefore <- path.readLines.map(_.size)
           _          <- path.appendLine("Im a last line!")
           sizeAfter  <- path.readLines.map(_.size)
-        } yield expect(sizeBefore + 1 == sizeAfter)
+        } yield expect(sizeBefore + 2 == sizeAfter)
+        // That is, one new line of the appendLine and, one newline character of the writeLines method
       }
     }
   }
@@ -322,7 +323,7 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
     }
   }
 
-  // Warning: Platform dependent test; this may fail on some operating systems
+  // Warning: Platform-dependent test; this may fail on some operating systems
   test("We should be able to get the file permissions in POSIX systems") {
 
     val permissionsGenerator: Gen[PosixPermissions] =
@@ -339,6 +340,22 @@ object FileOsSpec extends SimpleIOSuite with Checkers {
           _     <- path.setPosixPermissions(permissions)
           perms <- path.getPosixPermissions
         } yield expect(permissions == perms)
+      }
+    }
+  }
+
+  test(
+    "Writing lines should return a list with the same length when reading them"
+  ) {
+    val contentGenerator: Gen[List[String]] =
+      Gen.size.flatMap(size => Gen.listOfN(size, Gen.alphaNumStr))
+
+    forall(contentGenerator) { contentsList =>
+      withTempFile { path =>
+        for {
+          _       <- path.writeLines(contentsList)
+          readlns <- path.readLines
+        } yield expect(contentsList.length == readlns.length)
       }
     }
   }
