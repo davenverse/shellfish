@@ -72,9 +72,9 @@ case class Contact(
   email: Email
 )
 ``` 
-The type aliases are great, not only for added readability, but they also provide a way of not accidentally passing the wrong argument to the function. You can also use refined types provided by nice libraries like [Iron Types](https://github.com/Iltotore/iron), but for the sake of simplicity, we will use plain strings.
+The type aliases are great, not only for added readability, but they also provide a way of not accidentally passing the wrong argument to the function. You can also use refined types provided by libraries like [Iron](https://github.com/Iltotore/iron), but for the sake of simplicity, we will use plain strings.
 
-We will also need a function to display the contact in a nice format. If you came from Java, this function is known to `toString()`. But in Scala, we use `show` for this purpose.
+We will also need a function to display the contact in a nice format.
 
 ```scala 3
 //src/main/shellfish/contacts/domain/contact.scala
@@ -89,7 +89,7 @@ case class Contact( ... ):
   """.stripMargin
 ```
 
-We will also define a custom error type that gets when a contact already exists.  
+We will also define a custom error type that gets thrown when adding an already existing contact.  
 
 
 ```scala 3
@@ -238,9 +238,9 @@ override def getAll: IO[List[Contact]] =
   yield contacts
 ```
 
-We first load all the contacts into memory using our `readLines` function and them parse them into the type `Contact`. But look! It's our friend `traverse` again! We're going to use it to convert our `List[IO[Contact]]` into a `IO[List[Contact]]`. Why? Because the `parseContacts` function already returns an `IO`, so it suits perfectly to the function that `traverse` needs as argument. 
+We first load all the contacts in memory using our `readLines` function and then parse them into `Contact`s. We're going to use `traverse` to convert our `List[String]` into a `IO[List[Contact]]`. Why? Because the `parseContacts` function returns an `IO[Contact]`, so it suits perfectly for our use case. 
 
-Now, we can implement the `addContact` function:
+We can now implement the `addContact` function:
 
 ```scala 3
 //src/main/shellfish/contacts/core/ContactManager.scala
@@ -254,7 +254,7 @@ override def addContact(contact: Contact): IO[Username] =
   yield contact.username 
 ```
 
-First, we read all of our contacts, line by line using the `ContactManager#getAll` method (1). Then, we check if the contact already exists in the file checking if the username is contained (2). If it does, we raise an error using the `raiseError` method. If it doesn't, we save it to memory using our `saveContacts` methods. This is done with the `ifM`; this method basically checks if the boolean inside the `IO` is true or false and it executes an effect depending on the condition. 
+First, we read all of our contacts, line by line using the `ContactManager.getAll` method (1). Then, we check if the contact already exists in the file checking if the username is contained (2). If it does, we raise an error using the `raiseError` method. If it doesn't, we save it to memory using our `saveContacts` methods. This is done with the `ifM`; this method checks for a boolean value in an `IO` and executes one of the two declared effects depending on it.
 
 Now that we have the `addContact` function implemented, we can move to the `removeContact` function:
 
@@ -293,7 +293,7 @@ override def searchName(name: Name): IO[List[Contact]] =
 The first part is similar to the previous functions, we load all the contacts from the file, and then we filter the ones that contain the name (or field) we want to search. 
 
 
-The last function we need to implement is the `updateContact` function, be aware that this is the most complex function to implement, so we will break it down into smaller parts.
+The last function we need to implement is the `updateContact` function. Be aware that this is the most complex function to implement, so we will break it down into smaller parts.
 
 ```scala 3
 //src/main/shellfish/contacts/core/ContactManager.scala
@@ -313,18 +313,18 @@ override def updateContact(
 ```
 
 
-1. First, we'll find if the Contact we want to modify exists. If it doesnt, we raise a `ContactNotFound` error.
+1. First, we'll find if the Contact we want to modify exists. If it doesn't, we raise a `ContactNotFound` error.
 
 2. In case the contact exists, we are going to apply to it the transform function and add it to the loaded list. While doing that, we delete the old contact via the `filterNot` method.
 
 3. Finally, we save the new contact list to the memory.
 
-Oof, that was a lot of code! But we're done with the core of our application. Now we can move to the CLI part.
+Now that we're done with the core of our application, we can move to the CLI part.
 
 ## CLI
-In this section, we will define the CLI part of our application. Here, we’re going to use the core logic previously implemented to interact with the CLI. For example, by printing to the standard output and reading from the user input.  
+In this section, we will define our application's command line interface: it will accept commands and print the output to stdout.
 
-It makes little sense to define the behaviour of the CLI in terms of an interface, as there are only a few ways of interacting with the user via a console. That why we will just create some functions contained on a `Cli` package:
+It makes little sense to define the behaviour of the CLI in terms of an interface, as there are only a few ways of interacting with the user via a console. That's why we will just wrap these functionalities in some functions in a `Cli` object:
 
 ```scala 3
 //src/main/shellfish/contacts/cli/Cli.scala
@@ -332,9 +332,9 @@ object Cli:
   def addCommand ...
 ```
 
-One way of passing the `ContactManager` dependency is to pass it as an argument to the function. However, it can be tedious to do this every time we want to use the functionality of our `Cli`, that's why Scala has an option to let the compiler do it for us! That's via the `given`/`using` clauses; if we want the compiler to "inject" the dependency, we just need to use the `using` keyword in the argument to the function, and it will be passed automatically as long as there is a given instance of our dependency in scope. This feature is also know as [contextual abstractions](https://docs.scala-lang.org/scala3/book/ca-context-parameters.html), We recommend that you take a closer look at these and how to use them in more detail.
+One way of passing the `ContactManager` dependency to these functions is to pass it as an argument. However, it can be tedious to do this every time we want to use the functionality of our `Cli`, that's why Scala has an option declare implicit parameters via the `given`/`using` clauses. We just need to use the `using` keyword in front of any function's argument and as long as there is a given instance in scope at call site for every `using` clause, that value will be passed automatically. This feature is called [context parameters](https://docs.scala-lang.org/scala3/book/ca-context-parameters.html).
 
-That said, the first function is going to be the `addCommand`. The idea is to ask the user step by step for the information of the contact and then add it to the contact list:
+That said, the first function is going to be the `addCommand`. The idea is to ask the user the contact's information one step at a time and then add it to the contact list:
 
 ```scala 3
 //src/main/shellfish/contacts/cli/Cli.scala
@@ -355,11 +355,11 @@ def addCommand(using cm: ContactManager): IO[Unit] =
           IO.println(s"Contact $username already exists")
         case e =>
           IO.println(s"An error occurred: \n${e.printStackTrace()}")
-    
+
   yield ()
 ```
 
-The first five `IO.readLine` calls in `for` asks the fields to save the contact. Then we create the `Contact` object with the information provided. Next, we call the `addContact` method of the `ContactManager` and handle the errors. If the contact already exists, we print a message to the user. If another error occurs, we print the stack trace of the error to see what went wrong.  
+The first five `IO.readLine` calls in the `for` comprehension ask for the contact's detail, we then attempt to create the `Contact` object with the information provided calling `addContact` method of the `ContactManager` and handle the errors. If the contact already exists, we print a message to the user, if another error occurs, we print the stack trace of the error to see what went wrong.  
 
 Now the `removeCommand` function:
 
@@ -383,8 +383,7 @@ def searchIdCommand(username: Username)(using cm: ContactManager): IO[Unit] =
   yield ()
 ```
 
-Like the previous `searchX` variants, they’re fairly similar, so we will only show one of them.
-In this case, the `searchEmailCommand` one:
+All the `searchX` variants are fairly similar so we'll show just one of them:
 
 ```scala 3
 //src/main/shellfish/contacts/cli/Cli.scala
@@ -396,11 +395,10 @@ def searchEmailCommand(email: Email)(using cm: ContactManager): IO[Unit] =
 ``` 
 
 It also uses the `traverse_` method, but with a little variant that optimises it a bit. It takes as a parameter a function from `A => IO[Unit]` and it will execute the effect for each element of the collection, but it will discard the result of the computation.
-
+`searchEmailCommand` uses the `traverse_` method: a little variant of `traverse` that takes a `A => IO[Unit]` function and then discards the result.
 Last but not least, the `updateCommand` function. 
 
-We take as a first parameter the username of the contact we want to update in the database, so we can search for it's existence. 
-As the second parameter, we will pass a list of flags, essentially describing which fields of the contact will be changed:
+We take as a first parameter the username of the contact we want to update in the database, so we can search for its existence. 
 
 ```scala 3
 //src/main/shellfish/contacts/cli/Cli.scala
@@ -425,9 +423,9 @@ def updateCommand(username: Username, options: List[Flag])(
 ```
 
 This is also quite a bit of code, but let's break it down: 
-First, we call the `updateContact` method of the `ContactManager` and pass the function that will modify the contact. To do this, we're going to reduce the list of flags using foldLeft. This function takes an initial value (the contact we want to update) and a function describing how to update the initial value (`acc`) with each one of the flags in turn (`flag`) (1). Where, we just use the `copy` methods and pattern match the flags to update the contact (2). After that, we print a message to the user saying that the contact was updated successfully (3). If the contact is not found, we print a message to the user saying that. 
 
-And as a last nice thing, a `helpCommand` function that will print the available commands to the user:
+
+First, we call the `updateContact` method of the `ContactManager` and pass the function that will modify the contact. To do this, we're going to reduce the list of flags using `foldLeft`. This function takes an initial value (the contact we want to update) and a function describing how to update the initial value (`acc`) with each one of the flags in turn (`flag`) (1). Where, we just use the `copy` methods and pattern match the flags to update the contact (2). After that, we print a message to the user saying that the contact was updated successfully (3). If the contact is not found, we print a message to the user saying that. 
 
 ```scala 3
 //src/main/shellfish/contacts/cli/Cli.scala
@@ -456,16 +454,14 @@ def helpCommand: IO[Unit] =
       |""".stripMargin
 ```
 
-That was rough, but congratulations on making it so far! Now we can move to the last part of our application.
+That was tough, congratulations on making it so far! We can now move to the last part of our application.  
 
 ## Prompt
-The last part is the prompt parsing, the functionality that is going to parse the user command line arguments into instructions that Scala can understand and then we can pass to the `Cli`.
+The last piece that we need to create is the prompt parsing, that will parse user submitted information into commands that our `Cli` can handle.
 
-We strongly suggest that you use a command parsing library, for example, [Decline](https://ben.kirw.in/decline/). 
+We strongly suggest you to use a command line parsing library, like [Decline](https://ben.kirw.in/decline/) but for the sake of simplicity, we'll demonstrate how to create it without the need of an external dependency. 
 
-But again, for the sake of simplicity, well demonstrate how we achieved that without the need of an external dependency. 
-
-First thing is creating a parse function that will pattern match the `args` parameter of our entry point functions and, depending on the command, will call the respective function of the `Cli` class:
+The first thing we'll do is creating a `parsePrompt` function that will pattern match over the user input and, according to the value will return the appropriate `CliCommand`:  
 
 ```scala 3
 //src/main/shellfish/contacts/cli/Prompt.scala
@@ -480,16 +476,13 @@ def parsePrompt(args: List[String]): CliCommand =
     case "list" :: _                           => ViewAll
     case "update" :: username :: options =>
       UpdateContact(username, parseUpdateFlags(options))
-    case Nil                                   => Help
-    case "--help" :: _ => Help
-    case "help" :: _   => Help
-    case _             => Help
+    case Nil => Help
+    case _   => Help
 end parsePrompt
 ```
 
-Here we're using pattern matching to match the command and the arguments, so we can create the corresponding `CliCommand`.
 
-Notice that we also created a `parseUpdateFlags` function, this does a similar thing, but it creates a list of flags that can change the updating behaviour:  
+We also created a `parseUpdateFlags` function that creates a list of flags that can change the updating behaviour using a similar pattern:  
 
 ```scala 3
 //src/main/shellfish/contacts/cli/Prompt.scala`
@@ -521,17 +514,17 @@ private def parseUpdateFlags(options: List[String]): List[Flag] =
 end parseUpdateFlags
 ```
 
-Because the update flags  are unordered, we use a recursive function to match each flag and its value, and then we create a list of `Flag` that will be passed to the `updateCommand` function like defined before.
+Because the update flags can be unordered, we case use a recursive function to match each flag and its value and then create a list of `Flag`.
 
 ## Main
 
-Now that we have all the parts of our application, we can create the entry point of our application.
+Now that we have all the required components we can define the entry point of our application.
 
-The first thing is creating an initial function that describes a computation that will create the file we will work with. In this case, our in memory database will be located in `~/.shellfish/contacts.data`:
+The first thing that we need to do is create an initial function that that will create our in-memory database (located at `~/.shellfish/contacts.data`) if needed:
 
 ```scala 3
 //src/main/shellfish/contacts/app/App.scala
-private val createBookPath: IO[Path] =
+private val getOrCreateBookPath: IO[Path] =
   for
     home <- userHome
     dir  = home / ".shellfish"
@@ -541,34 +534,24 @@ private val createBookPath: IO[Path] =
     _      <- path.createFile.unlessA(exists)
   yield path
 ```
-The `userHome` function will find the home directory and then, create the directory and the file if they don't exist.
 
-Remember the `using` keyword? Now we can create a given instance of the contact manager like this:
 
-```scala 3
-given cm: ContactManager = ContactManager(path)
-```
-
-With that, we can use the instance whenever we have declared an argument with the `using` clause with the same type.
-
-Or even better, we can create it like this:
+We can then create our `given` instance of `ContactManager`:
 
 ```scala 3
-createBookPath
+getOrCreateBookPath
   .map(ContactManager(_))
-  .flatMap: cm =>
-    given ContactManager = cm
+  .flatMap: 
+    case given ContactManager 
 ```
 
 With that, our main (`run`) function will be like this:
 
 ```scala 3
 //src/main/shellfish/contacts/app/App.scala
-  def run(args: List[String]): IO[ExitCode] = createBookPath
-    .map(ContactManager(_))
-    .flatMap: cm =>
-      given ContactManager = cm
-
+  .flatMap: 
+    case given ContactManager =>
+      
       Prompt.parsePrompt(args) match 
         case Help                    => Cli.helpCommand
         case AddContact              => Cli.addCommand
@@ -584,16 +567,13 @@ With that, our main (`run`) function will be like this:
     .as(ExitCode.Success)
 ```
 
-After creating our working path, we start creating our dependencies by calling the methods inside the companion objects of our application, in this case, the contact manager and the CLI. Then we parse the command line arguments using the `parsePrompt` function and call the respective function of the `Cli` class.  
-
-
 This is what the final code looks like:
 
 ```scala 3
 //src/main/shellfish/contacts/app/App.scala
 object App extends IOApp:
 
-  private val createBookPath: IO[Path] =
+  private val getOrCreateBookPath: IO[Path] =
     for
       home <- userHome
       dir  = home / ".shellfish"
@@ -603,25 +583,25 @@ object App extends IOApp:
       _      <- path.createFile.unlessA(exists)
     yield path
 
-  def run(args: List[String]): IO[ExitCode] =
-    createBookPath.flatMap:
-      bookPath =>
-        val cm  = ContactManager.impl(bookPath)
-        val cli = Cli.make(cm)
-
-        Prompt.parsePrompt(args) match
-          case Help                    => cli.helpCommand
-          case AddContact              => cli.addCommand
-          case RemoveContact(username) => cli.removeCommand(username)
-          case SearchId(username)      => cli.searchIdCommand(username)
-          case SearchName(name)        => cli.searchNameCommand(name)
-          case SearchEmail(email)      => cli.searchEmailCommand(email)
-          case SearchNumber(number)    => cli.searchNumberCommand(number)
-          case ViewAll                 => cli.viewAllCommand
+  def run(args: List[String]): IO[ExitCode] = getOrCreateBookPath
+    .map(ContactManager(_))
+    .flatMap:
+      case given ContactManager =>
+        
+        Prompt.parsePrompt(args) match 
+          case Help                    => Cli.helpCommand
+          case AddContact              => Cli.addCommand
+          case RemoveContact(username) => Cli.removeCommand(username)
+          case SearchId(username)      => Cli.searchUsernameCommand(username)
+          case SearchName(name)        => Cli.searchNameCommand(name)
+          case SearchEmail(email)      => Cli.searchEmailCommand(email)
+          case SearchNumber(number)    => Cli.searchNumberCommand(number)
+          case ViewAll                 => Cli.viewAllCommand
           case UpdateContact(username, flags) =>
-            cli.updateCommand(username, flags)
-            
+            Cli.updateCommand(username, flags)
+    
     .as(ExitCode.Success)
+
 ```
 
 And that's it!
@@ -629,12 +609,12 @@ We’ve created a simple CLI application that manages contacts using Shellfish a
 We hope you enjoyed this tutorial and learned a lot about how to use Shellfish in a real-world application.
 
 ### Exercise
-We used a hardcoded path to store our contacts.  
+We used a hard-coded path to store our contacts.  
 
 But what if we want to change the path to another location?
 Or maybe have multiple locations with different contacts? 
 
-Try to modify the application so the user can initialise and change the location of a contact book on a specific path and then use that path to store the contacts.
+Try to modify the application, so the user can initialise and change the location of a contact book on a specific path and then use that path to store the contacts.
 
 To do that, you can create two new commands, `init` and `change` that will create a new contact book and change the current contact book, respectively.
 
