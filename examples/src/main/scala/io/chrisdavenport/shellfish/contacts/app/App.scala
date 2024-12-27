@@ -31,7 +31,7 @@ import io.chrisdavenport.shellfish.syntax.path.*
 
 object App extends IOApp {
 
-  private val createBookPath: IO[Path] = for {
+  private val getOrCreateBookPath: IO[Path] = for {
     home <- userHome
     dir  = home / ".shellfish"
     path = dir / "contacts.data"
@@ -40,7 +40,7 @@ object App extends IOApp {
     _      <- path.createFile.unlessA(exists)
   } yield path
 
-  def run(args: List[String]): IO[ExitCode] = createBookPath
+  def run(args: List[String]): IO[ExitCode] = getOrCreateBookPath
     .map(ContactManager(_))
     .flatMap { implicit cm =>
       Prompt.parsePrompt(args) match {

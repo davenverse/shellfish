@@ -37,10 +37,8 @@ object Prompt {
     case "list" :: _                           => ViewAll
     case "update" :: username :: options =>
       UpdateContact(username, parseUpdateFlags(options))
-    case Nil           => Help
-    case "--help" :: _ => Help
-    case "help" :: _   => Help
-    case _             => Help
+    case Nil => Help
+    case _   => Help
   }
 
   private def parseUpdateFlags(options: List[String]): List[Flag] = {
