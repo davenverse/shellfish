@@ -45,7 +45,8 @@ lazy val examples = project
   .dependsOn(core.jvm)
   .settings(
     name                 := "shellfish-examples",
-    Compile / run / fork := true
+    Compile / run / fork := true,
+    run / connectInput   := true
   )
 
 import Site.SiteConfig
