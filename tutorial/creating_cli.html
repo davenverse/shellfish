@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>Creating a Contact Manager CLI</title>
+  
+  <meta name="author" content="Christopher Davenport"/>
+  
+  
+  <meta name="description" content="site"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="https://typelevel.org/img/favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../helium/site/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../helium/site/laika-helium.css" />
+  <script src="../helium/site/laika-helium.js"></script>
+  
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    
+  </div>
+
+  <a class="icon-link glyph-link" href="../"><i class="icofont-laika home" title="Home">&#xef47;</i></a>
+
+  <div class="row links">
+    
+    <a class="icon-link svg-link" href="https://github.com/davenverse/shellfish"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+    <a class="icon-link svg-link" href="https://fosstodon.org/@typelevel"><span class="mastodon" title="Mastodon"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g class="svg-shape">
+    <path d="M11.19 12.195c2.016-.24 3.77-1.475 3.99-2.603.348-1.778.32-4.339.32-4.339 0-3.47-2.286-4.488-2.286-4.488C12.062.238 10.083.017 8.027 0h-.05C5.92.017 3.942.238 2.79.765c0 0-2.285 1.017-2.285 4.488l-.002.662c-.004.64-.007 1.35.011 2.091.083 3.394.626 6.74 3.78 7.57 1.454.383 2.703.463 3.709.408 1.823-.1 2.847-.647 2.847-.647l-.06-1.317s-1.303.41-2.767.36c-1.45-.05-2.98-.156-3.215-1.928a3.614 3.614 0 0 1-.033-.496s1.424.346 3.228.428c1.103.05 2.137-.064 3.188-.189zm1.613-2.47H11.13v-4.08c0-.859-.364-1.295-1.091-1.295-.804 0-1.207.517-1.207 1.541v2.233H7.168V5.89c0-1.024-.403-1.541-1.207-1.541-.727 0-1.091.436-1.091 1.296v4.079H3.197V5.522c0-.859.22-1.541.66-2.046.456-.505 1.052-.764 1.793-.764.856 0 1.504.328 1.933.983L8 4.39l.417-.695c.429-.655 1.077-.983 1.934-.983.74 0 1.336.259 1.791.764.442.505.661 1.187.661 2.046v4.203z"/>
+  </g>
+</svg></span></a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="icon-link svg-link" href="https://github.com/davenverse/shellfish"><span class="github" title="Source Code"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+  <g class="svg-shape">
+    <path d="M49.995,1c-27.609,-0 -49.995,22.386 -49.995,50.002c-0,22.09 14.325,40.83 34.194,47.444c2.501,0.458 3.413,-1.086 3.413,-2.412c0,-1.185 -0.043,-4.331 -0.067,-8.503c-13.908,3.021 -16.843,-6.704 -16.843,-6.704c-2.274,-5.773 -5.552,-7.311 -5.552,-7.311c-4.54,-3.103 0.344,-3.042 0.344,-3.042c5.018,0.356 7.658,5.154 7.658,5.154c4.46,7.64 11.704,5.433 14.552,4.156c0.454,-3.232 1.744,-5.436 3.174,-6.685c-11.102,-1.262 -22.775,-5.553 -22.775,-24.713c-0,-5.457 1.949,-9.92 5.147,-13.416c-0.516,-1.265 -2.231,-6.348 0.488,-13.233c0,0 4.199,-1.344 13.751,5.126c3.988,-1.108 8.266,-1.663 12.518,-1.682c4.245,0.019 8.523,0.574 12.517,1.682c9.546,-6.47 13.736,-5.126 13.736,-5.126c2.728,6.885 1.013,11.968 0.497,13.233c3.204,3.496 5.141,7.959 5.141,13.416c0,19.209 -11.691,23.436 -22.83,24.673c1.795,1.544 3.394,4.595 3.394,9.26c0,6.682 -0.061,12.076 -0.061,13.715c0,1.338 0.899,2.894 3.438,2.406c19.853,-6.627 34.166,-25.354 34.166,-47.438c-0,-27.616 -22.389,-50.002 -50.005,-50.002"/>
+  </g>
+</svg></span></a>
+    
+    <a class="icon-link glyph-link" href="https://discord.gg/XF3CXcMzqD"><i class="icofont-laika chat" title="Chat">&#xeed5;</i></a>
+    
+    <a class="icon-link svg-link" href="https://fosstodon.org/@typelevel"><span class="mastodon" title="Mastodon"><svg class="svg-icon" width="100%" height="100%" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g class="svg-shape">
+    <path d="M11.19 12.195c2.016-.24 3.77-1.475 3.99-2.603.348-1.778.32-4.339.32-4.339 0-3.47-2.286-4.488-2.286-4.488C12.062.238 10.083.017 8.027 0h-.05C5.92.017 3.942.238 2.79.765c0 0-2.285 1.017-2.285 4.488l-.002.662c-.004.64-.007 1.35.011 2.091.083 3.394.626 6.74 3.78 7.57 1.454.383 2.703.463 3.709.408 1.823-.1 2.847-.647 2.847-.647l-.06-1.317s-1.303.41-2.767.36c-1.45-.05-2.98-.156-3.215-1.928a3.614 3.614 0 0 1-.033-.496s1.424.346 3.228.428c1.103.05 2.137-.064 3.188-.189zm1.613-2.47H11.13v-4.08c0-.859-.364-1.295-1.091-1.295-.804 0-1.207.517-1.207 1.541v2.233H7.168V5.89c0-1.024-.403-1.541-1.207-1.541-.727 0-1.091.436-1.091 1.296v4.079H3.197V5.522c0-.859.22-1.541.66-2.046.456-.505 1.052-.764 1.793-.764.856 0 1.504.328 1.933.983L8 4.39l.417-.695c.429-.655 1.077-.983 1.934-.983.74 0 1.336.259 1.791.764.442.505.661 1.187.661 2.046v4.203z"/>
+  </g>
+</svg></span></a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../">shellfish — Shell Scripting for Cats-Effect</a></li>
+    <li class="level1 nav-header">Introduction</li>
+    <li class="level2 nav-leaf"><a href="../introduction/">First steps</a></li>
+    <li class="level1 nav-header">Working with Files</li>
+    <li class="level2 nav-leaf"><a href="../files/">Files</a></li>
+    <li class="level1 nav-header">Files</li>
+    <li class="level2 nav-leaf"><a href="../wiki/file_reading_writing.html">Reading, writing, and appending</a></li>
+    <li class="level2 nav-leaf"><a href="../wiki/file_manipulation.html">Handling files and doing operations</a></li>
+    <li class="level1 nav-header">Working with Processes</li>
+    <li class="level2 nav-leaf"><a href="../processes/">Processes</a></li>
+    <li class="level1 nav-header">Tutorial</li>
+    <li class="level2 nav-leaf"><a href="path.html">Using Paths</a></li>
+    <li class="level2 nav-leaf"><a href="reading_writing.html">Reading and writing</a></li>
+    <li class="level2 nav-leaf"><a href="file_handling.html">File Handling</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Creating a Contact Manager CLI</a></li>
+    <li class="level1 nav-header">Examples</li>
+    <li class="level2 nav-leaf"><a href="../examples/">Working with Files</a></li>
+    <li class="level2 nav-leaf"><a href="../examples/solutions.html">Solutions</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Creating a Contact Manager CLI</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#basic-idea">Basic Idea</a></li>
+    <li class="level1 nav-leaf"><a href="#project-structure">Project Structure</a></li>
+    <li class="level1 nav-leaf"><a href="#domain">Domain</a></li>
+    <li class="level1 nav-leaf"><a href="#core-business-logic">Core business logic</a></li>
+    <li class="level1 nav-leaf"><a href="#cli">CLI</a></li>
+    <li class="level1 nav-leaf"><a href="#prompt">Prompt</a></li>
+    <li class="level1 nav-node"><a href="#main">Main</a></li>
+    <li class="level2 nav-leaf"><a href="#exercise">Exercise</a></li>
+  </ul>
+
+  <p class="footer"></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="creating-a-contact-manager-cli" class="title">Creating a Contact Manager CLI</h1>
+        <p>Moving on from the basics, in this tutorial, we will create a simple CLI application that manages contacts. The application will allow users to add, list, update, and delete contacts.</p>
+        
+        <h2 id="basic-idea" class="section"><a class="anchor-link left" href="#basic-idea"><i class="icofont-laika link">&#xef71;</i></a>Basic Idea</h2>
+        <p>We want a CLI application that stores the contacts in a file on your system and allows you to perform CRUD operations on the contacts. The application will look something like this: </p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>$ cm add 
+&gt; Enter username: contact_username
+&gt; First Name: contact_name
+&gt; Last Name: contact_name
+&gt; Phone: contact_phone
+&gt; Email: contact_email</span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>$ cm get 
+&gt; ----- contact_username -----
+&gt; First Name:    contact_name
+&gt; Last Name:     contact_name
+&gt; Phone:         contact_phone
+&gt; Email:         contact_email</span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>$ cm update contact_username --last-name new_contact_name
+&gt; Contact contact_username updated successfully</span></code></pre>
+        <p>Now that we know what we want to build, let us start by creating the project structure.</p>
+        
+        <h2 id="project-structure" class="section"><a class="anchor-link left" href="#project-structure"><i class="icofont-laika link">&#xef71;</i></a>Project Structure</h2>
+        <p>For this project, we will use the following project structure:</p>
+        <pre><code>examples/
+└── src
+    └── main
+        └── scala
+            └── contacts
+                ├── app
+                ├── cli
+                ├── core
+                └── domain</code></pre>
+        <ul>
+          <li><code>app</code>: This package will contain the main entry point of the application.</li>
+          <li><code>cli</code>: This package will contain the CLI logic such as prompt parsing and command execution.</li>
+          <li><code>core</code>: This package will contain the business logic of the application, here is where we will use Shellfish!</li>
+          <li><code>domain</code>: This package will contain important business logic (mostly types) that <code>app</code>, <code>cli</code> and <code>core</code> will use. </li>
+        </ul>
+        <p>Let us first start by defining our domain.</p>
+        
+        <h2 id="domain" class="section"><a class="anchor-link left" href="#domain"><i class="icofont-laika link">&#xef71;</i></a>Domain</h2>
+        <p>Our domain will be straightforward, we will have a <code>Contact</code> case class that will represent a contact. </p>
+        <pre><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/domain/contact.scala
+</span><span class="keyword">type</span><span> </span><span class="type-name">Username</span><span>    = </span><span class="type-name">String</span><span>
+</span><span class="keyword">type</span><span> </span><span class="type-name">Name</span><span>        = </span><span class="type-name">String</span><span>
+</span><span class="keyword">type</span><span> </span><span class="type-name">PhoneNumber</span><span> = </span><span class="type-name">String</span><span>
+</span><span class="keyword">type</span><span> </span><span class="type-name">Email</span><span>       = </span><span class="type-name">String</span><span>
+
+</span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Contact</span><span>(
+  </span><span class="identifier">username</span><span>: </span><span class="type-name">Username</span><span>,
+  </span><span class="identifier">firstName</span><span>: </span><span class="type-name">Name</span><span>,
+  </span><span class="identifier">lastName</span><span>: </span><span class="type-name">Name</span><span>,
+  </span><span class="identifier">phoneNumber</span><span>: </span><span class="type-name">PhoneNumber</span><span>,
+  </span><span class="identifier">email</span><span>: </span><span class="type-name">Email</span><span>
+)</span></code></pre>
+        <p>The type aliases are great, not only for added readability, but they also provide a way of not accidentally passing the wrong argument to the function. You can also use refined types provided by libraries like <a href="https://github.com/Iltotore/iron">Iron</a>, but for the sake of simplicity, we will use plain strings.</p>
+        <p>We will also need a function to display the contact in a nice format.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/domain/contact.scala
+</span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">Contact</span><span>( ... ):
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">show</span><span>: </span><span class="type-name">String</span><span> = </span><span class="string-literal">s&quot;&quot;&quot;
+    |----- </span><span class="substitution">$username</span><span class="string-literal"> -----
+    |
+    |First Name:    </span><span class="substitution">$firstName</span><span class="string-literal">
+    |Last Name:     </span><span class="substitution">$lastName</span><span class="string-literal">
+    |Phone:         </span><span class="substitution">$phoneNumber</span><span class="string-literal">
+    |Email:         </span><span class="substitution">$email</span><span class="string-literal">
+  &quot;&quot;&quot;</span><span>.</span><span class="identifier">stripMargin</span></code></pre>
+        <p>We will also define a custom error type that gets thrown when adding an already existing contact.<br></p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/domain/contact.scala
+</span><span class="keyword">case</span><span> </span><span class="keyword">class</span><span> </span><span class="type-name">ContactFound</span><span>(</span><span class="identifier">username</span><span>: </span><span class="type-name">Username</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">NoStackTrace</span></code></pre>
+        <p>This will make <code>ContactFound</code> a subtype of <code>Throwable</code> and will allow us to propagate the error in the <code>IO</code> monad and handle it whenever we want.</p>
+        <p>The next step is defining the different commands that our CLI will support.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/domain/argument.scala
+</span><span class="keyword">enum</span><span> </span><span class="type-name">CliCommand</span><span>:
+  </span><span class="keyword">case</span><span> </span><span class="type-name">AddContact</span><span>
+  </span><span class="keyword">case</span><span> </span><span class="type-name">RemoveContact</span><span>(</span><span class="identifier">username</span><span>: </span><span class="type-name">Username</span><span>)
+  </span><span class="keyword">case</span><span> </span><span class="type-name">SearchId</span><span>(</span><span class="identifier">username</span><span>: </span><span class="type-name">Username</span><span>)
+  </span><span class="keyword">case</span><span> </span><span class="type-name">SearchName</span><span>(</span><span class="identifier">name</span><span>: </span><span class="type-name">Name</span><span>)
+  </span><span class="keyword">case</span><span> </span><span class="type-name">SearchEmail</span><span>(</span><span class="identifier">email</span><span>: </span><span class="type-name">Email</span><span>)
+  </span><span class="keyword">case</span><span> </span><span class="type-name">SearchNumber</span><span>(</span><span class="identifier">number</span><span>: </span><span class="type-name">PhoneNumber</span><span>)
+  </span><span class="keyword">case</span><span> </span><span class="type-name">UpdateContact</span><span>(</span><span class="identifier">username</span><span>: </span><span class="type-name">Username</span><span>, </span><span class="identifier">options</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">Flag</span><span>])
+  </span><span class="keyword">case</span><span> </span><span class="type-name">ViewAll</span><span>
+  </span><span class="keyword">case</span><span> </span><span class="type-name">Help</span></code></pre>
+        <p>We will also need a <code>Flag</code> type to represent the different options that we can update in a contact.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/domain/flag.scala
+</span><span class="keyword">enum</span><span> </span><span class="type-name">Flag</span><span>:
+  </span><span class="keyword">case</span><span> </span><span class="type-name">FirstNameFlag</span><span>(</span><span class="identifier">firstName</span><span>: </span><span class="type-name">String</span><span>)
+  </span><span class="keyword">case</span><span> </span><span class="type-name">LastNameFlag</span><span>(</span><span class="identifier">lastName</span><span>: </span><span class="type-name">String</span><span>)
+  </span><span class="keyword">case</span><span> </span><span class="type-name">PhoneNumberFlag</span><span>(</span><span class="identifier">phoneNumber</span><span>: </span><span class="type-name">String</span><span>)
+  </span><span class="keyword">case</span><span> </span><span class="type-name">EmailFlag</span><span>(</span><span class="identifier">email</span><span>: </span><span class="type-name">String</span><span>)
+  </span><span class="keyword">case</span><span> </span><span class="type-name">UnknownFlag</span><span>(</span><span class="identifier">flag</span><span>: </span><span class="type-name">String</span><span>)</span></code></pre>
+        <p>Now that we have our domain defined, let us move to the core of our application.</p>
+        
+        <h2 id="core-business-logic" class="section"><a class="anchor-link left" href="#core-business-logic"><i class="icofont-laika link">&#xef71;</i></a>Core business logic</h2>
+        <p>In this section, we will define the core business logic of our application. We will define a <code>ContactManager</code> algebra that will contain all the logic to manage contacts:</p>
+        <pre><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/core/ContactManager.scala`
+</span><span class="keyword">trait</span><span> </span><span class="type-name">ContactManager</span><span>:
+
+  </span><span class="comment">// Save a new contact to the contact list
+</span><span>  </span><span class="keyword">def</span><span> </span><span class="declaration-name">addContact</span><span>(</span><span class="identifier">contact</span><span>: </span><span class="type-name">Contact</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Username</span><span>]
+
+  </span><span class="comment">// Remove a contact from the contact list using the username
+</span><span>  </span><span class="keyword">def</span><span> </span><span class="declaration-name">removeContact</span><span>(</span><span class="identifier">username</span><span>: </span><span class="type-name">Username</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>]
+  
+  </span><span class="comment">/**
+    * Search for a contact using different things like username,
+    * name, email, or phone number. It will return a list with
+    * the matching results, or an empty list if none was found.
+    *
+    * Searching by id should return only one result, se we use
+    * an `Option` there.
+    */</span><span>
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">searchId</span><span>(</span><span class="identifier">username</span><span>: </span><span class="type-name">Username</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Option</span><span>[</span><span class="type-name">Contact</span><span>]]
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">searchName</span><span>(</span><span class="identifier">name</span><span>: </span><span class="type-name">Name</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">List</span><span>[</span><span class="type-name">Contact</span><span>]]
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">searchEmail</span><span>(</span><span class="identifier">email</span><span>: </span><span class="type-name">Email</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">List</span><span>[</span><span class="type-name">Contact</span><span>]]
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">searchNumber</span><span>(</span><span class="identifier">number</span><span>: </span><span class="type-name">PhoneNumber</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">List</span><span>[</span><span class="type-name">Contact</span><span>]]
+
+  </span><span class="comment">// Lists all the saved contacts
+</span><span>  </span><span class="keyword">def</span><span> </span><span class="declaration-name">getAll</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">List</span><span>[</span><span class="type-name">Contact</span><span>]]
+
+  </span><span class="comment">/**
+   * Update a contact using a `modify` function. For example,
+   * `updateContact(&quot;username&quot;)(contact ⇒ contact.copy(firstName = &quot;new name&quot;))`
+   */</span><span>
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">updateContact</span><span>(</span><span class="identifier">username</span><span>: </span><span class="type-name">String</span><span>)(</span><span class="identifier">modify</span><span>: </span><span class="type-name">Contact</span><span> =&gt; </span><span class="type-name">Contact</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Contact</span><span>]
+
+</span><span class="identifier">end</span><span> </span><span class="type-name">ContactManager</span></code></pre>
+        <p>Now that we have our algebra defined, let us implement it using Shellfish. </p>
+        <p>For that, it&#39;s common to implement the interface (or in Scala argot, the <em>algebra</em>) in the companion object of the trait:</p>
+        <pre><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/core/ContactManager.scala
+</span><span class="keyword">object</span><span> </span><span class="type-name">ContactManager</span><span>:
+  
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">apply</span><span>(</span><span class="identifier">bookPath</span><span>: </span><span class="type-name">Path</span><span>): </span><span class="type-name">ContactManager</span><span> = </span><span class="keyword">new</span><span> </span><span class="type-name">ContactManager</span><span>:
+    </span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">addContact</span><span>(</span><span class="identifier">contact</span><span>: </span><span class="type-name">Contact</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Username</span><span>] = ???
+    </span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">removeContact</span><span>(</span><span class="identifier">username</span><span>: </span><span class="type-name">Username</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] = ???
+    </span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">searchId</span><span>(</span><span class="identifier">username</span><span>: </span><span class="type-name">Username</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Option</span><span>[</span><span class="type-name">Contact</span><span>]] = ???
+    </span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">searchName</span><span>(</span><span class="identifier">name</span><span>: </span><span class="type-name">Name</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">List</span><span>[</span><span class="type-name">Contact</span><span>]] = ???
+    </span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">searchEmail</span><span>(</span><span class="identifier">email</span><span>: </span><span class="type-name">Email</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">List</span><span>[</span><span class="type-name">Contact</span><span>]] = ??? 
+    </span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">searchNumber</span><span>(</span><span class="identifier">number</span><span>: </span><span class="type-name">PhoneNumber</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">List</span><span>[</span><span class="type-name">Contact</span><span>]] = ???
+    </span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">getAll</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">List</span><span>[</span><span class="type-name">Contact</span><span>]] = ???
+    </span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">updateContact</span><span>(
+      </span><span class="identifier">username</span><span>: </span><span class="type-name">String</span><span>
+    )(</span><span class="identifier">modify</span><span>: </span><span class="type-name">Contact</span><span> =&gt; </span><span class="type-name">Contact</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Contact</span><span>] = ???</span></code></pre>
+        <p>As a dependency of the implementation, we will use the path to the file where we will store the contacts. Also, the <code>apply</code> function will let us call it using the class name!</p>
+        <p>The first function will add a contact to the contact list. But first, we need to define a couple of things: </p>
+        <p>The fist one will be the encoding of the <code>Contact</code> in the file. We’re going to go with a format like this: </p>
+        <pre class="keep-together pdf epub"><code class="text">&lt;username&gt;|&lt;firstName&gt;|&lt;lastName&gt;|&lt;phoneNumber&gt;|&lt;email&gt;</code></pre>
+        <p>But of course, you can use any format you want, like JSON, CSV, etc.</p>
+        <p>Once we defined the encoding, we need a function to parse the file representation to our type in Scala:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/core/ContactManager.scala
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">apply</span><span>(</span><span class="identifier">bookPath</span><span>: </span><span class="type-name">Path</span><span>): </span><span class="type-name">ContactManager</span><span> = </span><span class="keyword">new</span><span> </span><span class="type-name">ContactManager</span><span>:
+  
+    </span><span class="keyword">private</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">parseContact</span><span>(</span><span class="identifier">contact</span><span>: </span><span class="type-name">String</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Contact</span><span>] =
+      </span><span class="identifier">contact</span><span>.</span><span class="identifier">split</span><span>(</span><span class="char-literal">&#39;|&#39;</span><span>) </span><span class="keyword">match</span><span> 
+        </span><span class="keyword">case</span><span> </span><span class="type-name">Array</span><span>(</span><span class="identifier">id</span><span>, </span><span class="identifier">firstName</span><span>, </span><span class="identifier">lastName</span><span>, </span><span class="identifier">phoneNumber</span><span>, </span><span class="identifier">email</span><span>) =&gt;
+          </span><span class="type-name">Contact</span><span>(</span><span class="identifier">id</span><span>, </span><span class="identifier">firstName</span><span>, </span><span class="identifier">lastName</span><span>, </span><span class="identifier">phoneNumber</span><span>, </span><span class="identifier">email</span><span>).</span><span class="identifier">pure</span><span>[</span><span class="type-name">IO</span><span>]
+        </span><span class="keyword">case</span><span> </span><span class="identifier">_</span><span> =&gt;
+          </span><span class="keyword">new</span><span> </span><span class="type-name">Exception</span><span>(</span><span class="string-literal">s&quot;Invalid contact format: </span><span class="substitution">$contact</span><span class="string-literal">&quot;</span><span>)
+            .</span><span class="identifier">raiseError</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Contact</span><span>]</span></code></pre>
+        <p>Next, a function to encode the contact to a string:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/core/ContactManager.scala
+</span><span>    </span><span class="keyword">private</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">encodeContact</span><span>(</span><span class="identifier">contact</span><span>: </span><span class="type-name">Contact</span><span>): </span><span class="type-name">String</span><span> =
+      </span><span class="string-literal">s&quot;</span><span class="substitution">${contact.username}</span><span class="string-literal">|</span><span class="substitution">${contact.firstName}</span><span class="string-literal">|</span><span class="substitution">${contact.lastName}</span><span class="string-literal">|</span><span class="substitution">${contact.phoneNumber}</span><span class="string-literal">|</span><span class="substitution">${contact.email}</span><span class="string-literal">&quot;</span></code></pre>
+        <p>Finally, a helper function to help us save the contacts in memory:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>    </span><span class="keyword">private</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">saveContacts</span><span>(</span><span class="identifier">contacts</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">Contact</span><span>]): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+      </span><span class="identifier">bookPath</span><span>.</span><span class="identifier">writeLines</span><span>(</span><span class="identifier">contacts</span><span>.</span><span class="identifier">map</span><span>(</span><span class="identifier">encodeContact</span><span>))</span></code></pre>
+        <p>Now we will start with the <code>getAll</code> function. This is because our contact manager will work by first loading and parsing all the contacts so that we can perform operations on them:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">getAll</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">List</span><span>[</span><span class="type-name">Contact</span><span>]] = 
+  </span><span class="keyword">for</span><span> 
+    </span><span class="identifier">lines</span><span>    &lt;- </span><span class="identifier">bookPath</span><span>.</span><span class="identifier">readLines</span><span>
+    </span><span class="identifier">contacts</span><span> &lt;- </span><span class="identifier">lines</span><span>.</span><span class="identifier">traverse</span><span>(</span><span class="identifier">parseContact</span><span>)
+  </span><span class="keyword">yield</span><span> </span><span class="identifier">contacts</span></code></pre>
+        <p>We first load all the contacts in memory using our <code>readLines</code> function and then parse them into <code>Contact</code>s. We&#39;re going to use <code>traverse</code> to convert our <code>List[String]</code> into a <code>IO[List[Contact]]</code>. Why? Because the <code>parseContacts</code> function returns an <code>IO[Contact]</code>, so it suits perfectly for our use case. </p>
+        <p>We can now implement the <code>addContact</code> function:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/core/ContactManager.scala
+</span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">addContact</span><span>(</span><span class="identifier">contact</span><span>: </span><span class="type-name">Contact</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Username</span><span>] = 
+  </span><span class="keyword">for</span><span> 
+    </span><span class="identifier">contacts</span><span> &lt;- </span><span class="identifier">getAll</span><span>                                      </span><span class="comment">// (1)
+</span><span>    </span><span class="identifier">_</span><span> &lt;- </span><span class="type-name">IO</span><span>(</span><span class="identifier">contacts</span><span>.</span><span class="identifier">contains</span><span>(</span><span class="identifier">contact</span><span>)).</span><span class="identifier">ifM</span><span>( </span><span class="comment">// (2)
+</span><span>      </span><span class="type-name">ContactFound</span><span>(</span><span class="identifier">contact</span><span>.</span><span class="identifier">username</span><span>).</span><span class="identifier">raiseError</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Unit</span><span>],
+      </span><span class="identifier">saveContacts</span><span>(</span><span class="identifier">contact</span><span> :: </span><span class="identifier">contacts</span><span>)
+    )
+  </span><span class="keyword">yield</span><span> </span><span class="identifier">contact</span><span>.</span><span class="identifier">username</span><span> </span></code></pre>
+        <p>First, we read all of our contacts, line by line using the <code>ContactManager.getAll</code> method (1). Then, we check if the contact already exists in the file checking if the username is contained (2). If it does, we raise an error using the <code>raiseError</code> method. If it doesn&#39;t, we save it to memory using our <code>saveContacts</code> methods. This is done with the <code>ifM</code>; this method checks for a boolean value in an <code>IO</code> and executes one of the two declared effects depending on it.</p>
+        <p>Now that we have the <code>addContact</code> function implemented, we can move to the <code>removeContact</code> function:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/core/ContactManager.scala
+</span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">removeContact</span><span>(</span><span class="identifier">username</span><span>: </span><span class="type-name">Username</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+  </span><span class="keyword">for</span><span> 
+    </span><span class="identifier">contacts</span><span> &lt;- </span><span class="identifier">getAll</span><span>
+    </span><span class="identifier">filteredContacts</span><span> = </span><span class="identifier">contacts</span><span>.</span><span class="identifier">filterNot</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">username</span><span> === </span><span class="identifier">username</span><span>)
+    </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">saveContacts</span><span>(</span><span class="identifier">filteredContacts</span><span>)
+  </span><span class="keyword">yield</span><span> ()</span></code></pre>
+        <p>Here we load all the contacts from the file, and then we filter the ones that don&#39;t match the username we want to remove. Finally, we write the filtered contacts back to the file.</p>
+        <p>Now onto the search functionality. The first one is the <code>searchId</code> function:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/core/ContactManager.scala
+</span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">searchUsername</span><span>(</span><span class="identifier">username</span><span>: </span><span class="type-name">Username</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Option</span><span>[</span><span class="type-name">Contact</span><span>]] =
+  </span><span class="identifier">getAll</span><span>.</span><span class="identifier">map</span><span>(</span><span class="identifier">contacts</span><span> =&gt; </span><span class="identifier">contacts</span><span>.</span><span class="identifier">find</span><span>(</span><span class="identifier">_</span><span>.</span><span class="identifier">username</span><span> === </span><span class="identifier">username</span><span>))</span></code></pre>
+        <p>Again we load all the contacts from the file, and then we find the contact that matches the username we want to search using the <code>find</code> functions, it returns an <code>Option</code> whenever it found something or not. </p>
+        <p>The next three functions are very similar, so we will only show one of them, the <code>searchName</code> function:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/core/ContactManager.scala
+</span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">searchName</span><span>(</span><span class="identifier">name</span><span>: </span><span class="type-name">Name</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">List</span><span>[</span><span class="type-name">Contact</span><span>]] =
+  </span><span class="identifier">getAll</span><span>.</span><span class="identifier">map</span><span>(</span><span class="identifier">contacts</span><span> =&gt;
+    </span><span class="identifier">contacts</span><span>.</span><span class="identifier">filter</span><span>(</span><span class="identifier">c</span><span> =&gt; </span><span class="identifier">c</span><span>.</span><span class="identifier">firstName</span><span> === </span><span class="identifier">name</span><span> || </span><span class="identifier">c</span><span>.</span><span class="identifier">lastName</span><span> === </span><span class="identifier">name</span><span>)
+  )</span></code></pre>
+        <p>The first part is similar to the previous functions, we load all the contacts from the file, and then we filter the ones that contain the name (or field) we want to search. </p>
+        <p>The last function we need to implement is the <code>updateContact</code> function. Be aware that this is the most complex function to implement, so we will break it down into smaller parts.</p>
+        <pre><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/core/ContactManager.scala
+</span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">updateContact</span><span>(
+    </span><span class="identifier">username</span><span>: </span><span class="type-name">Username</span><span>
+)(</span><span class="identifier">modify</span><span>: </span><span class="type-name">Contact</span><span> =&gt; </span><span class="type-name">Contact</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Contact</span><span>] = 
+  </span><span class="keyword">for</span><span> 
+    </span><span class="identifier">oldContact</span><span> &lt;- </span><span class="identifier">searchUsername</span><span>(</span><span class="identifier">username</span><span>) </span><span class="keyword">match</span><span> </span><span class="comment">// (1)
+</span><span>      </span><span class="keyword">case</span><span> </span><span class="type-name">None</span><span>          =&gt; </span><span class="type-name">ContactNotFound</span><span>(</span><span class="identifier">username</span><span>).</span><span class="identifier">raiseError</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Contact</span><span>]
+      </span><span class="keyword">case</span><span> </span><span class="type-name">Some</span><span>(</span><span class="identifier">contact</span><span>) =&gt; </span><span class="identifier">contact</span><span>.</span><span class="identifier">pure</span><span>[</span><span class="type-name">IO</span><span>]
+
+    </span><span class="identifier">updatedContacts</span><span> = </span><span class="identifier">modify</span><span>(</span><span class="identifier">oldContact</span><span>) :: </span><span class="identifier">contacts</span><span>.</span><span class="identifier">filterNot</span><span>(</span><span class="identifier">_</span><span> == </span><span class="identifier">oldContact</span><span>) </span><span class="comment">// (2)
+</span><span>    </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">saveContacts</span><span>(</span><span class="identifier">updatedContacts</span><span>)
+  </span><span class="keyword">yield</span><span> </span><span class="identifier">updatedContact</span><span>
+      </span></code></pre>
+        <ol class="arabic">
+          <li>
+            <p>First, we&#39;ll find if the Contact we want to modify exists. If it doesn&#39;t, we raise a <code>ContactNotFound</code> error.</p>
+          </li>
+          <li>
+            <p>In case the contact exists, we are going to apply to it the transform function and add it to the loaded list. While doing that, we delete the old contact via the <code>filterNot</code> method.</p>
+          </li>
+          <li>
+            <p>Finally, we save the new contact list to the memory.</p>
+          </li>
+        </ol>
+        <p>Now that we&#39;re done with the core of our application, we can move to the CLI part.</p>
+        
+        <h2 id="cli" class="section"><a class="anchor-link left" href="#cli"><i class="icofont-laika link">&#xef71;</i></a>CLI</h2>
+        <p>In this section, we will define our application&#39;s command line interface: it will accept commands and print the output to stdout.</p>
+        <p>It makes little sense to define the behaviour of the CLI in terms of an interface, as there are only a few ways of interacting with the user via a console. That&#39;s why we will just wrap these functionalities in some functions in a <code>Cli</code> object:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/cli/Cli.scala
+</span><span class="keyword">object</span><span> </span><span class="type-name">Cli</span><span>:
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">addCommand</span><span> ...</span></code></pre>
+        <p>One way of passing the <code>ContactManager</code> dependency to these functions is to pass it as an argument. However, it can be tedious to do this every time we want to use the functionality of our <code>Cli</code>, that&#39;s why Scala has an option declare implicit parameters via the <code>given</code>/<code>using</code> clauses. We just need to use the <code>using</code> keyword in front of any function&#39;s argument and as long as there is a given instance in scope at call site for every <code>using</code> clause, that value will be passed automatically. This feature is called <a href="https://docs.scala-lang.org/scala3/book/ca-context-parameters.html">context parameters</a>.</p>
+        <p>That said, the first function is going to be the <code>addCommand</code>. The idea is to ask the user the contact&#39;s information one step at a time and then add it to the contact list:</p>
+        <pre><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/cli/Cli.scala
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">addCommand</span><span>(</span><span class="keyword">using</span><span> </span><span class="identifier">cm</span><span>: </span><span class="type-name">ContactManager</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+  </span><span class="keyword">for</span><span> 
+    </span><span class="identifier">username</span><span>    &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">&quot;Enter the username: &quot;</span><span>) &gt;&gt; </span><span class="type-name">IO</span><span>.</span><span class="identifier">readLine</span><span>
+    </span><span class="identifier">firstName</span><span>   &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">&quot;Enter the first name: &quot;</span><span>) &gt;&gt; </span><span class="type-name">IO</span><span>.</span><span class="identifier">readLine</span><span>
+    </span><span class="identifier">lastName</span><span>    &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">&quot;Enter the last name: &quot;</span><span>) &gt;&gt; </span><span class="type-name">IO</span><span>.</span><span class="identifier">readLine</span><span>
+    </span><span class="identifier">phoneNumber</span><span> &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">&quot;Enter the phone number: &quot;</span><span>) &gt;&gt; </span><span class="type-name">IO</span><span>.</span><span class="identifier">readLine</span><span>
+    </span><span class="identifier">email</span><span>       &lt;- </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">&quot;Enter the email: &quot;</span><span>) &gt;&gt; </span><span class="type-name">IO</span><span>.</span><span class="identifier">readLine</span><span>
+
+    </span><span class="identifier">contact</span><span> = </span><span class="type-name">Contact</span><span>(</span><span class="identifier">username</span><span>, </span><span class="identifier">firstName</span><span>, </span><span class="identifier">lastName</span><span>, </span><span class="identifier">phoneNumber</span><span>, </span><span class="identifier">email</span><span>)
+    
+    </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">cm</span><span>.</span><span class="identifier">addContact</span><span>(</span><span class="identifier">contact</span><span>)
+      .</span><span class="identifier">flatMap</span><span>(</span><span class="identifier">username</span><span> =&gt; </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">s&quot;Contact </span><span class="substitution">$username</span><span class="string-literal"> added&quot;</span><span>))
+      .</span><span class="identifier">handleErrorWith</span><span>:
+        </span><span class="keyword">case</span><span> </span><span class="type-name">ContactFound</span><span>(</span><span class="identifier">username</span><span>) =&gt;
+          </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">s&quot;Contact </span><span class="substitution">$username</span><span class="string-literal"> already exists&quot;</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="identifier">e</span><span> =&gt;
+          </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">s&quot;An error occurred: </span><span class="escape-sequence">\n</span><span class="substitution">${e.printStackTrace()}</span><span class="string-literal">&quot;</span><span>)
+
+  </span><span class="keyword">yield</span><span> ()</span></code></pre>
+        <p>The first five <code>IO.readLine</code> calls in the <code>for</code> comprehension ask for the contact&#39;s detail, we then attempt to create the <code>Contact</code> object with the information provided calling <code>addContact</code> method of the <code>ContactManager</code> and handle the errors. If the contact already exists, we print a message to the user, if another error occurs, we print the stack trace of the error to see what went wrong.<br></p>
+        <p>Now the <code>removeCommand</code> function:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/cli/Cli.scala
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">removeCommand</span><span>(</span><span class="identifier">username</span><span>: </span><span class="type-name">Username</span><span>)(</span><span class="keyword">using</span><span> </span><span class="identifier">cm</span><span>: </span><span class="type-name">ContactManager</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+  </span><span class="identifier">cm</span><span>.</span><span class="identifier">removeContact</span><span>(</span><span class="identifier">username</span><span>) &gt;&gt; </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">s&quot;Contact </span><span class="substitution">$username</span><span class="string-literal"> removed&quot;</span><span>)</span></code></pre>
+        <p>It simply calls the <code>removeContact</code> function and prints a message to the user. The function doesn&#39;t check if the contact exists and will delete any matching username anyway, but you can add this logic if you want.</p>
+        <p>The <code>searchIdCommand</code> function is also straight forward, matches the <code>Options</code> returned by the <code>searchId</code> method and prints the user information if it exists:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/cli/Cli.scala
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">searchIdCommand</span><span>(</span><span class="identifier">username</span><span>: </span><span class="type-name">Username</span><span>)(</span><span class="keyword">using</span><span> </span><span class="identifier">cm</span><span>: </span><span class="type-name">ContactManager</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+  </span><span class="keyword">for</span><span>
+    </span><span class="identifier">contact</span><span> &lt;- </span><span class="identifier">cm</span><span>.</span><span class="identifier">searchId</span><span>(</span><span class="identifier">username</span><span>)
+    </span><span class="identifier">_</span><span> &lt;- </span><span class="identifier">contact</span><span> </span><span class="keyword">match</span><span> 
+      </span><span class="keyword">case</span><span> </span><span class="type-name">Some</span><span>(</span><span class="identifier">c</span><span>) =&gt; </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="identifier">c</span><span>.</span><span class="identifier">show</span><span>)
+      </span><span class="keyword">case</span><span> </span><span class="type-name">None</span><span>    =&gt; </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">s&quot;Contact </span><span class="substitution">$username</span><span class="string-literal"> not found&quot;</span><span>)
+  </span><span class="keyword">yield</span><span> ()</span></code></pre>
+        <p>All the <code>searchX</code> variants are fairly similar so we&#39;ll show just one of them:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/cli/Cli.scala
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">searchEmailCommand</span><span>(</span><span class="identifier">email</span><span>: </span><span class="type-name">Email</span><span>)(</span><span class="keyword">using</span><span> </span><span class="identifier">cm</span><span>: </span><span class="type-name">ContactManager</span><span>): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+  </span><span class="keyword">for</span><span> {
+    </span><span class="identifier">contacts</span><span> &lt;- </span><span class="identifier">cm</span><span>.</span><span class="identifier">searchEmail</span><span>(</span><span class="identifier">email</span><span>)
+    </span><span class="identifier">_</span><span>        &lt;- </span><span class="identifier">contacts</span><span>.</span><span class="identifier">traverse_</span><span>(</span><span class="identifier">c</span><span> =&gt; </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="identifier">c</span><span>.</span><span class="identifier">show</span><span>))
+} </span><span class="keyword">yield</span><span> ()</span></code></pre>
+        <p>It also uses the <code>traverse_</code> method, but with a little variant that optimises it a bit. It takes as a parameter a function from <code>A =&gt; IO[Unit]</code> and it will execute the effect for each element of the collection, but it will discard the result of the computation.
+        <code>searchEmailCommand</code> uses the <code>traverse_</code> method: a little variant of <code>traverse</code> that takes a <code>A =&gt; IO[Unit]</code> function and then discards the result.
+        Last but not least, the <code>updateCommand</code> function. </p>
+        <p>We take as a first parameter the username of the contact we want to update in the database, so we can search for its existence. </p>
+        <pre><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/cli/Cli.scala
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">updateCommand</span><span>(</span><span class="identifier">username</span><span>: </span><span class="type-name">Username</span><span>, </span><span class="identifier">options</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">Flag</span><span>])(
+  </span><span class="identifier">using</span><span> </span><span class="identifier">cm</span><span>: </span><span class="type-name">ContactManager</span><span>
+): </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+  </span><span class="identifier">cm</span><span>.</span><span class="identifier">updateContact</span><span>(</span><span class="identifier">username</span><span>): </span><span class="identifier">prev</span><span> =&gt;
+    </span><span class="identifier">options</span><span>.</span><span class="identifier">foldLeft</span><span>(</span><span class="identifier">prev</span><span>): (</span><span class="identifier">acc</span><span>, </span><span class="identifier">flag</span><span>) =&gt; </span><span class="comment">// (1)
+</span><span>      </span><span class="identifier">flag</span><span> </span><span class="keyword">match</span><span> 
+        </span><span class="keyword">case</span><span> </span><span class="type-name">FirstNameFlag</span><span>(</span><span class="identifier">name</span><span>)     =&gt; </span><span class="identifier">acc</span><span>.</span><span class="identifier">copy</span><span>(</span><span class="identifier">firstName</span><span> = </span><span class="identifier">name</span><span>) </span><span class="comment">// (2)
+</span><span>        </span><span class="keyword">case</span><span> </span><span class="type-name">LastNameFlag</span><span>(</span><span class="identifier">name</span><span>)      =&gt; </span><span class="identifier">acc</span><span>.</span><span class="identifier">copy</span><span>(</span><span class="identifier">lastName</span><span> = </span><span class="identifier">name</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="type-name">PhoneNumberFlag</span><span>(</span><span class="identifier">number</span><span>) =&gt; </span><span class="identifier">acc</span><span>.</span><span class="identifier">copy</span><span>(</span><span class="identifier">phoneNumber</span><span> = </span><span class="identifier">number</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="type-name">EmailFlag</span><span>(</span><span class="identifier">email</span><span>)        =&gt; </span><span class="identifier">acc</span><span>.</span><span class="identifier">copy</span><span>(</span><span class="identifier">email</span><span> = </span><span class="identifier">email</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="type-name">UnknownFlag</span><span>(</span><span class="identifier">_</span><span>)          =&gt; </span><span class="identifier">acc</span><span>
+    
+  .</span><span class="identifier">flatMap</span><span>(</span><span class="identifier">c</span><span> =&gt; </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">s&quot;Updated contact </span><span class="substitution">${c.username}</span><span class="string-literal">&quot;</span><span>)) </span><span class="comment">// (3)
+</span><span>  .</span><span class="identifier">handleErrorWith</span><span>:
+    </span><span class="keyword">case</span><span> </span><span class="type-name">ContactNotFound</span><span>(</span><span class="identifier">username</span><span>) =&gt;
+      </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">s&quot;Contact </span><span class="substitution">$username</span><span class="string-literal"> not found&quot;</span><span>)
+    </span><span class="keyword">case</span><span> </span><span class="identifier">e</span><span> =&gt;
+      </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>(</span><span class="string-literal">s&quot;An error occurred: </span><span class="escape-sequence">\n</span><span class="substitution">${e.printStackTrace()}</span><span class="string-literal">&quot;</span><span>)</span></code></pre>
+        <p>This is also quite a bit of code, but let&#39;s break it down: </p>
+        <p>First, we call the <code>updateContact</code> method of the <code>ContactManager</code> and pass the function that will modify the contact. To do this, we&#39;re going to reduce the list of flags using <code>foldLeft</code>. This function takes an initial value (the contact we want to update) and a function describing how to update the initial value (<code>acc</code>) with each one of the flags in turn (<code>flag</code>) (1). Where, we just use the <code>copy</code> methods and pattern match the flags to update the contact (2). After that, we print a message to the user saying that the contact was updated successfully (3). If the contact is not found, we print a message to the user saying that. </p>
+        <pre><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/cli/Cli.scala
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">helpCommand</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Unit</span><span>] =
+  </span><span class="type-name">IO</span><span>.</span><span class="identifier">println</span><span>:
+    </span><span class="string-literal">s&quot;&quot;&quot;
+      |Usage: contacts [command]
+      |
+      |Commands:
+      |  add
+      |  remove &lt;username&gt;
+      |  search id &lt;username&gt;
+      |  search name &lt;name&gt;
+      |  search email &lt;email&gt;
+      |  search number &lt;number&gt;
+      |  list
+      |  update &lt;username&gt; [flags]
+      |  help
+      |
+      |Flags (for update command):
+      |  --first-name &lt;name&gt;
+      |  --last-name &lt;name&gt;
+      |  --phone-number &lt;number&gt;
+      |  --email &lt;email&gt;
+      |
+      |&quot;&quot;&quot;</span><span>.</span><span class="identifier">stripMargin</span></code></pre>
+        <p>That was tough, congratulations on making it so far! We can now move to the last part of our application.<br></p>
+        
+        <h2 id="prompt" class="section"><a class="anchor-link left" href="#prompt"><i class="icofont-laika link">&#xef71;</i></a>Prompt</h2>
+        <p>The last piece that we need to create is the prompt parsing, that will parse user submitted information into commands that our <code>Cli</code> can handle.</p>
+        <p>We strongly suggest you to use a command line parsing library, like <a href="https://ben.kirw.in/decline/">Decline</a> but for the sake of simplicity, we&#39;ll demonstrate how to create it without the need of an external dependency. </p>
+        <p>The first thing we&#39;ll do is creating a <code>parsePrompt</code> function that will pattern match over the user input and, according to the value will return the appropriate <code>CliCommand</code>:<br></p>
+        <pre><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/cli/Prompt.scala
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">parsePrompt</span><span>(</span><span class="identifier">args</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">String</span><span>]): </span><span class="type-name">CliCommand</span><span> =
+  </span><span class="identifier">args</span><span> </span><span class="keyword">match</span><span> 
+    </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;add&quot;</span><span> :: </span><span class="type-name">Nil</span><span>                          =&gt; </span><span class="type-name">AddContact</span><span>
+    </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;remove&quot;</span><span> :: </span><span class="identifier">username</span><span> :: </span><span class="type-name">Nil</span><span>           =&gt; </span><span class="type-name">RemoveContact</span><span>(</span><span class="identifier">username</span><span>)
+    </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;search&quot;</span><span> :: </span><span class="string-literal">&quot;id&quot;</span><span> :: </span><span class="identifier">username</span><span> :: </span><span class="type-name">Nil</span><span>   =&gt; </span><span class="type-name">SearchId</span><span>(</span><span class="identifier">username</span><span>)
+    </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;search&quot;</span><span> :: </span><span class="string-literal">&quot;name&quot;</span><span> :: </span><span class="identifier">name</span><span> :: </span><span class="type-name">Nil</span><span>     =&gt; </span><span class="type-name">SearchName</span><span>(</span><span class="identifier">name</span><span>)
+    </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;search&quot;</span><span> :: </span><span class="string-literal">&quot;email&quot;</span><span> :: </span><span class="identifier">email</span><span> :: </span><span class="type-name">Nil</span><span>   =&gt; </span><span class="type-name">SearchEmail</span><span>(</span><span class="identifier">email</span><span>)
+    </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;search&quot;</span><span> :: </span><span class="string-literal">&quot;number&quot;</span><span> :: </span><span class="identifier">number</span><span> :: </span><span class="type-name">Nil</span><span> =&gt; </span><span class="type-name">SearchNumber</span><span>(</span><span class="identifier">number</span><span>)
+    </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;list&quot;</span><span> :: </span><span class="identifier">_</span><span>                           =&gt; </span><span class="type-name">ViewAll</span><span>
+    </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;update&quot;</span><span> :: </span><span class="identifier">username</span><span> :: </span><span class="identifier">options</span><span> =&gt;
+      </span><span class="type-name">UpdateContact</span><span>(</span><span class="identifier">username</span><span>, </span><span class="identifier">parseUpdateFlags</span><span>(</span><span class="identifier">options</span><span>))
+    </span><span class="keyword">case</span><span> </span><span class="type-name">Nil</span><span> =&gt; </span><span class="type-name">Help</span><span>
+    </span><span class="keyword">case</span><span> </span><span class="identifier">_</span><span>   =&gt; </span><span class="type-name">Help</span><span>
+</span><span class="identifier">end</span><span> </span><span class="identifier">parsePrompt</span></code></pre>
+        <p>We also created a <code>parseUpdateFlags</code> function that creates a list of flags that can change the updating behaviour using a similar pattern:<br></p>
+        <pre><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/cli/Prompt.scala`
+</span><span class="keyword">private</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">parseUpdateFlags</span><span>(</span><span class="identifier">options</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">String</span><span>]): </span><span class="type-name">List</span><span>[</span><span class="type-name">Flag</span><span>] = 
+
+  </span><span class="annotation">@tailrec</span><span>
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">tailParse</span><span>(</span><span class="identifier">remaining</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">String</span><span>], </span><span class="identifier">acc</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">Flag</span><span>]): </span><span class="type-name">List</span><span>[</span><span class="type-name">Flag</span><span>] =
+    </span><span class="identifier">remaining</span><span> </span><span class="keyword">match</span><span> 
+  
+      </span><span class="keyword">case</span><span> </span><span class="type-name">Nil</span><span> =&gt; </span><span class="identifier">acc</span><span>
+  
+      </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;--first-name&quot;</span><span> :: </span><span class="identifier">firstName</span><span> :: </span><span class="identifier">tail</span><span> =&gt;
+        </span><span class="identifier">tailParse</span><span>(</span><span class="identifier">tail</span><span>, </span><span class="type-name">FirstNameFlag</span><span>(</span><span class="identifier">firstName</span><span>) :: </span><span class="identifier">acc</span><span>)
+  
+      </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;--last-name&quot;</span><span> :: </span><span class="identifier">lastName</span><span> :: </span><span class="identifier">tail</span><span> =&gt;
+        </span><span class="identifier">tailParse</span><span>(</span><span class="identifier">tail</span><span>, </span><span class="type-name">LastNameFlag</span><span>(</span><span class="identifier">lastName</span><span>) :: </span><span class="identifier">acc</span><span>)
+  
+      </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;--phone-number&quot;</span><span> :: </span><span class="identifier">phoneNumber</span><span> :: </span><span class="identifier">tail</span><span> =&gt;
+        </span><span class="identifier">tailParse</span><span>(</span><span class="identifier">tail</span><span>, </span><span class="type-name">PhoneNumberFlag</span><span>(</span><span class="identifier">phoneNumber</span><span>) :: </span><span class="identifier">acc</span><span>)
+  
+      </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;--email&quot;</span><span> :: </span><span class="identifier">email</span><span> :: </span><span class="identifier">tail</span><span> =&gt;
+        </span><span class="identifier">tailParse</span><span>(</span><span class="identifier">tail</span><span>, </span><span class="type-name">EmailFlag</span><span>(</span><span class="identifier">email</span><span>) :: </span><span class="identifier">acc</span><span>)
+  
+      </span><span class="keyword">case</span><span> </span><span class="identifier">flag</span><span> :: </span><span class="identifier">_</span><span> =&gt; </span><span class="type-name">List</span><span>(</span><span class="type-name">UnknownFlag</span><span>(</span><span class="identifier">flag</span><span>))
+    
+  
+  </span><span class="identifier">tailParse</span><span>(</span><span class="identifier">options</span><span>, </span><span class="type-name">Nil</span><span>)
+  
+</span><span class="identifier">end</span><span> </span><span class="identifier">parseUpdateFlags</span></code></pre>
+        <p>Because the update flags can be unordered, we case use a recursive function to match each flag and its value and then create a list of <code>Flag</code>.</p>
+        
+        <h2 id="main" class="section"><a class="anchor-link left" href="#main"><i class="icofont-laika link">&#xef71;</i></a>Main</h2>
+        <p>Now that we have all the required components we can define the entry point of our application.</p>
+        <p>The first thing that we need to do is create an initial function that that will create our in-memory database (located at <code>~/.shellfish/contacts.data</code>) if needed:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/app/App.scala
+</span><span class="keyword">private</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">getOrCreateBookPath</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Path</span><span>] =
+  </span><span class="keyword">for</span><span>
+    </span><span class="identifier">home</span><span> &lt;- </span><span class="identifier">userHome</span><span>
+    </span><span class="identifier">dir</span><span>  = </span><span class="identifier">home</span><span> / </span><span class="string-literal">&quot;.shellfish&quot;</span><span>
+    </span><span class="identifier">path</span><span> = </span><span class="identifier">dir</span><span> / </span><span class="string-literal">&quot;contacts.data&quot;</span><span>
+    </span><span class="identifier">exists</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">exists</span><span>
+    </span><span class="identifier">_</span><span>      &lt;- </span><span class="identifier">dir</span><span>.</span><span class="identifier">createDirectories</span><span>.</span><span class="identifier">unlessA</span><span>(</span><span class="identifier">exists</span><span>)
+    </span><span class="identifier">_</span><span>      &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">createFile</span><span>.</span><span class="identifier">unlessA</span><span>(</span><span class="identifier">exists</span><span>)
+  </span><span class="keyword">yield</span><span> </span><span class="identifier">path</span></code></pre>
+        <p>We can then create our <code>given</code> instance of <code>ContactManager</code>:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">getOrCreateBookPath</span><span>
+  .</span><span class="identifier">map</span><span>(</span><span class="type-name">ContactManager</span><span>(</span><span class="identifier">_</span><span>))
+  .</span><span class="identifier">flatMap</span><span>: 
+    </span><span class="keyword">case</span><span> </span><span class="keyword">given</span><span> </span><span class="type-name">ContactManager</span><span> </span></code></pre>
+        <p>With that, our main (<code>run</code>) function will be like this:</p>
+        <pre><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/app/App.scala
+</span><span>  .</span><span class="identifier">flatMap</span><span>: 
+    </span><span class="keyword">case</span><span> </span><span class="keyword">given</span><span> </span><span class="type-name">ContactManager</span><span> =&gt;
+      
+      </span><span class="type-name">Prompt</span><span>.</span><span class="identifier">parsePrompt</span><span>(</span><span class="identifier">args</span><span>) </span><span class="keyword">match</span><span> 
+        </span><span class="keyword">case</span><span> </span><span class="type-name">Help</span><span>                    =&gt; </span><span class="type-name">Cli</span><span>.</span><span class="identifier">helpCommand</span><span>
+        </span><span class="keyword">case</span><span> </span><span class="type-name">AddContact</span><span>              =&gt; </span><span class="type-name">Cli</span><span>.</span><span class="identifier">addCommand</span><span>
+        </span><span class="keyword">case</span><span> </span><span class="type-name">RemoveContact</span><span>(</span><span class="identifier">username</span><span>) =&gt; </span><span class="type-name">Cli</span><span>.</span><span class="identifier">removeCommand</span><span>(</span><span class="identifier">username</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="type-name">SearchId</span><span>(</span><span class="identifier">username</span><span>)      =&gt; </span><span class="type-name">Cli</span><span>.</span><span class="identifier">searchUsernameCommand</span><span>(</span><span class="identifier">username</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="type-name">SearchName</span><span>(</span><span class="identifier">name</span><span>)        =&gt; </span><span class="type-name">Cli</span><span>.</span><span class="identifier">searchNameCommand</span><span>(</span><span class="identifier">name</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="type-name">SearchEmail</span><span>(</span><span class="identifier">email</span><span>)      =&gt; </span><span class="type-name">Cli</span><span>.</span><span class="identifier">searchEmailCommand</span><span>(</span><span class="identifier">email</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="type-name">SearchNumber</span><span>(</span><span class="identifier">number</span><span>)    =&gt; </span><span class="type-name">Cli</span><span>.</span><span class="identifier">searchNumberCommand</span><span>(</span><span class="identifier">number</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="type-name">ViewAll</span><span>                 =&gt; </span><span class="type-name">Cli</span><span>.</span><span class="identifier">viewAllCommand</span><span>
+        </span><span class="keyword">case</span><span> </span><span class="type-name">UpdateContact</span><span>(</span><span class="identifier">username</span><span>, </span><span class="identifier">flags</span><span>) =&gt;
+          </span><span class="type-name">Cli</span><span>.</span><span class="identifier">updateCommand</span><span>(</span><span class="identifier">username</span><span>, </span><span class="identifier">flags</span><span>)
+    
+    .</span><span class="identifier">as</span><span>(</span><span class="type-name">ExitCode</span><span>.</span><span class="type-name">Success</span><span>)</span></code></pre>
+        <p>This is what the final code looks like:</p>
+        <pre><code class="nohighlight"><span class="comment">//src/main/shellfish/contacts/app/App.scala
+</span><span class="keyword">object</span><span> </span><span class="type-name">App</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">IOApp</span><span>:
+
+  </span><span class="keyword">private</span><span> </span><span class="keyword">val</span><span> </span><span class="identifier">getOrCreateBookPath</span><span>: </span><span class="type-name">IO</span><span>[</span><span class="type-name">Path</span><span>] =
+    </span><span class="keyword">for</span><span>
+      </span><span class="identifier">home</span><span> &lt;- </span><span class="identifier">userHome</span><span>
+      </span><span class="identifier">dir</span><span>  = </span><span class="identifier">home</span><span> / </span><span class="string-literal">&quot;.shellfish&quot;</span><span>
+      </span><span class="identifier">path</span><span> = </span><span class="identifier">dir</span><span> / </span><span class="string-literal">&quot;contacts.data&quot;</span><span>
+      </span><span class="identifier">exists</span><span> &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">exists</span><span>
+      </span><span class="identifier">_</span><span>      &lt;- </span><span class="identifier">dir</span><span>.</span><span class="identifier">createDirectories</span><span>.</span><span class="identifier">unlessA</span><span>(</span><span class="identifier">exists</span><span>)
+      </span><span class="identifier">_</span><span>      &lt;- </span><span class="identifier">path</span><span>.</span><span class="identifier">createFile</span><span>.</span><span class="identifier">unlessA</span><span>(</span><span class="identifier">exists</span><span>)
+    </span><span class="keyword">yield</span><span> </span><span class="identifier">path</span><span>
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">run</span><span>(</span><span class="identifier">args</span><span>: </span><span class="type-name">List</span><span>[</span><span class="type-name">String</span><span>]): </span><span class="type-name">IO</span><span>[</span><span class="type-name">ExitCode</span><span>] = </span><span class="identifier">getOrCreateBookPath</span><span>
+    .</span><span class="identifier">map</span><span>(</span><span class="type-name">ContactManager</span><span>(</span><span class="identifier">_</span><span>))
+    .</span><span class="identifier">flatMap</span><span>:
+      </span><span class="keyword">case</span><span> </span><span class="keyword">given</span><span> </span><span class="type-name">ContactManager</span><span> =&gt;
+        
+        </span><span class="type-name">Prompt</span><span>.</span><span class="identifier">parsePrompt</span><span>(</span><span class="identifier">args</span><span>) </span><span class="keyword">match</span><span> 
+          </span><span class="keyword">case</span><span> </span><span class="type-name">Help</span><span>                    =&gt; </span><span class="type-name">Cli</span><span>.</span><span class="identifier">helpCommand</span><span>
+          </span><span class="keyword">case</span><span> </span><span class="type-name">AddContact</span><span>              =&gt; </span><span class="type-name">Cli</span><span>.</span><span class="identifier">addCommand</span><span>
+          </span><span class="keyword">case</span><span> </span><span class="type-name">RemoveContact</span><span>(</span><span class="identifier">username</span><span>) =&gt; </span><span class="type-name">Cli</span><span>.</span><span class="identifier">removeCommand</span><span>(</span><span class="identifier">username</span><span>)
+          </span><span class="keyword">case</span><span> </span><span class="type-name">SearchId</span><span>(</span><span class="identifier">username</span><span>)      =&gt; </span><span class="type-name">Cli</span><span>.</span><span class="identifier">searchUsernameCommand</span><span>(</span><span class="identifier">username</span><span>)
+          </span><span class="keyword">case</span><span> </span><span class="type-name">SearchName</span><span>(</span><span class="identifier">name</span><span>)        =&gt; </span><span class="type-name">Cli</span><span>.</span><span class="identifier">searchNameCommand</span><span>(</span><span class="identifier">name</span><span>)
+          </span><span class="keyword">case</span><span> </span><span class="type-name">SearchEmail</span><span>(</span><span class="identifier">email</span><span>)      =&gt; </span><span class="type-name">Cli</span><span>.</span><span class="identifier">searchEmailCommand</span><span>(</span><span class="identifier">email</span><span>)
+          </span><span class="keyword">case</span><span> </span><span class="type-name">SearchNumber</span><span>(</span><span class="identifier">number</span><span>)    =&gt; </span><span class="type-name">Cli</span><span>.</span><span class="identifier">searchNumberCommand</span><span>(</span><span class="identifier">number</span><span>)
+          </span><span class="keyword">case</span><span> </span><span class="type-name">ViewAll</span><span>                 =&gt; </span><span class="type-name">Cli</span><span>.</span><span class="identifier">viewAllCommand</span><span>
+          </span><span class="keyword">case</span><span> </span><span class="type-name">UpdateContact</span><span>(</span><span class="identifier">username</span><span>, </span><span class="identifier">flags</span><span>) =&gt;
+            </span><span class="type-name">Cli</span><span>.</span><span class="identifier">updateCommand</span><span>(</span><span class="identifier">username</span><span>, </span><span class="identifier">flags</span><span>)
+    
+    .</span><span class="identifier">as</span><span>(</span><span class="type-name">ExitCode</span><span>.</span><span class="type-name">Success</span><span>)</span></code></pre>
+        <p>And that&#39;s it!
+        We’ve created a simple CLI application that manages contacts using Shellfish and Cats Effect.
+        We hope you enjoyed this tutorial and learned a lot about how to use Shellfish in a real-world application.</p>
+        
+        <h3 id="exercise" class="section"><a class="anchor-link left" href="#exercise"><i class="icofont-laika link">&#xef71;</i></a>Exercise</h3>
+        <p>We used a hard-coded path to store our contacts.<br></p>
+        <p>But what if we want to change the path to another location?
+        Or maybe have multiple locations with different contacts? </p>
+        <p>Try to modify the application, so the user can initialise and change the location of a contact book on a specific path and then use that path to store the contacts.</p>
+        <p>To do that, you can create two new commands, <code>init</code> and <code>change</code> that will create a new contact book and change the current contact book, respectively.</p>
+        <p>You can also create new domain representations of that book, like <code>ContactBook(path: Path, contacts: List[Contacts])</code> and modify the <code>ContactManager</code> to use that representation.<br></p>
+        <p>Good luck!</p>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  shellfish is a <a href="https://typelevel.org/">Typelevel</a> project distributed under the <a href="https://opensource.org/licenses/MIT">MIT</a> license.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>
