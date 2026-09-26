@@ -7,7 +7,7 @@ ThisBuild / developers := List(
 )
 
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
-ThisBuild / crossScalaVersions := Seq("2.13.18", "3.3.8")
+ThisBuild / crossScalaVersions         := Seq("2.13.18", "3.3.8")
 ThisBuild / tlJdkRelease               := Some(11)
 
 ThisBuild / tlSitePublishBranch := Some("main")
