@@ -196,7 +196,7 @@
 </span><span class="comment">/* Will not do anything (yet) */</span><span>
 </span><span class="keyword">val</span><span> </span><span class="identifier">suspendingHello</span><span> = </span><span class="type-name">IO</span><span>(</span><span class="identifier">println</span><span>(</span><span class="string-literal">&quot;Hello newbies!&quot;</span><span>))
 </span><span class="comment">// suspendingHello: IO[Unit] = Delay(
-//   thunk = repl.MdocSession$MdocApp$$Lambda$12495/0x00007f377df70000@2237ffe2,
+//   thunk = repl.MdocSession$MdocApp$$Lambda$12738/0x00007f1af5fb4000@51b4394d,
 //   event = cats.effect.tracing.TracingEvent$StackTrace
 // )</span></code></pre>
         <p>To actually run the computation, you have two options, the first one (and not recommended) is to call the <code>unsafeRunSync()</code> function at the very end of the program:</p>
@@ -247,7 +247,7 @@
   </span><span class="identifier">println</span><span>(</span><span class="string-literal">&quot;Hellow, &quot;</span><span>)
   </span><span class="string-literal">&quot;Hellow, &quot;</span><span> 
 </span><span class="comment">// saluteIO: IO[String] = Delay(
-//   thunk = repl.MdocSession$MdocApp$$Lambda$12550/0x00007f377df88aa0@60e06f7,
+//   thunk = repl.MdocSession$MdocApp$$Lambda$12792/0x00007f1af5fcccc0@326bfac4,
 //   event = cats.effect.tracing.TracingEvent$StackTrace
 // )
 </span><span>
@@ -255,7 +255,7 @@
   </span><span class="identifier">println</span><span>(</span><span class="string-literal">&quot;meow.&quot;</span><span>)
   </span><span class="string-literal">&quot;meow.&quot;</span><span>
 </span><span class="comment">// meowIO: IO[String] = Delay(
-//   thunk = repl.MdocSession$MdocApp$$Lambda$12551/0x00007f377df88f80@7ac43aba,
+//   thunk = repl.MdocSession$MdocApp$$Lambda$12793/0x00007f1af5fcd1a0@2b878795,
 //   event = cats.effect.tracing.TracingEvent$StackTrace
 // )
 </span><span>
